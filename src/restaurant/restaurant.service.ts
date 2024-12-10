@@ -20,7 +20,22 @@ export class RestaurantService {
   ) {}
 
   async getRestaurant(id: number) {
-    const dbRestaurant = this.restaurantRepository.findOneBy({ id: id });
+    const dbRestaurant = await this.restaurantRepository
+      .createQueryBuilder('restaurant')
+      .leftJoinAndSelect('restaurant.workers', 'user')
+      .select([
+        'restaurant',
+        'user.id',
+        'user.firstName',
+        'user.lastName',
+        'user.username',
+        'user.role',
+        'user.email',
+        'user.phoneNumber',
+      ])
+      .where('restaurant.id = :id', { id })
+      .getOne();
+
     if (!dbRestaurant)
       throw new NotFoundException('Restaurant with this id is not exist');
 
@@ -29,6 +44,32 @@ export class RestaurantService {
 
   async createRestaurant(restaurant: CreateRestaurantDto) {
     return await this.restaurantRepository.save(restaurant);
+  }
+
+  async changeRestaurant(id: number, restaurant: CreateUpdateRestaurantDto) {
+    const dbRestaurant = await this.restaurantRepository.findOneBy({
+      id: id,
+    });
+    if (!dbRestaurant)
+      throw new NotFoundException('Restaurant with this id is not exist');
+
+    await this.restaurantRepository.update(id, restaurant);
+
+    return await this.getRestaurant(id);
+  }
+
+  async removeRestaurant(id: number) {
+    const dbRepository = await this.restaurantRepository.findOne({
+      where: { id: id },
+      relations: ['workers'],
+    });
+    if (!dbRepository) throw new NotFoundException('Restaurant not found');
+
+    for await (const worker of dbRepository.workers) {
+      await this.removeWorker(worker.id, id);
+    }
+
+    return await this.restaurantRepository.remove(dbRepository);
   }
 
   async addWorker(userId: number, restaurantId: number) {
@@ -48,20 +89,23 @@ export class RestaurantService {
     return await this.restaurantRepository.save(dbRestaurant);
   }
 
-  async changeRestaurant(id: number, restaurant: CreateUpdateRestaurantDto) {
-    const dbRestaurant = await this.restaurantRepository.findOneBy({
-      id: id,
+  async removeWorker(userId: number, restaurantId: number) {
+    const dbUser = await this.userService.getUserById(userId);
+    if (!dbUser)
+      throw new BadRequestException('User with this id is not exist');
+
+    const dbRestaurant = await this.restaurantRepository.findOne({
+      where: { id: restaurantId },
+      relations: ['workers'],
     });
     if (!dbRestaurant)
-      throw new NotFoundException('Restaurant with this id is not exist');
+      throw new BadRequestException('Restaurant with this id is not exist');
 
-    return await this.restaurantRepository.update(id, restaurant);
-  }
+    await dbRestaurant.workers.splice(
+      await dbRestaurant.workers.findIndex((elem) => elem.id === restaurantId),
+      1,
+    );
 
-  async removeRestaurant(id: number) {
-    const dbUser = await this.restaurantRepository.findOneBy({ id: id });
-    if (!dbUser) throw new NotFoundException('Restaurant not found');
-
-    return await this.restaurantRepository.remove(dbUser);
+    return await this.restaurantRepository.save(dbRestaurant);
   }
 }

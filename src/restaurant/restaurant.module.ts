@@ -7,6 +7,7 @@ import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Restaurant]), UserModule],
+  exports: [RestaurantService],
   controllers: [RestaurantController],
   providers: [RestaurantService],
 })

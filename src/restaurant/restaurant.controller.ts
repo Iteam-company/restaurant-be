@@ -6,10 +6,11 @@ import {
   Param,
   Patch,
   Post,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiParam } from '@nestjs/swagger';
 import CreateRestaurantDto from 'src/types/dto/create-restaurant.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import CreateUpdateRestaurantDto from 'src/types/dto/update-restaurant.dto';
@@ -30,13 +31,18 @@ export class RestaurantController {
   @AdminAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateRestaurantDto })
-  async createRestaurant(@Body() body: CreateRestaurantDto) {
-    return await this.restaurantService.createRestaurant(body);
+  async createRestaurant(@Request() req, @Body() body: CreateRestaurantDto) {
+    const restaurant = await this.restaurantService.createRestaurant(body);
+
+    await this.restaurantService.addWorker(req.user.id, restaurant.id);
+
+    return restaurant;
   }
 
   @Patch(':restaurantId')
   @AdminAccess()
   @UseGuards(AuthGuard)
+  @ApiBody({ type: CreateUpdateRestaurantDto })
   async updateRestaurant(
     @Body() body: CreateUpdateRestaurantDto,
     @Param('restaurantId') id: string,
@@ -45,6 +51,7 @@ export class RestaurantController {
   }
 
   @Delete(':restaurantId')
+  @ApiParam({ name: 'restaurantId' })
   @AdminAccess()
   @UseGuards(AuthGuard)
   async deleteRestaurant(@Param('restaurantId') id) {

@@ -75,7 +75,7 @@ export class UserService {
 
     await this.userRepository.update(id, newUser);
 
-    return newUser;
+    return this.getUserById(id);
   }
 
   async updatePassword(body: UpdateUserPasswordDto) {
