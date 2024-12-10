@@ -1,13 +1,15 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import CreateUserDto from 'src/types/dto/create-user.dto';
+import UserType from 'src/types/UserType';
 
 @Injectable()
 export class UserService {
-  private users: ({ id: number } & CreateUserDto)[] = [
+  private users: UserType[] = [
     {
       id: 1,
       firstName: 'q',
@@ -19,6 +21,13 @@ export class UserService {
       password: 'qwertyuiop',
     },
   ];
+
+  async getUserById(id: number) {
+    const dbUser = await this.users.find((elem) => elem.id === id);
+    if (!dbUser) throw new NotFoundException('User not found');
+
+    return { ...dbUser, password: undefined };
+  }
 
   async validateUser(username: string, password: string) {
     const user = this.users.find(
@@ -44,6 +53,25 @@ export class UserService {
       );
 
     await this.users.push({ ...user, id: 10 });
-    return { ...user, id: 10 };
+    return { ...user, id: this.users.length };
+  }
+
+  async updateUser(id: number, user: Partial<CreateUserDto>) {
+    const dbUser = await this.users.find((elem) => elem.id === id);
+    if (!dbUser)
+      throw new BadRequestException('User with this id is not exist');
+
+    const newUser = { ...dbUser, ...user, id, password: dbUser.password };
+
+    this.users[await this.users.findIndex((elem) => elem.id === id)] = newUser;
+
+    return newUser;
+  }
+
+  async removeUser(id: number) {
+    const dbUserIndex = await this.users.findIndex((elem) => elem.id === id);
+    if (dbUserIndex === -1) throw new NotFoundException('User not found');
+
+    return await this.users.splice(dbUserIndex, 1);
   }
 }

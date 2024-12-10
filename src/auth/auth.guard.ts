@@ -1,11 +1,14 @@
 import {
+  BadRequestException,
   CanActivate,
   ExecutionContext,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
+import RequestType from 'src/types/RequestType';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -21,12 +24,12 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private async httpValidation(req: Request) {
+  private async httpValidation(req: RequestType) {
     const auth = req.headers['authorization'] as string;
     if (auth && !auth.startsWith('Bearer ')) throw new UnauthorizedException();
 
     const payload = await this.validateToken(auth.split(' ')[1]);
-    req['user'] = payload;
+    req.user = payload;
 
     return true;
   }
@@ -42,6 +45,12 @@ export class AuthGuard implements CanActivate {
   }
 
   private async validateToken(token: string) {
-    return await this.jwtService.verifyAsync(token);
+    try {
+      return await this.jwtService.verifyAsync(token, {
+        secret: new ConfigService().get('SECRET_KEY'),
+      });
+    } catch (err) {
+      throw new BadRequestException(err);
+    }
   }
 }
