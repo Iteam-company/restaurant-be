@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
-export default class CreateUpdateRestaurantDto {
+export default class UpdateRestaurantDto {
   @ApiProperty({ description: 'Restaurant name' })
   @IsString()
   name: string | undefined;

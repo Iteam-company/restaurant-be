@@ -2,34 +2,48 @@ import {
   BadRequestException,
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 import RequestType from 'src/types/RequestType';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly jwtService: JwtService,
+  ) {
     this.jwtService = jwtService;
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isAdminOnly =
+      this.reflector.get('isAdminOnly', context.getHandler()) ?? false;
+
     if (context.getType() === 'http')
-      return await this.httpValidation(context.switchToHttp().getRequest());
+      return await this.httpValidation(
+        context.switchToHttp().getRequest(),
+        isAdminOnly,
+      );
     else if (context.getType() === 'ws')
       return await this.wsValidation(context.switchToWs().getClient());
     return true;
   }
 
-  private async httpValidation(req: RequestType) {
+  private async httpValidation(req: RequestType, isAdminOnly: boolean) {
     const auth = req.headers['authorization'] as string;
     if (auth && !auth.startsWith('Bearer ')) throw new UnauthorizedException();
 
     const payload = await this.validateToken(auth.split(' ')[1]);
     req.user = payload;
+
+    if (isAdminOnly && req.user.role !== 'admin')
+      throw new ForbiddenException('No access');
 
     return true;
   }

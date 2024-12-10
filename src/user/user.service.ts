@@ -4,46 +4,37 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import CreateUpdateUserDto from 'src/types/dto/update-user.dto';
 import CreateUserDto from 'src/types/dto/create-user.dto';
-import UserType from 'src/types/UserType';
+import User from 'src/types/entity/user.entity';
+import { Repository } from 'typeorm';
+import UpdateUserPasswordDto from 'src/types/dto/update-user-password.dto';
+import * as bcrypt from 'bcrypt';
+import UpdateUserRoleDto from 'src/types/dto/update-user-role.dto';
 
 @Injectable()
 export class UserService {
-  private users: UserType[] = [
-    {
-      id: 1,
-      firstName: 'q',
-      lastName: 'qq',
-      username: 'admin',
-      role: 'admin',
-      email: 'qq@gmail.com',
-      phoneNumber: '+3800000000',
-      password: 'qwertyuiop',
-    },
-    {
-      id: 2,
-      firstName: 'qq',
-      lastName: 'q',
-      username: 'not admin',
-      role: 'waiter',
-      email: 'qq@gmail.com',
-      phoneNumber: '+3800000000',
-      password: 'qwertyuiop',
-    },
-  ];
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
 
   async getUserById(id: number) {
-    const dbUser = await this.users.find((elem) => elem.id === id);
+    const dbUser = await this.userRepository.findOneBy({ id: id });
     if (!dbUser) throw new NotFoundException('User not found');
 
     return { ...dbUser, password: undefined };
   }
 
   async validateUser(username: string, password: string) {
-    const user = this.users.find(
-      (elem) => elem.username === username && elem.password === password,
-    );
+    const user = await this.userRepository.findOneBy({
+      username: username,
+    });
     if (!user) throw new UnauthorizedException();
+
+    if (!(await this.comparePassword(password, user.password)))
+      throw new UnauthorizedException();
 
     return {
       id: user.id,
@@ -54,34 +45,78 @@ export class UserService {
   }
 
   async createUser(user: CreateUserDto) {
-    const dbUser = await this.users.find(
-      (elem) => elem.email === user.email || elem.username === user.username,
-    );
+    const dbUser = await this.userRepository.findOneBy({
+      email: user.email,
+      username: user.username,
+    });
     if (dbUser)
       throw new BadRequestException(
         'User with this email or username is already exist',
       );
 
-    await this.users.push({ ...user, id: 10 });
-    return { ...user, id: this.users.length };
+    return await this.userRepository.save({
+      ...user,
+      password: await this.hashPassword(user.password),
+    });
   }
 
-  async updateUser(id: number, user: Partial<CreateUserDto>) {
-    const dbUser = await this.users.find((elem) => elem.id === id);
+  async updateUser(id: number, user: CreateUpdateUserDto) {
+    const dbUser = await this.userRepository.findOneBy({ id: id });
     if (!dbUser)
       throw new BadRequestException('User with this id is not exist');
 
-    const newUser = { ...dbUser, ...user, id, password: dbUser.password };
+    const newUser = {
+      ...dbUser,
+      ...user,
+      id: dbUser.id,
+      role: dbUser.role,
+      password: dbUser.password,
+    };
 
-    this.users[await this.users.findIndex((elem) => elem.id === id)] = newUser;
+    await this.userRepository.update(id, newUser);
 
     return newUser;
   }
 
-  async removeUser(id: number) {
-    const dbUserIndex = await this.users.findIndex((elem) => elem.id === id);
-    if (dbUserIndex === -1) throw new NotFoundException('User not found');
+  async updatePassword(body: UpdateUserPasswordDto) {
+    const dbUser = await this.userRepository.findOneBy({ id: body.userId });
+    if (!dbUser) throw new NotFoundException('User with this id is not exist');
 
-    return await this.users.splice(dbUserIndex, 1);
+    await this.userRepository.update(body.userId, {
+      password: await this.hashPassword(body.newPassword),
+    });
+
+    return this.getUserById(body.userId);
+  }
+
+  async updateRole(body: UpdateUserRoleDto) {
+    const dbUser = await this.userRepository.findOneBy({ id: body.userId });
+    if (!dbUser) throw new NotFoundException('User with this id is not exist');
+
+    await this.userRepository.update(body.userId, {
+      role: body.role,
+    });
+
+    return this.getUserById(body.userId);
+  }
+
+  async removeUser(id: number) {
+    const dbUser = await this.userRepository.findOneBy({ id: id });
+    if (!dbUser) throw new NotFoundException('User not found');
+
+    return await this.userRepository.remove(dbUser);
+  }
+
+  private readonly saltRounds = 10;
+
+  async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, this.saltRounds);
+  }
+
+  async comparePassword(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return await bcrypt.compare(password, hashedPassword);
   }
 }

@@ -9,9 +9,12 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBody } from '@nestjs/swagger';
-import CreateUpdateUserDto from 'src/types/dto/create-update-user.dto';
+import CreateUpdateUserDto from 'src/types/dto/update-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import RequestType from 'src/types/RequestType';
+import AdminAccess from 'src/types/AdminAccess';
+import UpdateUserPasswordDto from 'src/types/dto/update-user-password.dto';
+import UpdateUserRoleDto from 'src/types/dto/update-user-role.dto';
 
 @Controller('user')
 export class UserController {
@@ -31,6 +34,22 @@ export class UserController {
     @Body() body: CreateUpdateUserDto,
   ) {
     return await this.userService.updateUser(req.user.id, body);
+  }
+
+  @Patch('password')
+  @AdminAccess()
+  @UseGuards(AuthGuard)
+  @ApiBody({ type: UpdateUserPasswordDto })
+  async changePassword(@Body() body: UpdateUserPasswordDto) {
+    return await this.userService.updatePassword(body);
+  }
+
+  @Patch('role')
+  @AdminAccess()
+  @UseGuards(AuthGuard)
+  @ApiBody({ type: UpdateUserRoleDto })
+  async changeRole(@Body() body: UpdateUserRoleDto) {
+    return await this.userService.updateRole(body);
   }
 
   @Delete()

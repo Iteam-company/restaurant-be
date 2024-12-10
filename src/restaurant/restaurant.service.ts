@@ -1,16 +1,26 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import CreateRestaurantDto from 'src/types/dto/create-restaurant.dto';
-import CreateUpdateRestaurantDto from 'src/types/dto/create-update-restaurant.dto';
-import RestaurantType from 'src/types/RestaurantType';
+import CreateUpdateRestaurantDto from 'src/types/dto/update-restaurant.dto';
+import Restaurant from 'src/types/entity/restaurant.entity';
+import { UserService } from 'src/user/user.service';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class RestaurantService {
-  private restaurants: RestaurantType[] = [
-    { id: 1, name: 'TruePrice', address: 'somewhere' },
-  ];
+  constructor(
+    @InjectRepository(Restaurant)
+    private restaurantRepository: Repository<Restaurant>,
+
+    private readonly userService: UserService,
+  ) {}
 
   async getRestaurant(id: number) {
-    const dbRestaurant = this.restaurants.find((elem) => elem.id === id);
+    const dbRestaurant = this.restaurantRepository.findOneBy({ id: id });
     if (!dbRestaurant)
       throw new NotFoundException('Restaurant with this id is not exist');
 
@@ -18,33 +28,40 @@ export class RestaurantService {
   }
 
   async createRestaurant(restaurant: CreateRestaurantDto) {
-    return await this.restaurants.push({
-      ...restaurant,
-      id: this.restaurants.length,
+    return await this.restaurantRepository.save(restaurant);
+  }
+
+  async addWorker(userId: number, restaurantId: number) {
+    const dbUser = await this.userService.getUserById(userId);
+    if (!dbUser)
+      throw new BadRequestException('User with this id is not exist');
+
+    const dbRestaurant = await this.restaurantRepository.findOne({
+      where: { id: restaurantId },
+      relations: ['workers'],
     });
+    if (!dbRestaurant)
+      throw new BadRequestException('Restaurant with this id is not exist');
+
+    await dbRestaurant.workers.push(dbUser);
+
+    return await this.restaurantRepository.save(dbRestaurant);
   }
 
   async changeRestaurant(id: number, restaurant: CreateUpdateRestaurantDto) {
-    const dbRestaurantIndex = await this.restaurants.findIndex(
-      (elem) => elem.id === id,
-    );
-    if (dbRestaurantIndex === -1)
+    const dbRestaurant = await this.restaurantRepository.findOneBy({
+      id: id,
+    });
+    if (!dbRestaurant)
       throw new NotFoundException('Restaurant with this id is not exist');
 
-    this.restaurants[dbRestaurantIndex] = {
-      ...this.restaurants[dbRestaurantIndex],
-      ...restaurant,
-    };
-
-    return this.restaurants[dbRestaurantIndex];
+    return await this.restaurantRepository.update(id, restaurant);
   }
 
   async removeRestaurant(id: number) {
-    const dbUserIndex = await this.restaurants.findIndex(
-      (elem) => elem.id === id,
-    );
-    if (dbUserIndex === -1) throw new NotFoundException('Restaurant not found');
+    const dbUser = await this.restaurantRepository.findOneBy({ id: id });
+    if (!dbUser) throw new NotFoundException('Restaurant not found');
 
-    return await this.restaurants.splice(dbUserIndex, 1);
+    return await this.restaurantRepository.remove(dbUser);
   }
 }
