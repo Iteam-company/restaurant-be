@@ -20,6 +20,16 @@ export class UserService {
       phoneNumber: '+3800000000',
       password: 'qwertyuiop',
     },
+    {
+      id: 2,
+      firstName: 'qq',
+      lastName: 'q',
+      username: 'not admin',
+      role: 'waiter',
+      email: 'qq@gmail.com',
+      phoneNumber: '+3800000000',
+      password: 'qwertyuiop',
+    },
   ];
 
   async getUserById(id: number) {

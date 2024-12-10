@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { SharedJwtAuthModule } from './shared-jwt-auth/shared-jwt-auth.module';
+import { RestaurantModule } from './restaurant/restaurant.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { SharedJwtAuthModule } from './shared-jwt-auth/shared-jwt-auth.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
+    RestaurantModule,
   ],
   controllers: [AppController],
   providers: [AppService],
