@@ -1,4 +1,4 @@
-import CreateUserDto from './dto/create-user.dto';
+import CreateUserDto from '../user/dto/create-user.dto';
 
 type UserType = { id: number } & CreateUserDto;
 

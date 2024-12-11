@@ -11,21 +11,14 @@ import {
 } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { ApiBody, ApiParam } from '@nestjs/swagger';
-import CreateRestaurantDto from 'src/types/dto/create-restaurant.dto';
+import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
-import CreateUpdateRestaurantDto from 'src/types/dto/update-restaurant.dto';
+import CreateUpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto';
 import AdminAccess from 'src/types/AdminAccess';
 
 @Controller('restaurant')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
-
-  @Get(':restaurantId')
-  @AdminAccess()
-  @UseGuards(AuthGuard)
-  async getRestaurant(@Param('restaurantId') id: string) {
-    return await this.restaurantService.getRestaurant(+id);
-  }
 
   @Post()
   @AdminAccess()
@@ -37,6 +30,13 @@ export class RestaurantController {
     await this.restaurantService.addWorker(req.user.id, restaurant.id);
 
     return restaurant;
+  }
+
+  @Get(':restaurantId')
+  @AdminAccess()
+  @UseGuards(AuthGuard)
+  async getRestaurant(@Param('restaurantId') id: string) {
+    return await this.restaurantService.getRestaurant(+id);
   }
 
   @Patch(':restaurantId')

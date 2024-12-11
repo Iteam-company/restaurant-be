@@ -1,4 +1,4 @@
-import CreateRestaurantDto from './dto/create-restaurant.dto';
+import CreateRestaurantDto from '../restaurant/dto/create-restaurant.dto';
 
 type RestaurantType = CreateRestaurantDto & {
   id: number;

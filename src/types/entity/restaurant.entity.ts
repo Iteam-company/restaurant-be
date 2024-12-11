@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import User from './user.entity';
+import Menu from './menu.entity';
 
 @Entity()
 export default class Restaurant {
@@ -14,4 +15,7 @@ export default class Restaurant {
 
   @OneToMany(() => User, (user) => user.restaurant)
   workers: User[];
+
+  @OneToMany(() => Menu, (menu) => menu.restaurant)
+  menu: Menu[];
 }

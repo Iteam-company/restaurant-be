@@ -8,8 +8,11 @@ import { SharedJwtAuthModule } from './shared-jwt-auth/shared-jwt-auth.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { WorkersModule } from './restaurant/workers/workers.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MenuModule } from './menu/menu.module';
 import User from './types/entity/user.entity';
 import Restaurant from './types/entity/restaurant.entity';
+import MenuItem from './types/entity/menu-item.entity';
+import Menu from './types/entity/menu.entity';
 
 @Module({
   imports: [
@@ -28,10 +31,11 @@ import Restaurant from './types/entity/restaurant.entity';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get('DB_CONNECT'),
-        entities: [User, Restaurant],
+        entities: [User, Restaurant, Menu, MenuItem],
         synchronize: true,
       }),
     }),
+    MenuModule,
   ],
   controllers: [AppController],
   providers: [AppService],

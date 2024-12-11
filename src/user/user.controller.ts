@@ -9,12 +9,12 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBody } from '@nestjs/swagger';
-import CreateUpdateUserDto from 'src/types/dto/update-user.dto';
+import CreateUpdateUserDto from 'src/user/dto/update-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import RequestType from 'src/types/RequestType';
 import AdminAccess from 'src/types/AdminAccess';
-import UpdateUserPasswordDto from 'src/types/dto/update-user-password.dto';
-import UpdateUserRoleDto from 'src/types/dto/update-user-role.dto';
+import UpdateUserPasswordDto from 'src/user/dto/update-user-password.dto';
+import UpdateUserRoleDto from 'src/user/dto/update-user-role.dto';
 
 @Controller('user')
 export class UserController {

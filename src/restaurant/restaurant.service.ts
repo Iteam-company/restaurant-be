@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import CreateRestaurantDto from 'src/types/dto/create-restaurant.dto';
-import CreateUpdateRestaurantDto from 'src/types/dto/update-restaurant.dto';
+import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
+import CreateUpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto';
 import Restaurant from 'src/types/entity/restaurant.entity';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
@@ -59,17 +59,17 @@ export class RestaurantService {
   }
 
   async removeRestaurant(id: number) {
-    const dbRepository = await this.restaurantRepository.findOne({
+    const dbRestaurant = await this.restaurantRepository.findOne({
       where: { id: id },
       relations: ['workers'],
     });
-    if (!dbRepository) throw new NotFoundException('Restaurant not found');
+    if (!dbRestaurant) throw new NotFoundException('Restaurant not found');
 
-    for await (const worker of dbRepository.workers) {
+    for await (const worker of dbRestaurant.workers) {
       await this.removeWorker(worker.id, id);
     }
 
-    return await this.restaurantRepository.remove(dbRepository);
+    return await this.restaurantRepository.remove(dbRestaurant);
   }
 
   async addWorker(userId: number, restaurantId: number) {
@@ -102,7 +102,7 @@ export class RestaurantService {
       throw new BadRequestException('Restaurant with this id is not exist');
 
     await dbRestaurant.workers.splice(
-      await dbRestaurant.workers.findIndex((elem) => elem.id === restaurantId),
+      await dbRestaurant.workers.findIndex((elem) => elem.id === dbUser.id),
       1,
     );
 
