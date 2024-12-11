@@ -54,10 +54,12 @@ export class UserService {
         'User with this email or username is already exist',
       );
 
-    return await this.userRepository.save({
+    const savedUser = await this.userRepository.save({
       ...user,
       password: await this.hashPassword(user.password),
     });
+
+    return await this.getUserById(savedUser.id);
   }
 
   async updateUser(id: number, user: CreateUpdateUserDto) {
