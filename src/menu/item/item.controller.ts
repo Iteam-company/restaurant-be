@@ -28,6 +28,7 @@ export class ItemController {
   }
 
   @Get(':itemId')
+  @UseGuards(AuthGuard)
   async findMenu(@Param('itemId') menuId: string) {
     return await this.menuItemService.getMenu(+menuId);
   }

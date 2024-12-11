@@ -15,7 +15,6 @@ import { UpdateMenuDto } from './dto/update-menu.dto';
 import { ApiBody } from '@nestjs/swagger';
 import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
-import LinkMenuItemDto from './dto/link-menu-item.dto';
 import { ItemService } from './item/item.service';
 
 @Controller('menu')
@@ -34,11 +33,13 @@ export class MenuController {
   }
 
   @Get()
+  @UseGuards(AuthGuard)
   async findAll() {
     return await this.menuService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string) {
     return await this.menuService.findOne(+id);
   }
