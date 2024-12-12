@@ -39,8 +39,12 @@ export class AuthGuard implements CanActivate {
     const auth = req.headers['authorization'] as string;
     if (auth && !auth.startsWith('Bearer ')) throw new UnauthorizedException();
 
-    const payload = await this.validateToken(auth.split(' ')[1]);
-    req.user = payload;
+    try {
+      const payload = await this.validateToken(auth.split(' ')[1]);
+      req.user = payload;
+    } catch {
+      throw new UnauthorizedException('JWT is not found in headers');
+    }
 
     if (isAdminOnly && req.user.role !== 'admin')
       throw new ForbiddenException('No access');
