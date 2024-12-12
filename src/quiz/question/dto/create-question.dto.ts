@@ -11,13 +11,13 @@ export class CreateQuestionDto {
   @IsNotEmpty()
   text: string;
 
-  @IsString()
-  @IsArray({ each: true })
+  @IsString({ each: true })
+  @IsArray()
   @IsNotEmpty()
   variants: string[];
 
-  @IsNumber()
-  @IsArray({ each: true })
+  @IsNumber({}, { each: true })
+  @IsArray()
   @IsNotEmpty()
   correct: number[];
 

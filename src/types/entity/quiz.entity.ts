@@ -20,9 +20,6 @@ export class Quiz {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
-  numberOfQuestions: number;
-
   @OneToMany(() => Question, (question) => question.quiz)
   questions: Question[];
 

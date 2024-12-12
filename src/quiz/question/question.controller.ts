@@ -14,7 +14,7 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
 
-@Controller('quiz/question')
+@Controller('question')
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 

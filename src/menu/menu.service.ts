@@ -35,7 +35,7 @@ export class MenuService {
   async findOne(id: number) {
     const dbMenu = await this.menuRepository.findOne({
       where: { id },
-      relations: ['menuItems'],
+      relations: ['menuItems', 'quizes'],
     });
     if (!dbMenu) throw new NotFoundException('Menu with this id is not exist');
 

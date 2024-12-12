@@ -33,7 +33,10 @@ export class QuestionService {
   }
 
   async findOne(id: number) {
-    const dbQuestion = await this.questionRepository.findOneBy({ id });
+    const dbQuestion = await this.questionRepository.findOne({
+      where: { id },
+      relations: ['quiz'],
+    });
     if (!dbQuestion)
       throw new NotFoundException('Question with this id is not exist ');
 
@@ -58,7 +61,8 @@ export class QuestionService {
       throw new NotFoundException('Question with this id is not exist');
 
     dbQuestion.quiz = null;
+    await this.questionRepository.save(dbQuestion);
 
-    return await this.questionRepository.save(dbQuestion);
+    return await this.questionRepository.remove(dbQuestion);
   }
 }

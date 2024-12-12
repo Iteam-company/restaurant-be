@@ -1,10 +1,4 @@
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsObject,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 enum DeifficultyLevelEnum {
   EASY = 'easy',
@@ -23,10 +17,6 @@ export class CreateQuizDto {
   @IsNotEmpty()
   title: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  numberOfQuestions: number;
-
   @IsEnum(DeifficultyLevelEnum)
   @IsNotEmpty()
   difficultyLevel: DeifficultyLevelEnum;
@@ -40,7 +30,6 @@ export class CreateQuizDto {
   status: StatuseEnum;
 
   @IsNumber()
-  @IsObject()
   @IsNotEmpty()
   menuId: number;
 }

@@ -48,10 +48,13 @@ export class QuizService {
   }
 
   async findOne(id: number) {
-    return await this.quizRepository.findOne({
+    const dbQuiz = await this.quizRepository.findOne({
       where: { id: id },
       relations: ['questions', 'menu'],
     });
+    if (!dbQuiz) throw new NotFoundException('Quiz with this id is not exist');
+
+    return dbQuiz;
   }
 
   async update(id: number, updateQuizDto: UpdateQuizDto) {
@@ -75,7 +78,7 @@ export class QuizService {
 
     await this.unlinkMenuQuiz(dbQuiz.menu.id, id);
 
-    return await this.quizRepository.save(dbQuiz);
+    return await this.quizRepository.remove(dbQuiz);
   }
 
   async linkMenuQuiz(menuId: number, quizId: number) {
