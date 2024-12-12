@@ -9,7 +9,7 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 import { Question } from 'src/types/entity/question.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { QuizService } from '../quiz.service';
+import { QuizService } from 'src/quiz/quiz.service';
 
 @Injectable()
 export class QuestionService {
