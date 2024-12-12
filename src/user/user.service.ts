@@ -52,7 +52,7 @@ export class UserService {
     });
     if (dbUser)
       throw new BadRequestException(
-        'User with this email or username is already exist',
+        'User with this email, phone number or username is already exist',
       );
 
     const savedUser = await this.userRepository.save({
