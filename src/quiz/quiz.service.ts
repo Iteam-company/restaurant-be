@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
@@ -12,6 +13,7 @@ import { Quiz } from 'src/types/entity/quiz.entity';
 import { Repository } from 'typeorm';
 import { MenuService } from 'src/menu/menu.service';
 import { QuestionService } from 'src/question/question.service';
+import PayloadType from 'src/types/PayloadType';
 
 @Injectable()
 export class QuizService {
@@ -27,15 +29,6 @@ export class QuizService {
   ) {}
 
   async create(createQuizDto: CreateQuizDto) {
-    const dbQuiz = await this.quizRepository
-      .createQueryBuilder('quiz')
-      .leftJoinAndSelect('quiz.menu', 'menu')
-      .select(['quiz', 'menu.id'])
-      .where('menu.id = :id', { id: createQuizDto.menuId })
-      .getOne();
-    if (dbQuiz)
-      throw new BadRequestException('Quiz with this menu is already exist');
-
     return await this.quizRepository.save({
       ...createQuizDto,
       menu: await this.menuService.findOne(+createQuizDto.menuId),
@@ -43,7 +36,12 @@ export class QuizService {
     });
   }
 
-  async findAll() {
+  async findAll(user: PayloadType) {
+    if (user.role === 'waiter')
+      return await this.quizRepository.find({
+        where: { status: 'in-progress' },
+        relations: ['menu'],
+      });
     return await this.quizRepository.find();
   }
 
@@ -57,9 +55,19 @@ export class QuizService {
     return dbQuiz;
   }
 
+  async findOneValidate(id: number, user: PayloadType) {
+    const dbQuiz = await this.findOne(id);
+
+    if (dbQuiz.status !== 'in-progress' && user.role === 'waiter')
+      throw new ForbiddenException(
+        'Quiz is not started yet or quiz is already finished',
+      );
+
+    return dbQuiz;
+  }
+
   async update(id: number, updateQuizDto: UpdateQuizDto) {
     const dbQuiz = await this.findOne(id);
-    if (!dbQuiz) throw new NotFoundException('Quiz with this id is not exist');
 
     await this.quizRepository.update(id, {
       ...updateQuizDto,
@@ -70,7 +78,6 @@ export class QuizService {
 
   async remove(id: number) {
     const dbQuiz = await this.findOne(id);
-    if (!dbQuiz) throw new NotFoundException('Quiz with this id is not exist');
 
     for await (const question of dbQuiz.questions) {
       await this.questionService.remove(question.id);
