@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import MenuItem from './menu-item.entity';
 import Restaurant from './restaurant.entity';
+import { Quiz } from './quiz.entity';
 
 @Entity()
 export default class Menu {
@@ -27,4 +28,7 @@ export default class Menu {
 
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.menu)
   restaurant: Restaurant;
+
+  @OneToMany(() => Quiz, (quiz) => quiz.menu)
+  quizes: Quiz[];
 }
