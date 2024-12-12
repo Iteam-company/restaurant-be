@@ -47,6 +47,7 @@ export class UserService {
   async createUser(user: CreateUserDto) {
     const dbUser = await this.userRepository.findOneBy({
       email: user.email,
+      phoneNumber: user.phoneNumber,
       username: user.username,
     });
     if (dbUser)
