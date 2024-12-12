@@ -27,6 +27,7 @@ export class QuestionController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string) {
     if (Number.isNaN(+id))
       throw new BadRequestException(`Param id: ${id} is not a number`);

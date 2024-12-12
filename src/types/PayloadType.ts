@@ -1,7 +1,7 @@
 type PayloadType = {
   id: number;
   username: string;
-  role: string;
+  role: 'owner' | 'waiter' | 'admin';
   email: string;
 };
 

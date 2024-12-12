@@ -8,6 +8,7 @@ import {
   Delete,
   BadRequestException,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
@@ -15,6 +16,7 @@ import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import AdminAccess from 'src/types/AdminAccess';
 import { ApiBody } from '@nestjs/swagger';
+import RequestType from 'src/types/RequestType';
 
 @Controller('quiz')
 export class QuizController {
@@ -29,16 +31,18 @@ export class QuizController {
   }
 
   @Get()
-  async findAll() {
-    return await this.quizService.findAll();
+  @UseGuards(AuthGuard)
+  async findAll(@Request() req: RequestType) {
+    return await this.quizService.findAll(req.user);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  @UseGuards(AuthGuard)
+  async findOne(@Param('id') id: string, @Request() req: RequestType) {
     if (Number.isNaN(+id))
       throw new BadRequestException(`Param id: ${id} is not a number`);
 
-    return await this.quizService.findOne(+id);
+    return await this.quizService.findOneValidate(+id, req.user);
   }
 
   @Patch(':id')

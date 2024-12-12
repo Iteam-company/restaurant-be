@@ -23,6 +23,7 @@ export class RestaurantService {
     const dbRestaurant = await this.restaurantRepository
       .createQueryBuilder('restaurant')
       .leftJoinAndSelect('restaurant.workers', 'user')
+      .leftJoinAndSelect('restaurant.menu', 'menu')
       .select([
         'restaurant',
         'user.id',
@@ -32,6 +33,7 @@ export class RestaurantService {
         'user.role',
         'user.email',
         'user.phoneNumber',
+        'menu',
       ])
       .where('restaurant.id = :id', { id })
       .getOne();

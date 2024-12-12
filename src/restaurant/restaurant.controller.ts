@@ -34,7 +34,6 @@ export class RestaurantController {
   }
 
   @Get(':restaurantId')
-  @AdminAccess()
   @UseGuards(AuthGuard)
   async getRestaurant(@Param('restaurantId') id: string) {
     if (Number.isNaN(+id))
