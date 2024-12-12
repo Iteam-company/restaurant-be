@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -36,6 +37,9 @@ export class RestaurantController {
   @AdminAccess()
   @UseGuards(AuthGuard)
   async getRestaurant(@Param('restaurantId') id: string) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
     return await this.restaurantService.getRestaurant(+id);
   }
 
@@ -47,6 +51,9 @@ export class RestaurantController {
     @Body() body: CreateUpdateRestaurantDto,
     @Param('restaurantId') id: string,
   ) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
     return await this.restaurantService.changeRestaurant(+id, body);
   }
 
@@ -55,6 +62,9 @@ export class RestaurantController {
   @AdminAccess()
   @UseGuards(AuthGuard)
   async deleteRestaurant(@Param('restaurantId') id) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
     return await this.restaurantService.removeRestaurant(+id);
   }
 }

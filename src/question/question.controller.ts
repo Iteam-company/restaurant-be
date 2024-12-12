@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { QuestionService } from './question.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -27,6 +28,9 @@ export class QuestionController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
     return await this.questionService.findOne(+id);
   }
 
@@ -37,6 +41,9 @@ export class QuestionController {
     @Param('id') id: string,
     @Body() updateQuestionDto: UpdateQuestionDto,
   ) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
     return await this.questionService.update(+id, updateQuestionDto);
   }
 
@@ -44,6 +51,9 @@ export class QuestionController {
   @AdminAccess()
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
     return await this.questionService.remove(+id);
   }
 }

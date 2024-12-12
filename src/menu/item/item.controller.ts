@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -30,6 +31,9 @@ export class ItemController {
   @Get(':itemId')
   @UseGuards(AuthGuard)
   async findMenu(@Param('itemId') menuId: string) {
+    if (Number.isNaN(+menuId))
+      throw new BadRequestException(`Param menuId: ${menuId} is not a number`);
+
     return await this.menuItemService.getMenu(+menuId);
   }
 
@@ -41,6 +45,9 @@ export class ItemController {
     @Param('itemId') itemId: string,
     @Body() body: UpdateMenuItemDto,
   ) {
+    if (Number.isNaN(+itemId))
+      throw new BadRequestException(`Param itemId: ${itemId} is not a number`);
+
     return await this.menuItemService.changeItem(+itemId, body);
   }
 
@@ -48,6 +55,9 @@ export class ItemController {
   @AdminAccess()
   @UseGuards(AuthGuard)
   async remove(@Param('itemId') itemId: string) {
+    if (Number.isNaN(+itemId))
+      throw new BadRequestException(`Param itemId: ${itemId} is not a number`);
+
     return await this.menuItemService.remove(+itemId);
   }
 }

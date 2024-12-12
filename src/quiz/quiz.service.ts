@@ -11,7 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Quiz } from 'src/types/entity/quiz.entity';
 import { Repository } from 'typeorm';
 import { MenuService } from 'src/menu/menu.service';
-import { QuestionService } from './question/question.service';
+import { QuestionService } from 'src/question/question.service';
 
 @Injectable()
 export class QuizService {

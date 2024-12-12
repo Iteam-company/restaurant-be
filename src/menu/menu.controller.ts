@@ -41,6 +41,9 @@ export class MenuController {
   @Get(':id')
   @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
     return await this.menuService.findOne(+id);
   }
 
@@ -49,6 +52,9 @@ export class MenuController {
   @UseGuards(AuthGuard)
   @ApiBody({ type: UpdateMenuDto })
   async update(@Param('id') id: string, @Body() updateMenuDto: UpdateMenuDto) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
     return await this.menuService.update(+id, updateMenuDto);
   }
 
@@ -56,6 +62,9 @@ export class MenuController {
   @AdminAccess()
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
     return await this.menuService.remove(+id);
   }
 
