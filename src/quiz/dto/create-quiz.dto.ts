@@ -42,5 +42,5 @@ export class CreateQuizDto {
   @IsNumber()
   @IsObject()
   @IsNotEmpty()
-  menu: number;
+  menuId: number;
 }

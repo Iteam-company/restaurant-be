@@ -24,4 +24,8 @@ export class CreateQuestionDto {
   @IsBoolean()
   @IsNotEmpty()
   multipleCorrect: boolean;
+
+  @IsNumber()
+  @IsNotEmpty()
+  quizId: number;
 }

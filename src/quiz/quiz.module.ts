@@ -9,7 +9,7 @@ import { MenuModule } from 'src/menu/menu.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Quiz]),
-    QuestionModule,
+    forwardRef(() => QuestionModule),
     forwardRef(() => MenuModule),
   ],
   exports: [QuizService],

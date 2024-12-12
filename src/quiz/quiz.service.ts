@@ -22,6 +22,7 @@ export class QuizService {
     @Inject(forwardRef(() => MenuService))
     private readonly menuService: MenuService,
 
+    @Inject(forwardRef(() => QuestionService))
     private readonly questionService: QuestionService,
   ) {}
 
@@ -30,14 +31,14 @@ export class QuizService {
       .createQueryBuilder('quiz')
       .leftJoinAndSelect('quiz.menu', 'menu')
       .select(['quiz', 'menu.id'])
-      .where('menu.id = :id', { id: createQuizDto.menu })
+      .where('menu.id = :id', { id: createQuizDto.menuId })
       .getOne();
     if (dbQuiz)
       throw new BadRequestException('Quiz with this menu is already exist');
 
     return await this.quizRepository.save({
       ...createQuizDto,
-      menu: await this.menuService.findOne(+createQuizDto.menu),
+      menu: await this.menuService.findOne(+createQuizDto.menuId),
       createAt: new Date(),
     });
   }

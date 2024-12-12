@@ -76,4 +76,19 @@ export class QuizController {
 
     return await this.quizService.linkMenuQuiz(+menuId, +quizId);
   }
+
+  @Delete(':menuId/:quizId')
+  @AdminAccess()
+  @UseGuards(AuthGuard)
+  async unlinkQuizToMenu(
+    @Param('menuId') menuId: string,
+    @Param('quizId') quizId: string,
+  ) {
+    if (Number.isNaN(+menuId))
+      throw new BadRequestException(`Param menuId: ${menuId} is not a number`);
+    if (Number.isNaN(+quizId))
+      throw new BadRequestException(`Param id: ${quizId} is not a number`);
+
+    return await this.quizService.unlinkMenuQuiz(+menuId, +quizId);
+  }
 }
