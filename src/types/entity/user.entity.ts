@@ -1,5 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import Restaurant from './restaurant.entity';
+import { QuizResult } from './quiz-result.entity';
 
 @Entity()
 export default class User {
@@ -29,4 +36,7 @@ export default class User {
 
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.workers)
   restaurant: Restaurant;
+
+  @OneToMany(() => QuizResult, (quizResult) => quizResult.user)
+  quizes: QuizResult[];
 }
