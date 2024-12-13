@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -16,6 +16,7 @@ import MenuItem from './types/entity/menu-item.entity';
 import Menu from './types/entity/menu.entity';
 import { Question } from './types/entity/question.entity';
 import { Quiz } from './types/entity/quiz.entity';
+import { LoggerMiddleware } from './logger/LoggerMiddleware';
 
 @Module({
   imports: [
@@ -44,4 +45,8 @@ import { Quiz } from './types/entity/quiz.entity';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
