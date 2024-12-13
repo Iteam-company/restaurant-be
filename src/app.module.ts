@@ -17,6 +17,8 @@ import Menu from './types/entity/menu.entity';
 import { Question } from './types/entity/question.entity';
 import { Quiz } from './types/entity/quiz.entity';
 import { LoggerMiddleware } from './logger/LoggerMiddleware';
+import { QuizResultsModule } from './quiz-results/quiz-results.module';
+import { QuizResult } from './types/entity/quiz-result.entity';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { LoggerMiddleware } from './logger/LoggerMiddleware';
     QuizModule,
     WorkersModule,
     RestaurantModule,
+    QuizResultsModule,
     SharedJwtAuthModule,
     ConfigModule.forRoot({
       envFilePath: '.env',
@@ -37,7 +40,15 @@ import { LoggerMiddleware } from './logger/LoggerMiddleware';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get('DB_CONNECT'),
-        entities: [User, Restaurant, Menu, MenuItem, Quiz, Question],
+        entities: [
+          User,
+          Restaurant,
+          Menu,
+          MenuItem,
+          Quiz,
+          Question,
+          QuizResult,
+        ],
         synchronize: true,
       }),
     }),

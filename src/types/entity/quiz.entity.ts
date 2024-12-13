@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Question } from './question.entity';
 import Menu from './menu.entity';
+import { QuizResult } from './quiz-result.entity';
 
 @Entity()
 export class Quiz {
@@ -34,4 +35,7 @@ export class Quiz {
 
   @ManyToOne(() => Menu, (menu) => menu.quizes)
   menu: Menu;
+
+  @OneToMany(() => QuizResult, (quizResult) => quizResult.quiz)
+  quizResults: QuizResult[];
 }
