@@ -24,7 +24,7 @@ export class UserService {
     const dbUser = await this.userRepository.findOneBy({ id: id });
     if (!dbUser) throw new NotFoundException('User not found');
 
-    return { ...dbUser };
+    return { ...dbUser, password: undefined };
   }
 
   async validateUser(username: string, password: string) {
@@ -89,7 +89,7 @@ export class UserService {
       password: await this.hashPassword(body.newPassword),
     });
 
-    return this.getUserById(body.userId);
+    return await this.getUserById(body.userId);
   }
 
   async updateRole(body: UpdateUserRoleDto) {
