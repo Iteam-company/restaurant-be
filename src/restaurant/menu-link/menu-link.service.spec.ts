@@ -27,8 +27,8 @@ describe('MenuLinkService', () => {
 
   let restaurantExample = {
     id: 0,
-    name: 'TruePrice',
-    address: 'qwertyuiolkmn bnjkl',
+    name: 'Puzatka',
+    address: 'qwertyuiolkmn',
     menu: [],
     workers: [],
   };
@@ -81,11 +81,6 @@ describe('MenuLinkService', () => {
     menuRepository = module.get('MenuRepository');
   });
 
-  afterAll(async () => {
-    restaurantRepository.delete({});
-    menuRepository.delete({});
-  });
-
   it('should be defined', () => {
     expect(restaurantService).toBeDefined();
     expect(restaurantRepository).toBeDefined();
@@ -96,7 +91,6 @@ describe('MenuLinkService', () => {
   it('should create restaurant and menu', async () => {
     const dbRestaurant =
       await restaurantService.createRestaurant(restaurantExample);
-
     const dbMenu = await menuService.create(<CreateMenuDto>menuExample);
 
     expect(dbRestaurant).toBeDefined();
@@ -111,9 +105,6 @@ describe('MenuLinkService', () => {
       menuExample.id,
       restaurantExample.id,
     );
-
-    console.log(dbRestaurantWithMenu);
-    console.log(restaurantExample);
 
     expect({ ...dbRestaurantWithMenu }).toEqual({
       ...restaurantExample,

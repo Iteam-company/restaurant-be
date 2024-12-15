@@ -20,7 +20,6 @@ describe('RestaurantService', () => {
   let userService: UserService;
 
   let restaurantRepository: Repository<Restaurant>;
-  let userRepository: Repository<User>;
 
   let restaurantExample = {
     id: 0,
@@ -78,12 +77,6 @@ describe('RestaurantService', () => {
     restaurantService = module.get<RestaurantService>(RestaurantService);
     userService = module.get<UserService>(UserService);
     restaurantRepository = module.get('RestaurantRepository');
-    userRepository = module.get('UserRepository');
-  });
-
-  afterAll(() => {
-    restaurantRepository.delete({});
-    userRepository.delete({});
   });
 
   it('should be defined', async () => {

@@ -68,10 +68,6 @@ describe('UserService', () => {
     userRepository = module.get('UserRepository');
   });
 
-  afterAll(() => {
-    userRepository.delete({});
-  });
-
   it('should be defined', async () => {
     expect(userService).toBeDefined();
     expect(userRepository).toBeDefined();

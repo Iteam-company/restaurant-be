@@ -21,6 +21,7 @@ export class MenuLinkService {
     const dbRestaurant = await this.restaurantRepository.findOneBy({
       id: restaurantId,
     });
+
     if (!dbRestaurant)
       throw new BadRequestException('Restaurant with this id is not exist');
 
