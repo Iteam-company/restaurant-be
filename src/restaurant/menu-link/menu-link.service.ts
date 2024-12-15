@@ -5,7 +5,7 @@ import Restaurant from 'src/types/entity/restaurant.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class MenuService {
+export class MenuLinkService {
   constructor(
     @InjectRepository(Menu)
     private menuRepository: Repository<Menu>,
@@ -26,7 +26,12 @@ export class MenuService {
 
     dbMenu.restaurant = dbRestaurant;
 
-    return await this.menuRepository.save(dbMenu);
+    await this.menuRepository.save(dbMenu);
+
+    return await this.restaurantRepository.findOne({
+      where: { id: restaurantId },
+      relations: ['menu', 'workers'],
+    });
   }
 
   async unlinkMenuFromRestaurant(menuId: number, restaurantId: number) {
