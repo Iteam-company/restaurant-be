@@ -146,7 +146,6 @@ describe('UserService', () => {
 
   it('should delete an existing user', async () => {
     const result = await userService.removeUser(userExample.id);
-    console.log(result);
 
     expect({
       ...result,

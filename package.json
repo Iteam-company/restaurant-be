@@ -15,7 +15,7 @@
     "start:docker": "docker-compose up --build",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
-    "test:db": "docker run --name test_db --rm -e POSTGRES_USER=test -e POSTGRES_PASSWORD=asdfghjkl -e POSTGRES_DB=test_table -p 5432:5432 postgres",
+    "test:db": "docker run --name test_db --rm -e POSTGRES_USER=test -e POSTGRES_PASSWORD=asdfghjkl -e POSTGRES_DB=test_table -p 5432:5432 postgres:15",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
