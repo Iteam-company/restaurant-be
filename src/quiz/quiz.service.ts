@@ -28,7 +28,7 @@ export class QuizService {
     private readonly questionService: QuestionService,
   ) {}
 
-  async create(createQuizDto: CreateQuizDto) {
+  async create(createQuizDto: CreateQuizDto): Promise<Quiz> {
     return await this.quizRepository.save({
       ...createQuizDto,
       menu: await this.menuService.findOne(+createQuizDto.menuId),

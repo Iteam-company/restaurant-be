@@ -98,21 +98,6 @@ describe('MenuService', () => {
     menuExample = { ...menuExample, ...updateData };
   });
 
-  it('should update and save existing menu', async () => {
-    const updateData = {
-      name: 'Winter hits',
-      season: 'winter',
-    };
-    const result = await menuService.update(
-      menuExample.id,
-      <UpdateMenuDto>updateData,
-    );
-
-    expect(result).toEqual({ ...menuExample, ...updateData });
-
-    menuExample = { ...menuExample, ...updateData };
-  });
-
   it('should remove existing menu', async () => {
     const result = await menuService.remove(menuExample.id);
 
