@@ -28,8 +28,12 @@ export class UserService {
   }
 
   async validateUser(username: string, password: string) {
-    const user = await this.userRepository.findOneBy({
-      username: username,
+    const user = await this.userRepository.findOne({
+      where: [
+        { username: username },
+        { email: username },
+        { phoneNumber: username },
+      ],
     });
     if (!user) throw new UnauthorizedException();
 
@@ -45,10 +49,12 @@ export class UserService {
   }
 
   async createUser(user: CreateUserDto) {
-    const dbUser = await this.userRepository.findOneBy({
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      username: user.username,
+    const dbUser = await this.userRepository.findOne({
+      where: [
+        { email: user.email },
+        { phoneNumber: user.phoneNumber },
+        { username: user.username },
+      ],
     });
     if (dbUser)
       throw new BadRequestException(
