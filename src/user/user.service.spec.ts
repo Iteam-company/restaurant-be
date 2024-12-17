@@ -15,6 +15,7 @@ import MenuItem from 'src/types/entity/menu-item.entity';
 import { Quiz } from 'src/types/entity/quiz.entity';
 import { Question } from 'src/types/entity/question.entity';
 import { QuizResult } from 'src/types/entity/quiz-result.entity';
+import PayloadType from 'src/types/PayloadType';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -74,22 +75,27 @@ describe('UserService', () => {
   });
 
   it('should create and save a new user', async () => {
-    const result = await userService.createUser(<CreateUserDto>{
-      ...userExample,
-      id: undefined,
-    });
+    const result = await parseJwt(
+      await userService.createUser(<CreateUserDto>{
+        ...userExample,
+        id: undefined,
+      }),
+    );
 
     expect(result).toEqual({
-      ...userExample,
-      password: result.password,
       id: result.id,
+      email: userExample.email,
+      role: userExample.role,
+      username: userExample.username,
     });
-    userExample = result;
+    userExample = { ...userExample, ...result };
   });
 
   it('should return jwt payload', async () => {
     const result = await userService.validateUser(
       userExample.username,
+      '',
+      '',
       userPassword,
     );
 
@@ -151,3 +157,7 @@ describe('UserService', () => {
     expect(bcrypt.compareSync(userPassword, result.password)).toBe(true);
   });
 });
+
+async function parseJwt(token): Promise<PayloadType> {
+  return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+}
