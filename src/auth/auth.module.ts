@@ -5,6 +5,7 @@ import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [UserModule],
+  exports: [AuthService],
   controllers: [AuthController],
   providers: [AuthService],
 })

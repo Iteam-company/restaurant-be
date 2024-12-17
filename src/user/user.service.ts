@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -12,12 +14,17 @@ import { Repository } from 'typeorm';
 import UpdateUserPasswordDto from 'src/user/dto/update-user-password.dto';
 import * as bcrypt from 'bcrypt';
 import UpdateUserRoleDto from 'src/user/dto/update-user-role.dto';
+import { AuthService } from 'src/auth/auth.service';
+import PayloadType from 'src/types/PayloadType';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService,
   ) {}
 
   async getUserById(id: number) {
@@ -71,7 +78,12 @@ export class UserService {
       password: await this.hashPassword(user.password),
     });
 
-    return await this.getUserById(savedUser.id);
+    return await this.authService.login(<PayloadType>{
+      id: savedUser.id,
+      username: savedUser.username,
+      role: savedUser.role,
+      email: savedUser.email,
+    });
   }
 
   async updateUser(id: number, user: CreateUpdateUserDto) {
