@@ -17,6 +17,8 @@ export class AuthController {
   async signIn(@Body() body: CreateLoginDto) {
     const payload = await this.userService.validateUser(
       body.username,
+      body.email,
+      body.phoneNumber,
       body.password,
     );
     return await this.authService.login(payload);

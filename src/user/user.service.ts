@@ -27,12 +27,17 @@ export class UserService {
     return { ...dbUser, password: undefined };
   }
 
-  async validateUser(username: string, password: string) {
+  async validateUser(
+    username: string,
+    email: string,
+    phoneNumber: string,
+    password: string,
+  ) {
     const user = await this.userRepository.findOne({
       where: [
-        { username: username },
-        { email: username },
-        { phoneNumber: username },
+        { username: username ?? '' },
+        { email: email || '' },
+        { phoneNumber: phoneNumber ?? '' },
       ],
     });
     if (!user) throw new UnauthorizedException();
