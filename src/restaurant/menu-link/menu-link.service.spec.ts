@@ -16,6 +16,7 @@ import { Repository } from 'typeorm';
 import { MenuService } from 'src/menu/menu.service';
 import { MenuModule } from 'src/menu/menu.module';
 import { CreateMenuDto } from 'src/menu/dto/create-menu.dto';
+import { forwardRef } from '@nestjs/common';
 
 describe('MenuLinkService', () => {
   let restaurantService: RestaurantService;
@@ -68,7 +69,7 @@ describe('MenuLinkService', () => {
         TypeOrmModule.forFeature([Restaurant, Menu]),
         MenuModule,
         RestaurantModule,
-        SharedJwtAuthModule,
+        forwardRef(() => SharedJwtAuthModule),
       ],
       providers: [MenuLinkService],
     }).compile();

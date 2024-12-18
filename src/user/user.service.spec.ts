@@ -16,6 +16,8 @@ import { Quiz } from 'src/types/entity/quiz.entity';
 import { Question } from 'src/types/entity/question.entity';
 import { QuizResult } from 'src/types/entity/quiz-result.entity';
 import PayloadType from 'src/types/PayloadType';
+import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -61,6 +63,8 @@ describe('UserService', () => {
           }),
         }),
         TypeOrmModule.forFeature([User]),
+        AuthModule,
+        SharedJwtAuthModule,
       ],
       providers: [UserService],
     }).compile();

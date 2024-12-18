@@ -27,7 +27,7 @@ describe('QuestionService', () => {
 
   let menuExample = {
     id: 0,
-    name: 'Spring',
+    name: 'something new',
     categories: 'main courses',
     season: 'spring',
     menuItems: [],
