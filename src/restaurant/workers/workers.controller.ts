@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import AdminAccess from 'src/types/AdminAccess';
@@ -10,7 +10,7 @@ import DeleteWorkerDto from './dto/delete-worker.dto';
 export class WorkersController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
-  @Patch()
+  @Post()
   @AdminAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateWorkerDto })

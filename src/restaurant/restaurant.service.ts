@@ -44,8 +44,39 @@ export class RestaurantService {
     return dbRestaurant;
   }
 
+  async getAllOwnerRestaurants(id: number) {
+    const dbUser = await this.userService.getUserById(id);
+    if (!dbUser) throw new NotFoundException('Owner with this id is not exist');
+
+    return await this.restaurantRepository
+      .createQueryBuilder('restaurant')
+      .leftJoinAndSelect('restaurant.workers', 'user')
+      .leftJoinAndSelect('restaurant.menu', 'menu')
+      .select([
+        'restaurant',
+        'user.id',
+        'user.firstName',
+        'user.lastName',
+        'user.username',
+        'user.role',
+        'user.email',
+        'user.phoneNumber',
+        'menu',
+      ])
+      .where('restaurant.owner = :owner', { owner: dbUser.id })
+      .getMany();
+  }
+
   async createRestaurant(restaurant: CreateRestaurantDto) {
-    return await this.restaurantRepository.save(restaurant);
+    const dbUser = await this.userService.getUserById(restaurant.ownerId);
+    if (!dbUser) throw new NotFoundException('Owner with this id is not exist');
+    if (dbUser.role !== 'owner')
+      throw new BadRequestException('User with this id is not owner');
+
+    return await this.restaurantRepository.save({
+      ...restaurant,
+      owner: dbUser,
+    });
   }
 
   async changeRestaurant(id: number, restaurant: CreateUpdateRestaurantDto) {

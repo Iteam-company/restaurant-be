@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -16,6 +17,7 @@ import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import CreateUpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto';
 import AdminAccess from 'src/types/AdminAccess';
+import RequestType from 'src/types/RequestType';
 
 @Controller('restaurant')
 export class RestaurantController {
@@ -31,6 +33,15 @@ export class RestaurantController {
     await this.restaurantService.addWorker(req.user.id, restaurant.id);
 
     return restaurant;
+  }
+
+  @Get('owner-by/')
+  @UseGuards(AuthGuard)
+  async getAllRestaurants(@Request() req: RequestType) {
+    if (req.user.role !== 'owner')
+      throw new ForbiddenException('This user is not a owner');
+
+    return await this.restaurantService.getAllOwnerRestaurants(req.user.id);
   }
 
   @Get(':restaurantId')
