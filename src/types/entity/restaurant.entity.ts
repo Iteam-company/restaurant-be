@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import User from './user.entity';
 import Menu from './menu.entity';
 
@@ -18,4 +24,7 @@ export default class Restaurant {
 
   @OneToMany(() => Menu, (menu) => menu.restaurant)
   menu: Menu[];
+
+  @ManyToOne(() => User, (user) => user.id)
+  owner: User;
 }
