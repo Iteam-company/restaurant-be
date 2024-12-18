@@ -14,6 +14,7 @@ import { Repository } from 'typeorm';
 import { MenuService } from 'src/menu/menu.service';
 import { QuestionService } from 'src/question/question.service';
 import PayloadType from 'src/types/PayloadType';
+import { RestaurantService } from 'src/restaurant/restaurant.service';
 
 @Injectable()
 export class QuizService {
@@ -23,6 +24,8 @@ export class QuizService {
 
     @Inject(forwardRef(() => MenuService))
     private readonly menuService: MenuService,
+
+    private readonly restarauntService: RestaurantService,
 
     @Inject(forwardRef(() => QuestionService))
     private readonly questionService: QuestionService,
@@ -34,6 +37,17 @@ export class QuizService {
       menu: await this.menuService.findOne(+createQuizDto.menuId),
       createAt: new Date(),
     });
+  }
+
+  async getAllByRestaurant(id: number) {
+    const dbRestaraunt = await this.restarauntService.getRestaurant(id);
+
+    const result = [];
+
+    for await (const menu of dbRestaraunt.menu) {
+      await result.push(...(await this.menuService.findOne(menu.id)).quizes);
+    }
+    return result;
   }
 
   async findAll(user: PayloadType) {
