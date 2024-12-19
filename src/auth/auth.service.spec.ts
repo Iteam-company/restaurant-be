@@ -3,7 +3,6 @@ import { AuthService } from './auth.service';
 import PayloadType from 'src/types/PayloadType';
 import { AuthGuard } from './auth.guard';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
-import { AuthModule } from './auth.module';
 import { ConfigModule } from '@nestjs/config';
 
 describe('AuthService', () => {

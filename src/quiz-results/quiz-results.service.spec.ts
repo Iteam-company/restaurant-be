@@ -39,7 +39,7 @@ describe('QuizResultService', () => {
 
   const menuExample = {
     id: 0,
-    name: 'Spring',
+    name: 'zxcvbnm',
     categories: 'main courses',
     season: 'spring',
     menuItems: [],
