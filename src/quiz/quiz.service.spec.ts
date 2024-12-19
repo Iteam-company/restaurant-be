@@ -16,6 +16,7 @@ import { MenuService } from 'src/menu/menu.service';
 import { CreateMenuDto } from 'src/menu/dto/create-menu.dto';
 import { QuestionModule } from 'src/question/question.module';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
+import { RestaurantModule } from 'src/restaurant/restaurant.module';
 
 describe('QuizService', () => {
   let quizService: QuizService;
@@ -68,6 +69,7 @@ describe('QuizService', () => {
         TypeOrmModule.forFeature([Quiz, Menu]),
         MenuModule,
         QuestionModule,
+        RestaurantModule,
         SharedJwtAuthModule,
       ],
       providers: [QuizService],

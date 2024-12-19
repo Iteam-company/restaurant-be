@@ -31,8 +31,6 @@ describe('RestaurantService', () => {
     workers: [],
   };
 
-  const userPassword = 'qwertyuiop';
-
   let userExample = {
     id: 1,
     firstName: 'Jim',
@@ -41,7 +39,18 @@ describe('RestaurantService', () => {
     email: 'JHBest@mail.com',
     phoneNumber: '+380970000000',
     role: 'waiter',
-    password: userPassword,
+    password: 'qwertyuiop',
+  };
+
+  const ownerExample = {
+    id: 1,
+    firstName: 'qq',
+    lastName: 'asd',
+    username: 'fgh',
+    email: 'asd@mail.com',
+    phoneNumber: '+380970000007',
+    role: 'owner',
+    password: 'qwertyuiop',
   };
 
   beforeAll(async () => {
@@ -87,17 +96,29 @@ describe('RestaurantService', () => {
   });
 
   it('should create and save a new restaurant', async () => {
+    const userPayload = await parseJwt(
+      (
+        await userService.createUser({
+          ...ownerExample,
+          role: 'owner',
+        })
+      ).access_token,
+    );
     const result = await restaurantService.createRestaurant(<
       CreateRestaurantDto
     >{
       ...restaurantExample,
       id: undefined,
+      ownerId: userPayload.id,
     });
 
     expect(result).toEqual({
       ...restaurantExample,
       id: result.id,
+      owner: await userService.getUserById(userPayload.id),
+      ownerId: userPayload.id,
     });
+
     restaurantExample = result;
   });
 

@@ -17,11 +17,15 @@ import { MenuService } from 'src/menu/menu.service';
 import { MenuModule } from 'src/menu/menu.module';
 import { CreateMenuDto } from 'src/menu/dto/create-menu.dto';
 import { forwardRef } from '@nestjs/common';
+import { UserService } from 'src/user/user.service';
+import CreateUserDto from 'src/user/dto/create-user.dto';
+import PayloadType from 'src/types/PayloadType';
 
 describe('MenuLinkService', () => {
   let restaurantService: RestaurantService;
   let menuLinkService: MenuLinkService;
   let menuService: MenuService;
+  let userService: UserService;
 
   let restaurantRepository: Repository<Restaurant>;
   let menuRepository: Repository<Menu>;
@@ -39,6 +43,17 @@ describe('MenuLinkService', () => {
     name: 'Cesar',
     season: 'winter',
     categories: 'main courses',
+  };
+
+  let ownerExample = {
+    id: 1,
+    firstName: 'ww',
+    lastName: 'asd',
+    username: 'vbn',
+    email: 'vbn@mail.com',
+    phoneNumber: '+380970000008',
+    role: 'owner',
+    password: 'qwertyuiop',
   };
 
   beforeEach(async () => {
@@ -77,6 +92,7 @@ describe('MenuLinkService', () => {
     restaurantService = module.get<RestaurantService>(RestaurantService);
     menuLinkService = module.get<MenuLinkService>(MenuLinkService);
     menuService = module.get<MenuService>(MenuService);
+    userService = module.get<UserService>(UserService);
 
     restaurantRepository = module.get('RestaurantRepository');
     menuRepository = module.get('MenuRepository');
@@ -90,8 +106,18 @@ describe('MenuLinkService', () => {
   });
 
   it('should create restaurant and menu', async () => {
-    const dbRestaurant =
-      await restaurantService.createRestaurant(restaurantExample);
+    const payloadUser = await parseJwt(
+      (
+        await userService.createUser(<CreateUserDto>{
+          ...ownerExample,
+          id: undefined,
+        })
+      ).access_token,
+    );
+    const dbRestaurant = await restaurantService.createRestaurant({
+      ...restaurantExample,
+      ownerId: payloadUser.id,
+    });
     const dbMenu = await menuService.create(<CreateMenuDto>menuExample);
 
     expect(dbRestaurant).toBeDefined();
@@ -99,6 +125,7 @@ describe('MenuLinkService', () => {
 
     restaurantExample = dbRestaurant;
     menuExample = dbMenu;
+    ownerExample = await userService.getUserById(payloadUser.id);
   });
 
   it('should link menu to restaurant', async () => {
@@ -107,7 +134,11 @@ describe('MenuLinkService', () => {
       restaurantExample.id,
     );
 
-    expect({ ...dbRestaurantWithMenu }).toEqual({
+    expect({
+      ...dbRestaurantWithMenu,
+      owner: ownerExample,
+      ownerId: ownerExample.id,
+    }).toEqual({
       ...restaurantExample,
       menu: [<Menu>menuExample],
     });
@@ -125,3 +156,7 @@ describe('MenuLinkService', () => {
     });
   });
 });
+
+async function parseJwt(token): Promise<PayloadType> {
+  return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+}
