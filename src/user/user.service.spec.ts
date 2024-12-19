@@ -80,19 +80,27 @@ describe('UserService', () => {
 
   it('should create and save a new user', async () => {
     const result = await parseJwt(
-      await userService.createUser(<CreateUserDto>{
-        ...userExample,
-        id: undefined,
-      }),
+      (
+        await userService.createUser(<CreateUserDto>{
+          ...userExample,
+          id: undefined,
+        })
+      ).access_token,
     );
+    const dbUser = await userService.getUserById(result.id);
 
-    expect(result).toEqual({
+    expect({ ...result, exp: undefined, iat: undefined }).toEqual({
       id: result.id,
       email: userExample.email,
       role: userExample.role,
       username: userExample.username,
     });
-    userExample = { ...userExample, ...result };
+    expect(dbUser).toEqual({
+      ...userExample,
+      id: result.id,
+      password: undefined,
+    });
+    userExample = dbUser;
   });
 
   it('should return jwt payload', async () => {

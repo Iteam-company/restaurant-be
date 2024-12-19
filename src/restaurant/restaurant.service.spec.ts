@@ -14,6 +14,8 @@ import User from 'src/types/entity/user.entity';
 import { UserModule } from 'src/user/user.module';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import { UserService } from 'src/user/user.service';
+import PayloadType from 'src/types/PayloadType';
+import { forwardRef } from '@nestjs/common';
 
 describe('RestaurantService', () => {
   let restaurantService: RestaurantService;
@@ -68,7 +70,7 @@ describe('RestaurantService', () => {
           }),
         }),
         TypeOrmModule.forFeature([Restaurant, User]),
-        UserModule,
+        forwardRef(() => UserModule),
         SharedJwtAuthModule,
       ],
       providers: [RestaurantService],
@@ -100,10 +102,15 @@ describe('RestaurantService', () => {
   });
 
   it('should link worker to restaurant', async () => {
-    const worker = await userService.createUser({
-      ...userExample,
-      role: 'waiter',
-    });
+    const userPayload = await parseJwt(
+      (
+        await userService.createUser({
+          ...userExample,
+          role: 'waiter',
+        })
+      ).access_token,
+    );
+    const worker = await userService.getUserById(userPayload.id);
     const dbRestaurant = await restaurantService.addWorker(
       worker.id,
       restaurantExample.id,
@@ -140,3 +147,7 @@ describe('RestaurantService', () => {
     }).toEqual({ ...dbRestaurantWithWorker, id: undefined });
   });
 });
+
+async function parseJwt(token): Promise<PayloadType> {
+  return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+}
