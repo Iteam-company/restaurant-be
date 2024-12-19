@@ -7,7 +7,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import CreateUpdateUserDto from 'src/user/dto/update-user.dto';
 import CreateUserDto from 'src/user/dto/create-user.dto';
 import User from 'src/types/entity/user.entity';
 import { Repository } from 'typeorm';
@@ -16,6 +15,7 @@ import * as bcrypt from 'bcrypt';
 import UpdateUserRoleDto from 'src/user/dto/update-user-role.dto';
 import { AuthService } from 'src/auth/auth.service';
 import PayloadType from 'src/types/PayloadType';
+import UpdateUserDto from 'src/user/dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -86,7 +86,7 @@ export class UserService {
     });
   }
 
-  async updateUser(id: number, user: CreateUpdateUserDto) {
+  async updateUser(id: number, user: UpdateUserDto) {
     const dbUser = await this.userRepository.findOneBy({ id: id });
     if (!dbUser)
       throw new BadRequestException('User with this id is not exist');
@@ -112,7 +112,7 @@ export class UserService {
       password: await this.hashPassword(body.newPassword),
     });
 
-    return this.getUserById(body.userId);
+    return await this.getUserById(body.userId);
   }
 
   async updateRole(body: UpdateUserRoleDto) {

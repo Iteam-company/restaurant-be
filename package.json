@@ -15,6 +15,7 @@
     "start:docker": "docker-compose up --build",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
+    "test:db": "docker run --name test_db --rm -e POSTGRES_USER=test -e POSTGRES_PASSWORD=asdfghjkl -e POSTGRES_DB=test_table -p 5432:5432 postgres:15",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -69,7 +70,14 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "preset": "ts-jest",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1"
+    },
+    "modulePaths": [
+      "<rootDir>"
+    ],
+    "rootDir": "./",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -78,6 +86,7 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "globalTeardown": "./test/cleaning-db.ts"
   }
 }

@@ -1,18 +1,18 @@
 import {
-  BadRequestException,
   Controller,
-  Delete,
-  Param,
   Post,
+  Param,
+  Delete,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
-import { MenuService } from './menu.service';
+import { MenuLinkService } from './menu-link.service';
 import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
 
-@Controller('restaurant/menu')
-export class MenuController {
-  constructor(private readonly menuService: MenuService) {}
+@Controller('restourant/menu')
+export class MenuLinkController {
+  constructor(private readonly menuLinkService: MenuLinkService) {}
 
   @Post(':restaurantId/:menuId')
   @AdminAccess()
@@ -28,7 +28,10 @@ export class MenuController {
         `Param restaurantId: ${restaurantId} is not a number`,
       );
 
-    return await this.menuService.linkMenuToRestaurant(+menuId, +restaurantId);
+    return await this.menuLinkService.linkMenuToRestaurant(
+      +menuId,
+      +restaurantId,
+    );
   }
 
   @Delete(':restaurantId/:menuId')
@@ -45,7 +48,7 @@ export class MenuController {
         `Param restaurantId: ${restaurantId} is not a number`,
       );
 
-    return await this.menuService.unlinkMenuFromRestaurant(
+    return await this.menuLinkService.unlinkMenuFromRestaurant(
       +menuId,
       +restaurantId,
     );

@@ -20,7 +20,7 @@ export class MenuService {
     private readonly quizService: QuizService,
   ) {}
 
-  async create(menu: CreateMenuDto) {
+  async create(menu: CreateMenuDto): Promise<Menu> {
     const dbMenu = await this.menuRepository.findOneBy({ name: menu.name });
     if (dbMenu)
       throw new BadRequestException('Menu with this name is already exist');
@@ -54,7 +54,7 @@ export class MenuService {
   async remove(id: number) {
     const dbMenu = await this.menuRepository.findOne({
       where: { id: id },
-      relations: ['menuItems'],
+      relations: ['menuItems', 'quizes', 'restaurant'],
     });
     if (!dbMenu) throw new NotFoundException('Menu not found');
 
@@ -63,6 +63,7 @@ export class MenuService {
     for await (const quiz of dbMenu.quizes) {
       await this.quizService.remove(quiz.id);
     }
+    dbMenu.restaurant = null;
 
     await this.menuRepository.save(dbMenu);
 

@@ -62,7 +62,7 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private async validateToken(token: string) {
+  async validateToken(token: string) {
     try {
       return await this.jwtService.verifyAsync(token, {
         secret: new ConfigService().get('SECRET_KEY'),
