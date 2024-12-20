@@ -1,7 +1,5 @@
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,14 +8,13 @@ import { UpdateMenuDto } from './dto/update-menu.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Menu from 'src/types/entity/menu.entity';
-import { QuizService } from 'src/quiz/quiz.service';
 
 @Injectable()
 export class MenuService {
   constructor(
     @InjectRepository(Menu) private menuRepository: Repository<Menu>,
-    @Inject(forwardRef(() => QuizService))
-    private readonly quizService: QuizService,
+    // @Inject(forwardRef(() => QuizService))
+    // private readonly quizService: QuizService,
   ) {}
 
   async create(menu: CreateMenuDto): Promise<Menu> {
@@ -30,6 +27,13 @@ export class MenuService {
 
   async findAll() {
     return await this.menuRepository.find();
+  }
+
+  async getAllForPrompt(id: number) {
+    return await this.menuRepository.find({
+      where: { id: id },
+      relations: ['menuItems'],
+    });
   }
 
   async findOne(id: number) {
@@ -60,9 +64,9 @@ export class MenuService {
 
     await dbMenu.menuItems.splice(0, dbMenu.menuItems.length);
 
-    for await (const quiz of dbMenu.quizes) {
-      await this.quizService.remove(quiz.id);
-    }
+    // for await (const quiz of dbMenu.quizes) {
+    //   await this.quizService.remove(quiz.id);
+    // }
     dbMenu.restaurant = null;
 
     await this.menuRepository.save(dbMenu);

@@ -22,6 +22,9 @@ export class QuizResult {
   @ManyToOne(() => User, (user) => user.quizes, { eager: true })
   user: User;
 
-  @ManyToOne(() => Quiz, (quiz) => quiz.quizResults, { eager: true })
+  @ManyToOne(() => Quiz, (quiz) => quiz.quizResults, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
   quiz: Quiz;
 }

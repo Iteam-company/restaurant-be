@@ -14,6 +14,7 @@ import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('question')
 export class QuestionController {
@@ -24,6 +25,20 @@ export class QuestionController {
   @UseGuards(AuthGuard)
   async create(@Body() createQuestionDto: CreateQuestionDto) {
     return await this.questionService.create(createQuestionDto);
+  }
+
+  @Post('create-many')
+  @AdminAccess()
+  @UseGuards()
+  @ApiBody({ type: [CreateQuestionDto] })
+  async createMany(@Body() body: CreateQuestionDto[]) {
+    const questions = [];
+
+    for await (const question of body) {
+      await questions.push(await this.questionService.create(question));
+    }
+
+    return questions;
   }
 
   @Get(':id')
