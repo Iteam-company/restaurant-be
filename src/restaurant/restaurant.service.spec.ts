@@ -16,6 +16,7 @@ import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module'
 import { UserService } from 'src/user/user.service';
 import PayloadType from 'src/types/PayloadType';
 import { forwardRef } from '@nestjs/common';
+import CreateUserDto from 'src/user/dto/create-user.dto';
 
 describe('RestaurantService', () => {
   let restaurantService: RestaurantService;
@@ -23,16 +24,13 @@ describe('RestaurantService', () => {
 
   let restaurantRepository: Repository<Restaurant>;
 
-  let restaurantExample = {
-    id: 0,
+  const restaurantExample: CreateRestaurantDto = {
     name: 'TruePrice',
     address: 'qwertyuiolkmn bnjkl',
-    menu: [],
-    workers: [],
+    ownerId: 0,
   };
 
-  let userExample = {
-    id: 1,
+  const userExample: CreateUserDto = {
     firstName: 'Jim',
     lastName: 'Hatteberg',
     username: 'JH',
@@ -42,8 +40,7 @@ describe('RestaurantService', () => {
     password: 'qwertyuiop',
   };
 
-  const ownerExample = {
-    id: 1,
+  const ownerExample: CreateUserDto = {
     firstName: 'qq',
     lastName: 'asd',
     username: 'fgh',
@@ -52,6 +49,9 @@ describe('RestaurantService', () => {
     role: 'owner',
     password: 'qwertyuiop',
   };
+
+  let restaurantResource: Restaurant;
+  let userResource: User;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -119,7 +119,7 @@ describe('RestaurantService', () => {
       ownerId: userPayload.id,
     });
 
-    restaurantExample = result;
+    restaurantResource = result;
   });
 
   it('should link worker to restaurant', async () => {
@@ -134,17 +134,17 @@ describe('RestaurantService', () => {
     const worker = await userService.getUserById(userPayload.id);
     const dbRestaurant = await restaurantService.addWorker(
       worker.id,
-      restaurantExample.id,
+      restaurantResource.id,
     );
 
     expect(dbRestaurant).toEqual({ ...dbRestaurant, workers: [worker] });
-    userExample = worker;
+    userResource = worker;
   });
 
   it('should unlink worker from restaurant', async () => {
     const dbRestaurant = await restaurantService.removeWorker(
-      userExample.id,
-      restaurantExample.id,
+      userResource.id,
+      restaurantResource.id,
     );
 
     expect(dbRestaurant).toEqual({ ...dbRestaurant, workers: [] });
@@ -152,12 +152,12 @@ describe('RestaurantService', () => {
 
   it('should add new worker and remove restaurant with worker', async () => {
     const dbRestaurantWithWorker = await restaurantService.addWorker(
-      userExample.id,
-      restaurantExample.id,
+      userResource.id,
+      restaurantResource.id,
     );
 
     const dbRestaurant = await restaurantService.removeRestaurant(
-      restaurantExample.id,
+      restaurantResource.id,
     );
 
     expect({

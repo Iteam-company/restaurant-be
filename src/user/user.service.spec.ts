@@ -24,18 +24,19 @@ describe('UserService', () => {
 
   let userRepository: Repository<User>;
 
-  let userPassword = 'qwertyuiop';
+  let userPassword: string = 'qwertyuiop';
 
-  let userExample = {
-    id: 1,
+  const userExample: CreateUserDto = {
     firstName: 'John',
     lastName: 'Morgan',
-    username: 'JMTheBest',
-    email: 'JM@mail.com',
-    phoneNumber: '+380000000000',
+    username: 'JMTheBest1',
+    email: 'JM1@mail.com',
+    phoneNumber: '+380000000004',
     role: 'admin',
     password: userPassword,
   };
+
+  let userResource: User;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -83,7 +84,6 @@ describe('UserService', () => {
       (
         await userService.createUser(<CreateUserDto>{
           ...userExample,
-          id: undefined,
         })
       ).access_token,
     );
@@ -100,33 +100,33 @@ describe('UserService', () => {
       id: result.id,
       password: undefined,
     });
-    userExample = dbUser;
+    userResource = dbUser;
   });
 
   it('should return jwt payload', async () => {
     const result = await userService.validateUser(
-      userExample.username,
+      userResource.username,
       '',
       '',
       userPassword,
     );
 
     expect(result).toEqual({
-      id: userExample.id,
-      username: userExample.username,
-      role: userExample.role,
-      email: userExample.email,
+      id: userResource.id,
+      username: userResource.username,
+      role: userResource.role,
+      email: userResource.email,
     });
   });
 
   it('should update password and save existing user', async () => {
     const newPassword = 'asdfghjkl';
     await userService.updatePassword(<UpdateUserPasswordDto>{
-      userId: userExample.id,
+      userId: userResource.id,
       newPassword,
     });
 
-    const password = (await userRepository.findOneBy({ id: userExample.id }))
+    const password = (await userRepository.findOneBy({ id: userResource.id }))
       .password;
 
     expect(bcrypt.compareSync(newPassword, password)).toBe(true);
@@ -135,11 +135,11 @@ describe('UserService', () => {
 
   it('should update role and save existing user', async () => {
     const result = await userService.updateRole(<UpdateUserRoleDto>{
-      userId: userExample.id,
+      userId: userResource.id,
       role: 'admin',
     });
 
-    expect(result).toEqual({ ...userExample, role: 'admin' });
+    expect(result).toEqual({ ...userResource, role: 'admin' });
   });
 
   it('should update user and save existing user', async () => {
@@ -150,22 +150,22 @@ describe('UserService', () => {
     };
 
     const result = await userService.updateUser(
-      userExample.id,
+      userResource.id,
       <UpdateUserDto>updateUser,
     );
-    userExample = { ...userExample, ...updateUser };
+    userResource = { ...userResource, ...updateUser };
 
-    expect(result).toEqual(userExample);
+    expect(result).toEqual(userResource);
   });
 
   it('should delete an existing user', async () => {
-    const result = await userService.removeUser(userExample.id);
+    const result = await userService.removeUser(userResource.id);
 
     expect({
       ...result,
-      id: userExample.id,
-      password: userExample.password,
-    }).toEqual(userExample);
+      id: userResource.id,
+      password: userResource.password,
+    }).toEqual(userResource);
     expect(bcrypt.compareSync(userPassword, result.password)).toBe(true);
   });
 });

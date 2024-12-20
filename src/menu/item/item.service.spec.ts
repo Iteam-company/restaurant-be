@@ -13,33 +13,35 @@ import { ItemService } from './item.service';
 import { MenuService } from '../menu.service';
 import { MenuModule } from '../menu.module';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
-import { CreateMenuDto } from '../dto/create-menu.dto';
+import {
+  CategoriesEnum,
+  CreateMenuDto,
+  SeasonsEnum,
+} from '../dto/create-menu.dto';
+import { CreateMenuItemDto } from './dto/create-menu-item.dto';
 
 describe('UserService', () => {
   let itemService: ItemService;
   let menuService: MenuService;
 
   let itemRepository: Repository<MenuItem>;
-  let menuRepository: Repository<Menu>;
 
-  let itemExample = {
-    id: 0,
-    name: 'Cezar',
+  const itemExample: CreateMenuItemDto = {
+    name: 'Caezar',
     description: 'Salat cezar',
     ingredients: 'inifjvnijmsl,pql,xlwemokrmv',
     timeForCook: '60 min',
     price: 130,
   };
 
-  let menuExample = {
-    id: 0,
+  const menuExample: CreateMenuDto = {
     name: 'Fall hits',
-    categories: 'main courses',
-    season: 'fall',
-    menuItems: [],
-    restaurant: null,
-    quizes: [],
+    categories: CategoriesEnum.MAIN_COURSES,
+    season: SeasonsEnum.FALL,
   };
+
+  let itemResource: MenuItem;
+  let menuResource: Menu;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -66,7 +68,7 @@ describe('UserService', () => {
             synchronize: true,
           }),
         }),
-        TypeOrmModule.forFeature([Menu, MenuItem]),
+        TypeOrmModule.forFeature([Question, QuizResult, Menu, MenuItem]),
         MenuModule,
         SharedJwtAuthModule,
       ],
@@ -76,14 +78,12 @@ describe('UserService', () => {
     itemService = module.get<ItemService>(ItemService);
     menuService = module.get<MenuService>(MenuService);
     itemRepository = module.get('MenuItemRepository');
-    menuRepository = module.get('MenuRepository');
   });
 
   it('should be defined', async () => {
     expect(itemService).toBeDefined();
     expect(menuService).toBeDefined();
     expect(itemRepository).toBeDefined();
-    expect(menuRepository).toBeDefined();
   });
 
   it('should create and save a new item', async () => {
@@ -93,72 +93,80 @@ describe('UserService', () => {
       ...itemExample,
       id: result.id,
     });
-    itemExample = result;
+    itemResource = result;
   });
 
   it('should update and save existed item', async () => {
     const updateData = {
       ingredients: 'salat, egg, tomato',
     };
-    const result = await itemService.changeItem(itemExample.id, updateData);
+    const result = await itemService.changeItem(itemResource.id, updateData);
 
-    expect(result).toEqual({ ...itemExample, ...updateData });
+    expect(result).toEqual({ ...itemResource, ...updateData });
 
-    itemExample = { ...itemExample, ...updateData };
+    itemResource = { ...itemResource, ...updateData };
   });
 
   it('should add existing item to existing menu', async () => {
     const dbMenu = await menuService.create(<CreateMenuDto>menuExample);
     const dbMenuWithItem = await itemService.linkItem(
       dbMenu.id,
-      itemExample.id,
+      itemResource.id,
     );
 
     expect(dbMenuWithItem).toEqual({
       ...dbMenu,
-      menuItems: [itemExample],
+      menuItems: [itemResource],
       quizes: undefined,
       restaurant: undefined,
     });
-    menuExample = {
+    menuResource = {
       ...dbMenu,
-      menuItems: [itemExample],
+      menuItems: [itemResource],
     };
   });
 
   it('should remove existing item from existing menu', async () => {
-    const result = await itemService.unlinkItem(menuExample.id, itemExample.id);
+    const result = await itemService.unlinkItem(
+      menuResource.id,
+      itemResource.id,
+    );
 
     expect(result).toEqual({
-      ...menuExample,
+      ...menuResource,
       menuItems: [],
-      quizes: undefined,
-      restaurant: undefined,
     });
   });
 
   it('should link item to menu and delete item', async () => {
-    await itemService.linkItem(menuExample.id, itemExample.id);
-    const result = await itemService.remove(itemExample.id);
-    const dbMenu = await menuService.findOne(menuExample.id);
+    await itemService.linkItem(menuResource.id, itemResource.id);
+    const result = await itemService.remove(itemResource.id);
+    const dbMenu = await menuService.findOne(menuResource.id);
 
-    expect(result).toEqual({ ...itemExample, id: undefined });
-    expect(dbMenu).toEqual({ ...menuExample, menuItems: [] });
+    expect(result).toEqual({ ...itemResource, id: undefined });
+    expect({
+      ...dbMenu,
+      quizes: undefined,
+      restaurant: undefined,
+    }).toEqual({
+      ...menuResource,
+      menuItems: [],
+    });
 
-    menuExample = dbMenu;
+    menuResource = dbMenu;
   });
 
   it('should create and link item and after delete menu', async () => {
-    const dbItem = await itemService.create(itemExample);
-    await itemService.linkItem(menuExample.id, dbItem.id);
+    const dbItem = await itemService.create(itemResource);
+    await itemService.linkItem(menuResource.id, dbItem.id);
 
-    const result = await menuService.remove(menuExample.id);
+    const result = await menuService.remove(menuResource.id);
     const itemResult = await itemRepository.findOne({
       where: { id: dbItem.id },
       relations: ['menu'],
     });
 
-    expect(result).toEqual({ ...menuExample, id: undefined });
+    expect(result).toEqual({ ...menuResource, id: undefined });
     expect(itemResult.menu).toBeNull();
   });
 });

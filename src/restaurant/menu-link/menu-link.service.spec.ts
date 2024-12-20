@@ -12,14 +12,18 @@ import { QuizResult } from 'src/types/entity/quiz-result.entity';
 import { RestaurantModule } from '../restaurant.module';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import { RestaurantService } from '../restaurant.service';
-import { Repository } from 'typeorm';
 import { MenuService } from 'src/menu/menu.service';
 import { MenuModule } from 'src/menu/menu.module';
-import { CreateMenuDto } from 'src/menu/dto/create-menu.dto';
+import {
+  CategoriesEnum,
+  CreateMenuDto,
+  SeasonsEnum,
+} from 'src/menu/dto/create-menu.dto';
 import { forwardRef } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import CreateUserDto from 'src/user/dto/create-user.dto';
 import PayloadType from 'src/types/PayloadType';
+import CreateRestaurantDto from '../dto/create-restaurant.dto';
 
 describe('MenuLinkService', () => {
   let restaurantService: RestaurantService;
@@ -27,26 +31,19 @@ describe('MenuLinkService', () => {
   let menuService: MenuService;
   let userService: UserService;
 
-  let restaurantRepository: Repository<Restaurant>;
-  let menuRepository: Repository<Menu>;
-
-  let restaurantExample = {
-    id: 0,
+  const restaurantExample: CreateRestaurantDto = {
     name: 'Puzatka',
     address: 'qwertyuiolkmn',
-    menu: [],
-    workers: [],
+    ownerId: 0,
   };
 
-  let menuExample = {
-    id: 0,
+  const menuExample: CreateMenuDto = {
     name: 'Cesar',
-    season: 'winter',
-    categories: 'main courses',
+    season: SeasonsEnum.WINTER,
+    categories: CategoriesEnum.MAIN_COURSES,
   };
 
-  let ownerExample = {
-    id: 1,
+  const ownerExample: CreateUserDto = {
     firstName: 'ww',
     lastName: 'asd',
     username: 'vbn',
@@ -55,6 +52,10 @@ describe('MenuLinkService', () => {
     role: 'owner',
     password: 'qwertyuiop',
   };
+
+  let restarauntResource: Restaurant;
+  let menuResource: Menu;
+  let ownerResource: User;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -93,16 +94,11 @@ describe('MenuLinkService', () => {
     menuLinkService = module.get<MenuLinkService>(MenuLinkService);
     menuService = module.get<MenuService>(MenuService);
     userService = module.get<UserService>(UserService);
-
-    restaurantRepository = module.get('RestaurantRepository');
-    menuRepository = module.get('MenuRepository');
   });
 
   it('should be defined', () => {
     expect(restaurantService).toBeDefined();
-    expect(restaurantRepository).toBeDefined();
     expect(menuLinkService).toBeDefined();
-    expect(menuRepository).toBeDefined();
   });
 
   it('should create restaurant and menu', async () => {
@@ -123,35 +119,36 @@ describe('MenuLinkService', () => {
     expect(dbRestaurant).toBeDefined();
     expect(dbMenu).toBeDefined();
 
-    restaurantExample = dbRestaurant;
-    menuExample = dbMenu;
-    ownerExample = await userService.getUserById(payloadUser.id);
+    restarauntResource = dbRestaurant;
+    menuResource = dbMenu;
+    ownerResource = await userService.getUserById(payloadUser.id);
   });
 
   it('should link menu to restaurant', async () => {
     const dbRestaurantWithMenu = await menuLinkService.linkMenuToRestaurant(
-      menuExample.id,
-      restaurantExample.id,
+      menuResource.id,
+      restarauntResource.id,
     );
 
     expect({
       ...dbRestaurantWithMenu,
-      owner: ownerExample,
-      ownerId: ownerExample.id,
+      owner: ownerResource,
+      ownerId: ownerResource.id,
+      workers: undefined,
     }).toEqual({
-      ...restaurantExample,
-      menu: [<Menu>menuExample],
+      ...restarauntResource,
+      menu: [<Menu>menuResource],
     });
   });
 
   it('should unlink menu from restaurant', async () => {
     const dbMenu = await menuLinkService.unlinkMenuFromRestaurant(
-      menuExample.id,
-      restaurantExample.id,
+      menuResource.id,
+      restarauntResource.id,
     );
 
     expect({ ...dbMenu }).toEqual({
-      ...menuExample,
+      ...menuResource,
       restaurant: null,
     });
   });

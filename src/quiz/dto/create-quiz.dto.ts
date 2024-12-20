@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export enum DeifficultyLevelEnum {
+export enum DifficultyLevelEnum {
   EASY = 'easy',
   MEDIUM = 'medium',
   HARD = 'hard',
 }
 
-export enum StatuseEnum {
+export enum StatusEnum {
   IN_PROGRESS = 'in-progress',
   COMPLETED = 'completed',
   NOT_STARTED = 'not-started',
@@ -20,9 +20,9 @@ export class CreateQuizDto {
   title: string;
 
   @ApiProperty({ description: 'Quiz dificulty' })
-  @IsEnum(DeifficultyLevelEnum)
+  @IsEnum(DifficultyLevelEnum)
   @IsNotEmpty()
-  difficultyLevel: DeifficultyLevelEnum;
+  difficultyLevel: DifficultyLevelEnum;
 
   @ApiProperty({ description: 'Time limit in minter' })
   @IsNumber()
@@ -30,9 +30,9 @@ export class CreateQuizDto {
   timeLimit: number;
 
   @ApiProperty({ description: 'Quiz status' })
-  @IsEnum(StatuseEnum)
+  @IsEnum(StatusEnum)
   @IsNotEmpty()
-  status: StatuseEnum;
+  status: StatusEnum;
 
   @ApiProperty({ description: 'Menu id quiz for' })
   @IsNumber()
