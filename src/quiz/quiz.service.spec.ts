@@ -10,10 +10,18 @@ import { Quiz } from 'src/types/entity/quiz.entity';
 import { Question } from 'src/types/entity/question.entity';
 import { QuizResult } from 'src/types/entity/quiz-result.entity';
 import { QuizService } from './quiz.service';
-import { CreateQuizDto } from './dto/create-quiz.dto';
+import {
+  CreateQuizDto,
+  DifficultyLevelEnum,
+  StatusEnum,
+} from './dto/create-quiz.dto';
 import { MenuModule } from 'src/menu/menu.module';
 import { MenuService } from 'src/menu/menu.service';
-import { CreateMenuDto } from 'src/menu/dto/create-menu.dto';
+import {
+  CategoriesEnum,
+  CreateMenuDto,
+  SeasonsEnum,
+} from 'src/menu/dto/create-menu.dto';
 import { QuestionModule } from 'src/question/question.module';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
@@ -24,22 +32,21 @@ describe('QuizService', () => {
 
   let quizRepository: Repository<Quiz>;
 
-  let menuExample = {
-    id: 0,
+  const menuExample: CreateMenuDto = {
     name: 'Spring',
-    categories: 'main courses',
-    season: 'spring',
-    menuItems: [],
-    restaurant: null,
-    quizes: [],
+    categories: CategoriesEnum.MAIN_COURSES,
+    season: SeasonsEnum.SPRING,
   };
-  let quizExample = {
-    id: 0,
+  const quizExample: CreateQuizDto = {
     title: 'string',
-    difficultyLevel: 'easy',
+    difficultyLevel: DifficultyLevelEnum.EASY,
     timeLimit: 60,
-    status: 'in-progress',
+    status: StatusEnum.IN_PROGRESS,
+    menuId: 0,
   };
+
+  let menuResource: Menu;
+  let quizResource: Quiz;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -66,7 +73,7 @@ describe('QuizService', () => {
             synchronize: true,
           }),
         }),
-        TypeOrmModule.forFeature([Quiz, Menu]),
+        TypeOrmModule.forFeature([Quiz]),
         MenuModule,
         QuestionModule,
         RestaurantModule,
@@ -95,48 +102,60 @@ describe('QuizService', () => {
 
     expect({
       ...result,
+      menu: {
+        ...result.menu,
+        menuItems: undefined,
+        quizes: undefined,
+        restaurant: undefined,
+      },
       menuId: undefined,
       createAt: undefined,
       createdAt: undefined,
     }).toEqual({
       ...quizExample,
       menu: dbMenu,
+      menuId: undefined,
       id: result.id,
     });
-    quizExample = await quizService.findOne(result.id);
-    menuExample = dbMenu;
+    quizResource = await quizService.findOne(result.id);
+    menuResource = dbMenu;
   });
 
   it('should update existing quiz', async () => {
     const updateData = {
       title: 'qwerty',
     };
-    const result = await quizService.update(quizExample.id, updateData);
+    const result = await quizService.update(quizResource.id, updateData);
 
     expect({ ...result }).toEqual({
-      ...quizExample,
+      ...quizResource,
       ...updateData,
     });
-    quizExample = { ...quizExample, ...updateData };
+    quizResource = { ...quizResource, ...updateData };
   });
 
   it('should remove quiz without removing menu', async () => {
-    const result = await quizService.remove(quizExample.id);
+    const result = await quizService.remove(quizResource.id);
 
-    expect({ ...result }).toEqual({ ...quizExample, id: undefined });
+    expect({ ...result }).toEqual({ ...quizResource, id: undefined });
   });
 
   it('should create new quiz and remove menu with quiz', async () => {
     const dbCreateQuiz = await quizService.create(<CreateQuizDto>{
-      ...quizExample,
-      menuId: menuExample.id,
+      ...quizResource,
+      menuId: menuResource.id,
     });
 
-    const result = await menuService.remove(menuExample.id);
+    const result = await menuService.remove(menuResource.id);
 
     expect(result.quizes.length !== 0).toBeTruthy();
-    expect({ ...result, quizes: [] }).toEqual({
-      ...menuExample,
+    expect({
+      ...result,
+      quizes: undefined,
+      menuItems: undefined,
+      restaurant: undefined,
+    }).toEqual({
+      ...menuResource,
       id: undefined,
     });
     const dbQuiz = await quizRepository.findOneBy({ id: dbCreateQuiz.id });

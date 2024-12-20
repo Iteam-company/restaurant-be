@@ -22,8 +22,8 @@ import {
 } from 'src/menu/dto/create-menu.dto';
 import {
   CreateQuizDto,
-  DeifficultyLevelEnum,
-  StatuseEnum,
+  DifficultyLevelEnum,
+  StatusEnum,
 } from '../dto/create-quiz.dto';
 import { CreateMenuItemDto } from 'src/menu/item/dto/create-menu-item.dto';
 import { ItemModule } from 'src/menu/item/item.module';
@@ -39,21 +39,21 @@ describe('OpenaiService', () => {
 
   const menuExample: CreateMenuDto = {
     name: 'Question generation',
-    categories: CategoriesEnum.MAIN_COURSES,
+    categories: CategoriesEnum.DESSERTS,
     season: SeasonsEnum.SUMMER,
   };
 
   const quizExample: CreateQuizDto = {
     title: 'string',
-    difficultyLevel: DeifficultyLevelEnum.EASY,
+    difficultyLevel: DifficultyLevelEnum.EASY,
     timeLimit: 60,
-    status: StatuseEnum.IN_PROGRESS,
+    status: StatusEnum.IN_PROGRESS,
     menuId: 0,
   };
 
   const menuItemsExamples: CreateMenuItemDto[] = [
     {
-      name: 'Caezar',
+      name: 'Caezar 2',
       description:
         'is a green salad of romaine lettuce and croutons dressed with lemon juice (or lime juice), olive oil, eggs, Worcestershire sauce, anchovies, garlic, Dijon mustard, Parmesan and black pepper.',
       ingredients: `Romaine lettuce
@@ -72,7 +72,7 @@ describe('OpenaiService', () => {
       price: 130,
     },
     {
-      name: 'Borsch',
+      name: 'Borsch 2',
       description:
         ' is a sour soup, made with meat stock, vegetables and seasonings, common in Eastern Europe and Northern Asia.',
       ingredients: `beetroots, white cabbage, carrots, parsley root, potatoes, onions and tomatoes.`,

@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import User from 'src/types/entity/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Repository } from 'typeorm';
 import Restaurant from 'src/types/entity/restaurant.entity';
 import Menu from 'src/types/entity/menu.entity';
 import MenuItem from 'src/types/entity/menu-item.entity';
@@ -10,7 +9,11 @@ import { Quiz } from 'src/types/entity/quiz.entity';
 import { Question } from 'src/types/entity/question.entity';
 import { QuizResult } from 'src/types/entity/quiz-result.entity';
 import { MenuService } from './menu.service';
-import { CreateMenuDto } from './dto/create-menu.dto';
+import {
+  CategoriesEnum,
+  CreateMenuDto,
+  SeasonsEnum,
+} from './dto/create-menu.dto';
 import { QuizModule } from 'src/quiz/quiz.module';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import { UpdateMenuDto } from './dto/update-menu.dto';
@@ -18,17 +21,13 @@ import { UpdateMenuDto } from './dto/update-menu.dto';
 describe('MenuService', () => {
   let menuService: MenuService;
 
-  let menuRepository: Repository<Menu>;
-
-  let menuExample = {
-    id: 0,
+  const menuExample: CreateMenuDto = {
     name: 'Summer hits',
-    categories: 'main courses',
-    season: 'summer',
-    menuItems: [],
-    restaurant: null,
-    quizes: [],
+    categories: CategoriesEnum.MAIN_COURSES,
+    season: SeasonsEnum.SUMMER,
   };
+
+  let menuResource: Menu;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -63,12 +62,10 @@ describe('MenuService', () => {
     }).compile();
 
     menuService = module.get<MenuService>(MenuService);
-    menuRepository = module.get('MenuRepository');
   });
 
   it('should be defined', async () => {
     expect(menuService).toBeDefined();
-    expect(menuRepository).toBeDefined();
   });
 
   it('should create and save a new menu', async () => {
@@ -80,27 +77,29 @@ describe('MenuService', () => {
       ...menuExample,
       id: result.id,
     });
-    menuExample = result;
+    menuResource = await menuService.findOne(result.id);
   });
 
   it('should update and save existing menu', async () => {
     const updateData = {
       name: 'Winter hits',
-      season: 'winter',
+      season: SeasonsEnum.WINTER,
     };
     const result = await menuService.update(
-      menuExample.id,
+      menuResource.id,
       <UpdateMenuDto>updateData,
     );
 
-    expect(result).toEqual({ ...menuExample, ...updateData });
+    expect({
+      ...result,
+    }).toEqual({ ...menuResource, ...updateData });
 
-    menuExample = { ...menuExample, ...updateData };
+    menuResource = { ...menuResource, ...updateData };
   });
 
   it('should remove existing menu', async () => {
-    const result = await menuService.remove(menuExample.id);
+    const result = await menuService.remove(menuResource.id);
 
-    expect(result).toEqual({ ...menuExample, id: undefined });
+    expect(result).toEqual({ ...menuResource, id: undefined });
   });
 });

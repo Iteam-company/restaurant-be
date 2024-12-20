@@ -29,7 +29,7 @@ export class ItemService {
   }
 
   async getMenu(menuId: number) {
-    return await this.menuItemRepository.findBy({ id: menuId });
+    return await this.menuRepository.findBy({ id: menuId });
   }
 
   async changeItem(menuItemId: number, item: UpdateMenuItemDto) {

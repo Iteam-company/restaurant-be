@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import User from 'src/types/entity/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Repository } from 'typeorm';
 import Restaurant from 'src/types/entity/restaurant.entity';
 import Menu from 'src/types/entity/menu.entity';
 import MenuItem from 'src/types/entity/menu-item.entity';
@@ -13,14 +12,23 @@ import { QuizResultsService } from './quiz-results.service';
 import { QuizModule } from 'src/quiz/quiz.module';
 import PayloadType from 'src/types/PayloadType';
 import { QuizService } from 'src/quiz/quiz.service';
-import { CreateQuizDto } from 'src/quiz/dto/create-quiz.dto';
+import {
+  CreateQuizDto,
+  DifficultyLevelEnum,
+  StatusEnum,
+} from 'src/quiz/dto/create-quiz.dto';
 import { MenuService } from 'src/menu/menu.service';
-import { CreateMenuDto } from 'src/menu/dto/create-menu.dto';
+import {
+  CategoriesEnum,
+  CreateMenuDto,
+  SeasonsEnum,
+} from 'src/menu/dto/create-menu.dto';
 import { MenuModule } from 'src/menu/menu.module';
 import { UserModule } from 'src/user/user.module';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import CreateUserDto from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
+import { CreateQuizResultDto } from './dto/create-quiz-result.dto';
 
 describe('QuizResultService', () => {
   let quizResultService: QuizResultsService;
@@ -28,34 +36,24 @@ describe('QuizResultService', () => {
   let quizService: QuizService;
   let userService: UserService;
 
-  let quizResultRepository: Repository<QuizResult>;
-
-  let quizResultExample = {
-    id: 0,
+  const quizResultExample: CreateQuizResultDto = {
     score: '90/100',
     quizId: 0,
-    quiz: undefined,
   };
 
-  const menuExample = {
-    id: 0,
+  const menuExample: CreateMenuDto = {
     name: 'zxcvbnm',
-    categories: 'main courses',
-    season: 'spring',
-    menuItems: [],
-    restaurant: null,
-    quizes: [],
+    categories: CategoriesEnum.MAIN_COURSES,
+    season: SeasonsEnum.SUMMER,
   };
-  const quizExample = {
-    id: 0,
+  const quizExample: CreateQuizDto = {
     title: 'string',
-    difficultyLevel: 'easy',
+    difficultyLevel: DifficultyLevelEnum.EASY,
     timeLimit: 60,
-    status: 'in-progress',
+    status: StatusEnum.IN_PROGRESS,
+    menuId: 0,
   };
-
-  let userExample = {
-    id: 1,
+  const userExample: CreateUserDto = {
     firstName: 'J',
     lastName: 'M',
     username: 'JMBest',
@@ -64,6 +62,9 @@ describe('QuizResultService', () => {
     role: 'admin',
     password: 'qwertyuiop',
   };
+
+  let quizResultResource: QuizResult;
+  let userResource: User;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -103,12 +104,13 @@ describe('QuizResultService', () => {
     menuService = module.get<MenuService>(MenuService);
     quizService = module.get<QuizService>(QuizService);
     userService = module.get<UserService>(UserService);
-    quizResultRepository = module.get('QuizResultRepository');
   });
 
   it('should be defined', async () => {
     expect(quizResultService).toBeDefined();
-    expect(quizResultRepository).toBeDefined();
+    expect(menuService).toBeDefined();
+    expect(quizService).toBeDefined();
+    expect(userService).toBeDefined();
   });
 
   it('should create and save a new user', async () => {
@@ -142,40 +144,41 @@ describe('QuizResultService', () => {
       quizId: result.quizId,
       user: dbUser,
     });
-    quizResultExample = {
+    quizResultResource = {
       ...result,
       quiz: { ...result.quiz, menu: undefined, questions: undefined },
-      quizId: undefined,
     };
-    userExample = dbUser;
+    userResource = dbUser;
   });
 
   it('should return quiz result', async () => {
-    const result = await quizResultService.findOne(quizResultExample.id, {
-      id: userExample.id,
-      email: userExample.email,
+    const result = await quizResultService.findOne(quizResultResource.id, {
+      id: userResource.id,
+      email: userResource.email,
       role: 'waiter',
-      username: userExample.username,
+      username: userResource.username,
     });
 
     expect({
       ...result,
       user: { ...result.user, password: undefined },
     }).toEqual({
-      ...quizResultExample,
+      ...quizResultResource,
+      quizId: undefined,
     });
   });
 
   it('should remove quiz result', async () => {
-    const result = await quizResultService.remove(quizResultExample.id);
+    const result = await quizResultService.remove(quizResultResource.id);
 
     expect({
       ...result,
     }).toEqual({
-      ...quizResultExample,
+      ...quizResultResource,
       id: undefined,
       user: null,
       quiz: null,
+      quizId: undefined,
     });
   });
 });
