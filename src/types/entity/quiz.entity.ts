@@ -21,7 +21,10 @@ export class Quiz {
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => Question, (question) => question.quiz)
+  @OneToMany(() => Question, (question) => question.quiz, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   questions: Question[];
 
   @Column({ enum: ['easy', 'medium', 'hard'] })
@@ -33,9 +36,11 @@ export class Quiz {
   @Column({ enum: ['in-progress', 'completed', 'not-started'] })
   status: 'in-progress' | 'completed' | 'not-started';
 
-  @ManyToOne(() => Menu, (menu) => menu.quizes)
+  @ManyToOne(() => Menu, (menu) => menu.quizes, { onDelete: 'CASCADE' })
   menu: Menu;
 
-  @OneToMany(() => QuizResult, (quizResult) => quizResult.quiz)
+  @OneToMany(() => QuizResult, (quizResult) => quizResult.quiz, {
+    cascade: true,
+  })
   quizResults: QuizResult[];
 }

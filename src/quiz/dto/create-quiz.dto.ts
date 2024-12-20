@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-enum DeifficultyLevelEnum {
+export enum DeifficultyLevelEnum {
   EASY = 'easy',
   MEDIUM = 'medium',
   HARD = 'hard',
 }
 
-enum StatuseEnum {
+export enum StatuseEnum {
   IN_PROGRESS = 'in-progress',
   COMPLETED = 'completed',
   NOT_STARTED = 'not-started',

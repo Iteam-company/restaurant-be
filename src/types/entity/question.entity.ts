@@ -18,6 +18,6 @@ export class Question {
   @Column()
   multipleCorrect: boolean;
 
-  @ManyToOne(() => Quiz, (quiz) => quiz.questions)
+  @ManyToOne(() => Quiz, (quiz) => quiz.questions, { onDelete: 'CASCADE' })
   quiz: Quiz;
 }

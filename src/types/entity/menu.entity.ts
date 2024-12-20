@@ -29,6 +29,8 @@ export default class Menu {
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.menu)
   restaurant: Restaurant;
 
-  @OneToMany(() => Quiz, (quiz) => quiz.menu)
+  @OneToMany(() => Quiz, (quiz) => quiz.menu, {
+    cascade: true,
+  })
   quizes: Quiz[];
 }

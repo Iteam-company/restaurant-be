@@ -9,6 +9,7 @@ import {
   BadRequestException,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
@@ -17,10 +18,14 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import AdminAccess from 'src/types/AdminAccess';
 import { ApiBody } from '@nestjs/swagger';
 import RequestType from 'src/types/RequestType';
+import { OpenaiService } from './openai/openai.service';
 
 @Controller('quiz')
 export class QuizController {
-  constructor(private readonly quizService: QuizService) {}
+  constructor(
+    private readonly quizService: QuizService,
+    private readonly openaiService: OpenaiService,
+  ) {}
 
   @Post()
   @AdminAccess()
@@ -103,5 +108,18 @@ export class QuizController {
       throw new BadRequestException(`Param id: ${quizId} is not a number`);
 
     return await this.quizService.unlinkMenuQuiz(+menuId, +quizId);
+  }
+
+  @Get('generate/questions/:menuId')
+  @AdminAccess()
+  @UseGuards(AuthGuard)
+  async getQuestions(
+    @Param('menuId') menuId: number,
+    @Query('count') count: number,
+  ) {
+    if (Number.isNaN(+menuId))
+      throw new BadRequestException(`Param menuId: ${menuId} is not a number`);
+
+    return await this.openaiService.getQuestions(menuId, count);
   }
 }

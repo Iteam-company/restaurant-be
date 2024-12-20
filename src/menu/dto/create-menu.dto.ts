@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
-enum SeasonsEnum {
+export enum SeasonsEnum {
   SPRING = 'spring',
   SUMMER = 'summer',
   FALL = 'fall',
   WINTER = 'winter',
 }
 
-enum CategoriesEnum {
+export enum CategoriesEnum {
   APPETIZERS = 'appetizers',
   MAIN_COURSES = 'main courses',
   DESSERTS = 'desserts',

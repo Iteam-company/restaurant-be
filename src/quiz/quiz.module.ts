@@ -6,16 +6,17 @@ import { Quiz } from 'src/types/entity/quiz.entity';
 import { MenuModule } from 'src/menu/menu.module';
 import { QuestionModule } from 'src/question/question.module';
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
+import { OpenaiService } from './openai/openai.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Quiz]),
     forwardRef(() => QuestionModule),
-    forwardRef(() => MenuModule),
+    MenuModule,
     RestaurantModule,
   ],
   exports: [QuizService],
   controllers: [QuizController],
-  providers: [QuizService],
+  providers: [QuizService, OpenaiService],
 })
 export class QuizModule {}
