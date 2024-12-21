@@ -54,11 +54,11 @@ describe('QuizResultService', () => {
     menuId: 0,
   };
   const userExample: CreateUserDto = {
-    firstName: 'J',
-    lastName: 'M',
-    username: 'JMBest',
-    email: 'JM1@mail.com',
-    phoneNumber: '+380000000001',
+    firstName: 'Jim',
+    lastName: 'Kerry',
+    username: 'JKBest',
+    email: 'JK1@mail.com',
+    phoneNumber: '+380000000012',
     role: 'admin',
     password: 'qwertyuiop',
   };
