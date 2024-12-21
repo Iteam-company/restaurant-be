@@ -92,6 +92,7 @@ describe('RestaurantService', () => {
 
   it('should be defined', async () => {
     expect(restaurantRepository).toBeDefined();
+    expect(userService).toBeDefined();
     expect(restaurantService).toBeDefined();
   });
 

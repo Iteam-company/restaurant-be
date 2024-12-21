@@ -34,6 +34,7 @@ describe('AuthService', () => {
 
   it('should be defined', async () => {
     expect(authService).toBeDefined();
+    expect(authGuard).toBeDefined();
   });
 
   it('should create and validate token', async () => {

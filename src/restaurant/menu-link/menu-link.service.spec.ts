@@ -99,6 +99,8 @@ describe('MenuLinkService', () => {
   it('should be defined', () => {
     expect(restaurantService).toBeDefined();
     expect(menuLinkService).toBeDefined();
+    expect(menuService).toBeDefined();
+    expect(userService).toBeDefined();
   });
 
   it('should create restaurant and menu', async () => {
