@@ -97,6 +97,8 @@ describe('QuestionService', () => {
 
   it('should be defined', async () => {
     expect(questionService).toBeDefined();
+    expect(menuService).toBeDefined();
+    expect(quizService).toBeDefined();
   });
 
   it('should create and save a new question', async () => {

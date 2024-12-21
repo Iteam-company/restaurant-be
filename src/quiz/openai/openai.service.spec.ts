@@ -118,6 +118,9 @@ describe('OpenaiService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+    expect(menuService).toBeDefined();
+    expect(menuItemService).toBeDefined();
+    expect(quizService).toBeDefined();
   });
 
   it('should generate JSON questions', async () => {
