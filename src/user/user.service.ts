@@ -16,6 +16,8 @@ import UpdateUserRoleDto from 'src/user/dto/update-user-role.dto';
 import { AuthService } from 'src/auth/auth.service';
 import PayloadType from 'src/types/PayloadType';
 import UpdateUserDto from 'src/user/dto/update-user.dto';
+import { v2 as cloudinary } from 'cloudinary';
+import { join } from 'path';
 
 @Injectable()
 export class UserService {
@@ -57,6 +59,7 @@ export class UserService {
       username: user.username,
       role: user.role,
       email: user.email,
+      icon: user.icon,
     };
   }
 
@@ -126,14 +129,34 @@ export class UserService {
     return this.getUserById(body.userId);
   }
 
+  async updateIcon(id: number, imageUrl: string) {
+    const dbUser = await this.userRepository.findOneBy({ id });
+    if (!dbUser) throw new NotFoundException('User with this id is not exist');
+
+    if (dbUser.icon) await this.getPublicIdCloudinary(dbUser);
+
+    await this.userRepository.update(id, { icon: imageUrl });
+
+    return { imageUrl };
+  }
+
   async removeUser(id: number) {
     const dbUser = await this.userRepository.findOneBy({ id: id });
     if (!dbUser) throw new NotFoundException('User not found');
 
-    return await this.userRepository.remove(dbUser);
+    if (dbUser.icon) await this.getPublicIdCloudinary(dbUser);
+
+    return await this.userRepository.save(dbUser);
   }
 
   private readonly saltRounds = 10;
+
+  private async getPublicIdCloudinary(dbUser: User) {
+    const url = dbUser.icon.split('/');
+    await cloudinary.api.delete_resources([
+      join('icons', url[url.length - 1].split('.')[0]),
+    ]);
+  }
 
   async hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, this.saltRounds);
