@@ -10,7 +10,7 @@ import { MenuLinkService } from './menu-link.service';
 import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
 
-@Controller('restourant/menu')
+@Controller('restaurant/menu')
 export class MenuLinkController {
   constructor(private readonly menuLinkService: MenuLinkService) {}
 

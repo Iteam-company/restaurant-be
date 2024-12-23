@@ -29,10 +29,23 @@ export class MenuLinkService {
 
     await this.menuRepository.save(dbMenu);
 
-    return await this.restaurantRepository.findOne({
-      where: { id: restaurantId },
-      relations: ['menu', 'workers'],
-    });
+    return await this.restaurantRepository
+      .createQueryBuilder('restaurant')
+      .leftJoinAndSelect('restaurant.workers', 'user')
+      .leftJoinAndSelect('restaurant.menu', 'menu')
+      .select([
+        'restaurant',
+        'menu',
+        'user.id',
+        'user.firstName',
+        'user.lastName',
+        'user.username',
+        'user.role',
+        'user.email',
+        'user.phoneNumber',
+      ])
+      .where('restaurant.id = :id', { id: restaurantId })
+      .getOne();
   }
 
   async unlinkMenuFromRestaurant(menuId: number, restaurantId: number) {
