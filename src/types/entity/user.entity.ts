@@ -34,6 +34,9 @@ export default class User {
   @Column()
   password: string;
 
+  @Column({ nullable: true })
+  icon: string;
+
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.workers)
   restaurant: Restaurant;
 

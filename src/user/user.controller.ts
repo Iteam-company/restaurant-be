@@ -15,6 +15,7 @@ import RequestType from 'src/types/RequestType';
 import AdminAccess from 'src/types/AdminAccess';
 import UpdateUserPasswordDto from 'src/user/dto/update-user-password.dto';
 import UpdateUserRoleDto from 'src/user/dto/update-user-role.dto';
+import UseIconInterceptor from 'src/types/UseIconInterceptor';
 
 @Controller('user')
 export class UserController {
@@ -22,7 +23,9 @@ export class UserController {
 
   @Get()
   @UseGuards(AuthGuard)
+  @UseIconInterceptor()
   async getUser(@Request() req: RequestType) {
+    console.log(req.imageUrl);
     return await this.userService.getUserById(req.user.id);
   }
 
@@ -34,6 +37,13 @@ export class UserController {
     @Body() body: CreateUpdateUserDto,
   ) {
     return await this.userService.updateUser(req.user.id, body);
+  }
+
+  @Patch('icon')
+  @UseGuards(AuthGuard)
+  @UseIconInterceptor()
+  async changeIcon(@Request() req: RequestType) {
+    return await this.userService.updateIcon(req.user.id, req.imageUrl);
   }
 
   @Patch('password')
