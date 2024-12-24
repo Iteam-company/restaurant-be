@@ -146,7 +146,7 @@ export class UserService {
 
     if (dbUser.icon) await this.getPublicIdCloudinary(dbUser);
 
-    return await this.userRepository.save(dbUser);
+    return await this.userRepository.remove(dbUser);
   }
 
   private readonly saltRounds = 10;

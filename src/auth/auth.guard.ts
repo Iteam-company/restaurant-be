@@ -7,21 +7,28 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Reflector } from '@nestjs/core';
+import { ModuleRef, Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 import RequestType from 'src/types/RequestType';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  private userService: UserService;
+
   constructor(
     private readonly reflector: Reflector,
     private readonly jwtService: JwtService,
+    private readonly moduleRef: ModuleRef,
   ) {
     this.jwtService = jwtService;
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (!this.userService)
+      this.userService = this.moduleRef.get(UserService, { strict: false });
+
     const isAdminOnly =
       this.reflector.get('isAdminOnly', context.getHandler()) ?? false;
 
@@ -37,13 +44,16 @@ export class AuthGuard implements CanActivate {
 
   private async httpValidation(req: RequestType, isAdminOnly: boolean) {
     const auth = req.headers['authorization'] as string;
-    if (auth && !auth.startsWith('Bearer ')) throw new UnauthorizedException();
+    if (auth && !auth.startsWith('Bearer '))
+      throw new UnauthorizedException('JWT is not found in headers');
 
     try {
       const payload = await this.validateToken(auth.split(' ')[1]);
       req.user = payload;
+
+      await this.userService.getUserById(payload.id);
     } catch {
-      throw new UnauthorizedException('JWT is not found in headers');
+      throw new UnauthorizedException('JWT is expired or not valid');
     }
 
     if (isAdminOnly && req.user.role !== 'admin')
