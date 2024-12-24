@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export default class CreateRestaurantDto {
@@ -13,6 +14,7 @@ export default class CreateRestaurantDto {
   address: string;
 
   @ApiProperty({ description: 'Owner id' })
+  @Transform(({ value }) => +value)
   @IsNumber()
   @IsNotEmpty()
   ownerId: number;

@@ -69,14 +69,16 @@ export class RestaurantService {
       .getMany();
   }
 
-  async createRestaurant(restaurant: CreateRestaurantDto) {
+  async createRestaurant(restaurant: CreateRestaurantDto, url: string) {
     const dbUser = await this.userService.getUserById(restaurant.ownerId);
     if (!dbUser) throw new NotFoundException('Owner with this id is not exist');
+
     if (dbUser.role !== 'owner')
       throw new BadRequestException('User with this id is not owner');
 
     return await this.restaurantRepository.save({
       ...restaurant,
+      image: url,
       owner: dbUser,
     });
   }
@@ -94,11 +96,12 @@ export class RestaurantService {
   }
 
   async updateImage(id: number, imageUrl: string) {
-    const dbRestaraunt = await this.getRestaurant(id);
-    if (!dbRestaraunt)
+    const dbRestaurant = await this.getRestaurant(id);
+    if (!dbRestaurant)
       throw new NotFoundException('Restaurant with this id is not exist');
 
-    if (dbRestaraunt.image) await this.removeCloudinaryImage(dbRestaraunt);
+    if (dbRestaurant.image)
+      await this.removeCloudinaryImage(dbRestaurant.image);
 
     await this.restaurantRepository.update(id, { image: imageUrl });
 
@@ -115,6 +118,9 @@ export class RestaurantService {
     for await (const worker of dbRestaurant.workers) {
       await this.removeWorker(worker.id, id);
     }
+
+    if (dbRestaurant.image)
+      await this.removeCloudinaryImage(dbRestaurant.image);
 
     return await this.restaurantRepository.remove(dbRestaurant);
   }
@@ -156,8 +162,8 @@ export class RestaurantService {
     return await this.restaurantRepository.save(dbRestaurant);
   }
 
-  private async removeCloudinaryImage(dbRestaraunt: Restaurant) {
-    const url = dbRestaraunt.image.split('/');
+  async removeCloudinaryImage(image: string) {
+    const url = image.split('/');
     await cloudinary.api.delete_resources([
       join('restaurants', url[url.length - 1].split('.')[0]),
     ]);

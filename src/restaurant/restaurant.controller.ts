@@ -28,12 +28,22 @@ export class RestaurantController {
   @AdminAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateRestaurantDto })
+  @UseImageInterceptor()
   async createRestaurant(@Request() req, @Body() body: CreateRestaurantDto) {
-    const restaurant = await this.restaurantService.createRestaurant(body);
+    try {
+      const restaurant = await this.restaurantService.createRestaurant(
+        body,
+        req.imageUrl,
+      );
 
-    await this.restaurantService.addWorker(req.user.id, restaurant.id);
+      await this.restaurantService.addWorker(req.user.id, restaurant.id);
 
-    return restaurant;
+      return restaurant;
+    } catch (err) {
+      if (req.imageUrl)
+        await this.restaurantService.removeCloudinaryImage(req.imageUrl);
+      throw err;
+    }
   }
 
   @Get('owner-by/')
