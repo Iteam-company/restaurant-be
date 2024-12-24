@@ -16,10 +16,11 @@ import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import AdminAccess from 'src/types/AdminAccess';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import RequestType from 'src/types/RequestType';
 import { OpenaiService } from './openai/openai.service';
 
+@ApiBearerAuth()
 @Controller('quiz')
 export class QuizController {
   constructor(

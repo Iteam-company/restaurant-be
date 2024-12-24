@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,7 +21,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import { join } from 'path';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -34,6 +35,10 @@ export class UserService {
     if (!dbUser) throw new NotFoundException('User not found');
 
     return { ...dbUser, password: undefined };
+  }
+
+  async onModuleInit() {
+    await this.seed();
   }
 
   async validateUser(
@@ -167,5 +172,29 @@ export class UserService {
     hashedPassword: string,
   ): Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword);
+  }
+
+  async seed() {
+    // Check if admin exists
+    const adminExists = await this.userRepository.findOne({
+      where: { email: 'test@gmail.com' },
+    });
+
+    if (!adminExists) {
+      const hashedPassword = await bcrypt.hash('12345678', 10);
+
+      const admin = this.userRepository.create({
+        firstName: 'Admin',
+        lastName: 'User',
+        username: 'admin',
+        role: 'admin',
+        email: 'test@gmail.com',
+        phoneNumber: '+1234567890',
+        password: hashedPassword,
+      });
+
+      await this.userRepository.save(admin);
+      console.log('Admin user seeded');
+    }
   }
 }

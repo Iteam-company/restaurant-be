@@ -9,7 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { UserService } from 'src/user/user.service';
 import CreateUserDto from 'src/user/dto/create-user.dto';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import CreateLoginDto from 'src/auth/dto/create-login.dto';
 import { AuthGuard } from './auth.guard';
 import RequestType from 'src/types/RequestType';
@@ -39,6 +39,7 @@ export class AuthController {
     return await this.userService.createUser(body);
   }
 
+  @ApiBearerAuth()
   @Get('me')
   @UseGuards(AuthGuard)
   async getMe(@Request() req: RequestType) {

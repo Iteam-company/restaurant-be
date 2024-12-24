@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
-import { ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import CreateUpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto';
@@ -20,6 +20,7 @@ import AdminAccess from 'src/types/AdminAccess';
 import RequestType from 'src/types/RequestType';
 import UseImageInterceptor from 'src/types/UseImageInterceptor';
 
+@ApiBearerAuth()
 @Controller('restaurant')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}

@@ -12,9 +12,10 @@ import { QuizResultsService } from './quiz-results.service';
 import { CreateQuizResultDto } from './dto/create-quiz-result.dto';
 import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import RequestType from 'src/types/RequestType';
 
+@ApiBearerAuth()
 @Controller('quiz-results')
 export class QuizResultsController {
   constructor(private readonly quizResultsService: QuizResultsService) {}
