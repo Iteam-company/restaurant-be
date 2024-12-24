@@ -112,10 +112,13 @@ describe('MenuLinkService', () => {
         })
       ).access_token,
     );
-    const dbRestaurant = await restaurantService.createRestaurant({
-      ...restaurantExample,
-      ownerId: payloadUser.id,
-    });
+    const dbRestaurant = await restaurantService.createRestaurant(
+      {
+        ...restaurantExample,
+        ownerId: payloadUser.id,
+      },
+      undefined,
+    );
     const dbMenu = await menuService.create(<CreateMenuDto>menuExample);
 
     expect(dbRestaurant).toBeDefined();

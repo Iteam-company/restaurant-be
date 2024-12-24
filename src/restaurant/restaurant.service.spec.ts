@@ -105,13 +105,14 @@ describe('RestaurantService', () => {
         })
       ).access_token,
     );
-    const result = await restaurantService.createRestaurant(<
-      CreateRestaurantDto
-    >{
-      ...restaurantExample,
-      id: undefined,
-      ownerId: userPayload.id,
-    });
+    const result = await restaurantService.createRestaurant(
+      <CreateRestaurantDto>{
+        ...restaurantExample,
+        id: undefined,
+        ownerId: userPayload.id,
+      },
+      undefined,
+    );
 
     expect(result).toEqual({
       ...restaurantExample,
