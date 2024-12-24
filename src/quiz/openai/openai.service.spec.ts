@@ -28,9 +28,10 @@ import {
 import { CreateMenuItemDto } from 'src/menu/item/dto/create-menu-item.dto';
 import { ItemModule } from 'src/menu/item/item.module';
 import { ItemService } from 'src/menu/item/item.service';
+import { UserModule } from 'src/user/user.module';
 
 describe('OpenaiService', () => {
-  jest.setTimeout(10000);
+  jest.setTimeout(15000);
 
   let service: OpenaiService;
   let quizService: QuizService;
@@ -84,6 +85,10 @@ describe('OpenaiService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        ConfigModule.forRoot({
+          envFilePath: '.env',
+          isGlobal: true,
+        }),
         TypeOrmModule.forRootAsync({
           imports: [ConfigModule],
           inject: [ConfigService],
@@ -103,6 +108,7 @@ describe('OpenaiService', () => {
           }),
         }),
         forwardRef(() => MenuModule),
+        UserModule,
         ItemModule,
         QuizModule,
         SharedJwtAuthModule,

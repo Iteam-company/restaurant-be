@@ -98,6 +98,7 @@ describe('UserService', () => {
     expect(dbUser).toEqual({
       ...userExample,
       id: result.id,
+      icon: null,
       password: undefined,
     });
     userResource = dbUser;
@@ -116,6 +117,7 @@ describe('UserService', () => {
       username: userResource.username,
       role: userResource.role,
       email: userResource.email,
+      icon: null,
     });
   });
 

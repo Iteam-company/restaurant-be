@@ -157,6 +157,7 @@ describe('QuizResultService', () => {
       email: userResource.email,
       role: 'waiter',
       username: userResource.username,
+      icon: null,
     });
 
     expect({

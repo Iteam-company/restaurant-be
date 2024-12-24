@@ -14,6 +14,7 @@ describe('AuthService', () => {
     username: 'JMTheBest',
     role: 'waiter',
     email: 'JM@mail.com',
+    icon: null,
   };
 
   beforeAll(async () => {
