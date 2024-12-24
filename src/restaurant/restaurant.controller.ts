@@ -18,6 +18,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import CreateUpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto';
 import AdminAccess from 'src/types/AdminAccess';
 import RequestType from 'src/types/RequestType';
+import UseImageInterceptor from 'src/types/UseImageInterceptor';
 
 @Controller('restaurant')
 export class RestaurantController {
@@ -65,6 +66,20 @@ export class RestaurantController {
       throw new BadRequestException(`Param id: ${id} is not a number`);
 
     return await this.restaurantService.changeRestaurant(+id, body);
+  }
+
+  @Patch(':restaurantId/image')
+  @UseImageInterceptor()
+  @AdminAccess()
+  @UseGuards(AuthGuard)
+  async updateRestaurantImage(
+    @Request() req: RequestType,
+    @Param('restaurantId') id: string,
+  ) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
+    return await this.restaurantService.updateImage(+id, req.imageUrl);
   }
 
   @Delete(':restaurantId')

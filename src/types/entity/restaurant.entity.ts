@@ -19,6 +19,9 @@ export default class Restaurant {
   @Column()
   address: string;
 
+  @Column({ nullable: true })
+  image: string;
+
   @OneToMany(() => User, (user) => user.restaurant)
   workers: User[];
 

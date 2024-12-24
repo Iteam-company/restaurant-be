@@ -133,7 +133,7 @@ export class UserService {
     const dbUser = await this.userRepository.findOneBy({ id });
     if (!dbUser) throw new NotFoundException('User with this id is not exist');
 
-    if (dbUser.icon) await this.getPublicIdCloudinary(dbUser);
+    if (dbUser.icon) await this.removeCloudinaryImage(dbUser);
 
     await this.userRepository.update(id, { icon: imageUrl });
 
@@ -144,14 +144,14 @@ export class UserService {
     const dbUser = await this.userRepository.findOneBy({ id: id });
     if (!dbUser) throw new NotFoundException('User not found');
 
-    if (dbUser.icon) await this.getPublicIdCloudinary(dbUser);
+    if (dbUser.icon) await this.removeCloudinaryImage(dbUser);
 
     return await this.userRepository.remove(dbUser);
   }
 
   private readonly saltRounds = 10;
 
-  private async getPublicIdCloudinary(dbUser: User) {
+  private async removeCloudinaryImage(dbUser: User) {
     const url = dbUser.icon.split('/');
     await cloudinary.api.delete_resources([
       join('icons', url[url.length - 1].split('.')[0]),
