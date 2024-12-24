@@ -116,6 +116,7 @@ describe('RestaurantService', () => {
     expect(result).toEqual({
       ...restaurantExample,
       id: result.id,
+      image: null,
       owner: await userService.getUserById(userPayload.id),
       ownerId: userPayload.id,
     });
