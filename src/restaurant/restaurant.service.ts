@@ -9,6 +9,8 @@ import CreateUpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto'
 import Restaurant from 'src/types/entity/restaurant.entity';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
+import { v2 as cloudinary } from 'cloudinary';
+import { join } from 'path';
 
 @Injectable()
 export class RestaurantService {
@@ -91,6 +93,18 @@ export class RestaurantService {
     return await this.getRestaurant(id);
   }
 
+  async updateImage(id: number, imageUrl: string) {
+    const dbRestaraunt = await this.getRestaurant(id);
+    if (!dbRestaraunt)
+      throw new NotFoundException('Restaurant with this id is not exist');
+
+    if (dbRestaraunt.image) await this.removeCloudinaryImage(dbRestaraunt);
+
+    await this.restaurantRepository.update(id, { image: imageUrl });
+
+    return { imageUrl };
+  }
+
   async removeRestaurant(id: number) {
     const dbRestaurant = await this.restaurantRepository.findOne({
       where: { id: id },
@@ -140,5 +154,12 @@ export class RestaurantService {
     );
 
     return await this.restaurantRepository.save(dbRestaurant);
+  }
+
+  private async removeCloudinaryImage(dbRestaraunt: Restaurant) {
+    const url = dbRestaraunt.image.split('/');
+    await cloudinary.api.delete_resources([
+      join('restaurants', url[url.length - 1].split('.')[0]),
+    ]);
   }
 }
