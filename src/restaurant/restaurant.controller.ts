@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import CreateUpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto'
 import AdminAccess from 'src/types/AdminAccess';
 import RequestType from 'src/types/RequestType';
 import UseImageInterceptor from 'src/types/UseImageInterceptor';
+import SearchQueryDto from './dto/search-query.dto';
 
 @ApiBearerAuth()
 @Controller('restaurant')
@@ -45,6 +47,12 @@ export class RestaurantController {
         await this.restaurantService.removeCloudinaryImage(req.imageUrl);
       throw err;
     }
+  }
+
+  @Get('search')
+  @UseGuards(AuthGuard)
+  async search(@Query() query: SearchQueryDto) {
+    return await this.restaurantService.getSearch(query);
   }
 
   @Get('owner-by/')
