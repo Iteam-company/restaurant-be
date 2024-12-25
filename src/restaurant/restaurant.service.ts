@@ -11,6 +11,8 @@ import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { v2 as cloudinary } from 'cloudinary';
 import { join } from 'path';
+import { paginate } from 'nestjs-paginate';
+import SearchQueryDto from './dto/search-query.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -67,6 +69,39 @@ export class RestaurantService {
       ])
       .where('restaurant.owner = :owner', { owner: dbUser.id })
       .getMany();
+  }
+
+  async getSearch(query: SearchQueryDto) {
+    return (
+      await paginate<Restaurant>(query, this.restaurantRepository, {
+        sortableColumns: ['id'],
+        relations: ['menu', 'owner', 'workers'],
+        select: [
+          'id',
+          'name',
+          'address',
+          'image',
+          'menu.id',
+          'owner.id',
+          'owner.firstName',
+          'owner.lastName',
+          'owner.userName',
+          'owner.role',
+          'owner.email',
+          'owner.phoneNumber',
+          'owner.icon',
+          'workers.id',
+          'workers.firstName',
+          'workers.lastName',
+          'workers.userName',
+          'workers.role',
+          'workers.email',
+          'workers.phoneNumber',
+          'workers.icon',
+        ],
+        searchableColumns: ['name', 'address'],
+      })
+    ).data;
   }
 
   async createRestaurant(restaurant: CreateRestaurantDto, url: string) {

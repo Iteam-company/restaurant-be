@@ -19,6 +19,8 @@ import PayloadType from 'src/types/PayloadType';
 import UpdateUserDto from 'src/user/dto/update-user.dto';
 import { v2 as cloudinary } from 'cloudinary';
 import { join } from 'path';
+import SearchQueryDto from './dto/search-param.dto';
+import { paginate } from 'nestjs-paginate';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -35,6 +37,32 @@ export class UserService implements OnModuleInit {
     if (!dbUser) throw new NotFoundException('User not found');
 
     return { ...dbUser, password: undefined };
+  }
+
+  async getSearch(query: SearchQueryDto) {
+    const dbUsers = await this.userRepository.createQueryBuilder('user');
+
+    dbUsers.andWhere('user.role = :role', { role: 'waiter' });
+    return await paginate(query, dbUsers, {
+      sortableColumns: [
+        'id',
+        'username',
+        'firstName',
+        'lastName',
+        'email',
+        'phoneNumber',
+        'icon',
+        'role',
+        'restaurant',
+      ],
+      searchableColumns: [
+        'username',
+        'firstName',
+        'lastName',
+        'email',
+        'phoneNumber',
+      ],
+    });
   }
 
   async onModuleInit() {
