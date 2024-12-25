@@ -9,7 +9,9 @@ import {
 import { MenuLinkService } from './menu-link.service';
 import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('restaurant/menu')
 export class MenuLinkController {
   constructor(private readonly menuLinkService: MenuLinkService) {}

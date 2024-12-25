@@ -13,9 +13,10 @@ import { ItemService } from './item.service';
 import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateMenuItemDto } from './dto/create-menu-item.dto';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 
+@ApiBearerAuth()
 @Controller('menu/item')
 export class ItemController {
   constructor(private readonly menuItemService: ItemService) {}

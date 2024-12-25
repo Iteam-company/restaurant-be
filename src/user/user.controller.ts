@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import CreateUpdateUserDto from 'src/user/dto/update-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import RequestType from 'src/types/RequestType';
@@ -17,6 +17,7 @@ import UpdateUserPasswordDto from 'src/user/dto/update-user-password.dto';
 import UpdateUserRoleDto from 'src/user/dto/update-user-role.dto';
 import UseIconInterceptor from 'src/types/UseIconInterceptor';
 
+@ApiBearerAuth()
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
