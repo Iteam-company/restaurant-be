@@ -94,6 +94,6 @@ describe('IconInterceptor', () => {
 async function removeCloudinaryImage(image: string) {
   const url = image.split('/');
   await cloudinary.api.delete_resources([
-    join('restaurants', url[url.length - 1].split('.')[0]),
+    join('icons', url[url.length - 1].split('.')[0]),
   ]);
 }
