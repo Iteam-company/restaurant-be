@@ -49,7 +49,7 @@ export class RestaurantController {
     }
   }
 
-  @Get('search')
+  @Get('search/')
   @UseGuards(AuthGuard)
   async search(@Query() query: SearchQueryDto) {
     return await this.restaurantService.getSearch(query);

@@ -74,14 +74,30 @@ export class RestaurantService {
   async getSearch(query: SearchQueryDto) {
     return (
       await paginate<Restaurant>(query, this.restaurantRepository, {
-        sortableColumns: [
+        sortableColumns: ['id'],
+        relations: ['menu', 'owner', 'workers'],
+        select: [
           'id',
           'name',
           'address',
           'image',
           'menu.id',
-          'owner',
-          'workers',
+          'owner.id',
+          'owner.firstName',
+          'owner.lastName',
+          'owner.userName',
+          'owner.role',
+          'owner.email',
+          'owner.phoneNumber',
+          'owner.icon',
+          'workers.id',
+          'workers.firstName',
+          'workers.lastName',
+          'workers.userName',
+          'workers.role',
+          'workers.email',
+          'workers.phoneNumber',
+          'workers.icon',
         ],
         searchableColumns: ['name', 'address'],
       })
