@@ -3,6 +3,8 @@ import { IconInterceptor } from './icon.interceptor';
 import { v2 as cloudinary } from 'cloudinary';
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import 'dotenv/config';
+import { ConfigService } from '@nestjs/config';
 
 describe('IconInterceptor', () => {
   let iconInterceptor: IconInterceptor;
@@ -11,9 +13,9 @@ describe('IconInterceptor', () => {
 
   beforeAll(async () => {
     await cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
+      cloud_name: await new ConfigService().get('CLOUDINARY_CLOUD_NAME'),
+      api_key: await new ConfigService().get('CLOUDINARY_API_KEY'),
+      api_secret: await new ConfigService().get('CLOUDINARY_API_SECRET'),
     });
 
     iconInterceptor = new IconInterceptor();
