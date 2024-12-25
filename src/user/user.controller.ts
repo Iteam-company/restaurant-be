@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Patch,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import AdminAccess from 'src/types/AdminAccess';
 import UpdateUserPasswordDto from 'src/user/dto/update-user-password.dto';
 import UpdateUserRoleDto from 'src/user/dto/update-user-role.dto';
 import UseIconInterceptor from 'src/types/UseIconInterceptor';
+import SearchQueryDto from './dto/search-param.dto';
 
 @ApiBearerAuth()
 @Controller('user')
@@ -28,6 +30,12 @@ export class UserController {
   async getUser(@Request() req: RequestType) {
     console.log(req.imageUrl);
     return await this.userService.getUserById(req.user.id);
+  }
+
+  @Get('search')
+  @UseGuards(AuthGuard)
+  async search(@Query() query: SearchQueryDto) {
+    return await this.userService.getSearch(query);
   }
 
   @Patch()
