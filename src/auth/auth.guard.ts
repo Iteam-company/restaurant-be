@@ -32,17 +32,26 @@ export class AuthGuard implements CanActivate {
     const isAdminOnly =
       this.reflector.get('isAdminOnly', context.getHandler()) ?? false;
 
+    const isAdminOwnerOnly =
+      this.reflector.get('isAdminOwnerOnly', context.getHandler()) ?? false;
+
     if (context.getType() === 'http')
-      return await this.httpValidation(
-        context.switchToHttp().getRequest(),
+      return await this.httpValidation(context.switchToHttp().getRequest(), {
         isAdminOnly,
-      );
+        isAdminOwnerOnly,
+      });
     else if (context.getType() === 'ws')
       return await this.wsValidation(context.switchToWs().getClient());
     return true;
   }
 
-  private async httpValidation(req: RequestType, isAdminOnly: boolean) {
+  private async httpValidation(
+    req: RequestType,
+    {
+      isAdminOnly,
+      isAdminOwnerOnly,
+    }: { isAdminOwnerOnly: boolean; isAdminOnly: boolean },
+  ) {
     const auth = req.headers['authorization'] as string;
     if (auth && !auth.startsWith('Bearer '))
       throw new UnauthorizedException('JWT is not found in headers');
@@ -57,6 +66,12 @@ export class AuthGuard implements CanActivate {
     }
 
     if (isAdminOnly && req.user.role !== 'admin')
+      throw new ForbiddenException('No access');
+
+    if (
+      isAdminOwnerOnly &&
+      !(req.user.role === 'admin' || req.user.role === 'owner')
+    )
       throw new ForbiddenException('No access');
 
     return true;

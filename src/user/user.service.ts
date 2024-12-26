@@ -21,6 +21,8 @@ import { v2 as cloudinary } from 'cloudinary';
 import { join } from 'path';
 import SearchQueryDto from './dto/search-param.dto';
 import { paginate } from 'nestjs-paginate';
+import * as CSV from 'csv-string';
+import { stringify } from 'csv-stringify';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -31,6 +33,52 @@ export class UserService implements OnModuleInit {
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
   ) {}
+
+  async uploadUsers(csv: string) {
+    const newUsers = await CSV.parse(csv, {
+      output: 'objects',
+    });
+
+    const errorUsers = [];
+
+    for await (const user of await JSON.parse(await JSON.stringify(newUsers))) {
+      try {
+        await this.createUser(<CreateUserDto>user);
+      } catch (error) {
+        await errorUsers.push({ user, error });
+      }
+    }
+    return errorUsers;
+  }
+
+  async getUserCsv() {
+    const dbUser = await this.userRepository.find({});
+
+    const data = await new Promise<string>((resolve, reject) => {
+      stringify(
+        dbUser,
+        {
+          header: true,
+          columns: [
+            'firstName',
+            'lastName',
+            'username',
+            'email',
+            'phoneNumber',
+            'role',
+          ],
+        },
+        (err, output) => {
+          if (err) {
+            reject('Error generating CSV');
+          } else {
+            resolve(output);
+          }
+        },
+      );
+    });
+    return { data };
+  }
 
   async getUserById(id: number) {
     const dbUser = await this.userRepository.findOneBy({ id: id });

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Patch,
+  Post,
   Query,
   Request,
   UseGuards,
@@ -18,17 +19,26 @@ import UpdateUserPasswordDto from 'src/user/dto/update-user-password.dto';
 import UpdateUserRoleDto from 'src/user/dto/update-user-role.dto';
 import UseIconInterceptor from 'src/types/UseIconInterceptor';
 import SearchQueryDto from './dto/search-param.dto';
+import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
+import UploadUsersDto from './dto/upload-users.dto';
 
 @ApiBearerAuth()
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Post('upload')
+  @AdminOwnerAccess()
+  @UseGuards(AuthGuard)
+  @ApiBody({ type: UploadUsersDto })
+  async uploadCsv(@Body() body: UploadUsersDto) {
+    return await this.userService.uploadUsers(body.csv);
+  }
+
   @Get()
   @UseGuards(AuthGuard)
   @UseIconInterceptor()
   async getUser(@Request() req: RequestType) {
-    console.log(req.imageUrl);
     return await this.userService.getUserById(req.user.id);
   }
 
@@ -36,6 +46,13 @@ export class UserController {
   @UseGuards(AuthGuard)
   async search(@Query() query: SearchQueryDto) {
     return await this.userService.getSearch(query);
+  }
+
+  @Get('download')
+  @AdminOwnerAccess()
+  @UseGuards(AuthGuard)
+  async getCsv() {
+    return await this.userService.getUserCsv();
   }
 
   @Patch()
