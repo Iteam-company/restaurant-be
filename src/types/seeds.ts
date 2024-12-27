@@ -37,15 +37,42 @@ export const usersSeed = [
   },
 ];
 
+export const menusSeed = [
+  {
+    name: 'Spring Delights',
+    season: 'spring',
+    categories: 'appetizers',
+  },
+  {
+    name: 'Summer Feast',
+    season: 'summer',
+    categories: 'main courses',
+  },
+  {
+    name: 'Autumn Sweets',
+    season: 'fall',
+    categories: 'desserts',
+  },
+  {
+    name: 'Winter Comforts',
+    season: 'winter',
+    categories: 'main courses',
+  },
+];
+
 export const restaurantsSeed = [
   {
     name: 'Ocean View Restaurant',
     address: '123 Beachside Blvd, Miami, FL',
     ownerUsername: usersSeed[0].username,
+    waiterUsername: [usersSeed[2].username],
+    menuNames: [menusSeed[2].name, menusSeed[3].name],
   },
   {
     name: 'Mountain Retreat Cafe',
     address: '456 Alpine Road, Denver, CO',
     ownerUsername: usersSeed[0].username,
+    waiterUsername: [usersSeed[3].username],
+    menuNames: [menusSeed[0].name, menusSeed[1].name],
   },
 ];

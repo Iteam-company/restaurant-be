@@ -1,17 +1,22 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Menu from 'src/types/entity/menu.entity';
 import Restaurant from 'src/types/entity/restaurant.entity';
+import { restaurantsSeed } from 'src/types/seeds';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class MenuLinkService {
+export class MenuLinkService implements OnModuleInit {
   constructor(
     @InjectRepository(Menu)
     private menuRepository: Repository<Menu>,
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
   ) {}
+
+  async onModuleInit() {
+    this.seed();
+  }
 
   async linkMenuToRestaurant(menuId: number, restaurantId: number) {
     const dbMenu = await this.menuRepository.findOneBy({ id: menuId });
@@ -62,5 +67,27 @@ export class MenuLinkService {
     dbMenu.restaurant = null;
 
     return await this.menuRepository.save(dbMenu);
+  }
+
+  async seed() {
+    for await (const restaurant of restaurantsSeed) {
+      for await (const menu of restaurant.menuNames) {
+        const dbMenu = await this.menuRepository.findOne({
+          where: { name: menu },
+          relations: ['restaurant'],
+        });
+        if (dbMenu === null || dbMenu?.restaurant !== null) continue;
+
+        await this.linkMenuToRestaurant(
+          dbMenu.id,
+          (
+            await this.restaurantRepository.findOneBy({
+              address: restaurant.address,
+            })
+          ).id,
+        );
+        console.log(`MenuLink ${menu} seeded`);
+      }
+    }
   }
 }

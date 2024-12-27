@@ -229,6 +229,16 @@ export class RestaurantService implements OnModuleInit {
         });
 
         await this.restaurantRepository.save(dbRestaurant);
+
+        for await (const user of restaurant.waiterUsername) {
+          const worker = await this.userService.getSearch({
+            search: user,
+            path: undefined,
+          });
+
+          await this.addWorker(worker[0].id, dbRestaurant.id);
+        }
+
         console.log(`Restaurant ${restaurant.name} seeded`);
       }
     }
