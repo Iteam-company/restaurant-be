@@ -88,11 +88,11 @@ export class MenuService implements OnModuleInit {
         where: { name: menu.name },
       });
       if (!isExist) {
-        const dbRestaurant = await this.menuRepository.create(<CreateMenuDto>{
+        const dbMenu = await this.menuRepository.create(<CreateMenuDto>{
           ...menu,
         });
 
-        await this.menuRepository.save(dbRestaurant);
+        await this.menuRepository.save(dbMenu);
         console.log(`Menu ${menu.name} seeded`);
       }
     }

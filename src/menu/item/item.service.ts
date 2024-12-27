@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import MenuItem from 'src/types/entity/menu-item.entity';
@@ -9,14 +10,19 @@ import Menu from 'src/types/entity/menu.entity';
 import { Repository } from 'typeorm';
 import { CreateMenuItemDto } from './dto/create-menu-item.dto';
 import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
+import { menuItemsSeed, menusSeed } from 'src/types/seeds';
 
 @Injectable()
-export class ItemService {
+export class ItemService implements OnModuleInit {
   constructor(
     @InjectRepository(Menu) private menuRepository: Repository<Menu>,
     @InjectRepository(MenuItem)
     private menuItemRepository: Repository<MenuItem>,
   ) {}
+
+  async onModuleInit() {
+    await this.seed();
+  }
 
   async create(menuItem: CreateMenuItemDto) {
     const dbItem = await this.menuItemRepository.findOneBy({
@@ -90,5 +96,33 @@ export class ItemService {
     );
 
     return await this.menuRepository.save(dbMenu);
+  }
+
+  async seed() {
+    for await (const menuItem of menuItemsSeed) {
+      const isExist = await this.menuItemRepository.findOne({
+        where: { name: menuItem.name },
+      });
+      if (!isExist) {
+        const dbMenuItem = await this.menuItemRepository.save(
+          <CreateMenuItemDto>menuItem,
+        );
+        console.log(`MenuItem ${menuItem.name} seeded`);
+
+        for await (const menu of menusSeed) {
+          if (
+            menu.menuItemNames.findIndex((elem) => elem === dbMenuItem.name) !==
+            -1
+          ) {
+            const dbMenu = await this.menuRepository.findOneBy({
+              name: menu.name,
+            });
+
+            await this.linkItem(dbMenu.id, dbMenuItem.id);
+            console.log(`MenuItem ${menu.name} linked`);
+          }
+        }
+      }
+    }
   }
 }

@@ -18,7 +18,7 @@ export default class MenuItem {
   @Column()
   timeForCook: string;
 
-  @Column()
+  @Column('float')
   price: number;
 
   @ManyToOne(() => Menu, (menu) => menu.menuItems)
