@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
@@ -15,9 +16,10 @@ import { MenuService } from 'src/menu/menu.service';
 import { QuestionService } from 'src/question/question.service';
 import PayloadType from 'src/types/PayloadType';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
+import { quizSeed } from 'src/types/seeds';
 
 @Injectable()
-export class QuizService {
+export class QuizService implements OnModuleInit {
   constructor(
     @InjectRepository(Quiz)
     private quizRepository: Repository<Quiz>,
@@ -30,6 +32,10 @@ export class QuizService {
     @Inject(forwardRef(() => QuestionService))
     private readonly questionService: QuestionService,
   ) {}
+
+  async onModuleInit() {
+    await this.seed();
+  }
 
   async create(createQuizDto: CreateQuizDto): Promise<Quiz> {
     return await this.quizRepository.save({
@@ -133,5 +139,25 @@ export class QuizService {
     await this.menuService.saveMenuToDB(menu);
 
     return await this.findOne(quizId);
+  }
+
+  async seed() {
+    for await (const quiz of quizSeed) {
+      const isExist = await this.quizRepository.findOne({
+        where: { title: quiz.title },
+      });
+      if (!isExist) {
+        const dbMenu = (await this.menuService.findAll()).find(
+          (elem) => elem.name === quiz.menuName,
+        );
+        await this.quizRepository.save(<CreateQuizDto>{
+          ...quiz,
+          menuId: undefined,
+          menu: dbMenu,
+        });
+
+        console.log(`Menu ${quiz.title} seeded`);
+      }
+    }
   }
 }

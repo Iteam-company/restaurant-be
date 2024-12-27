@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
@@ -10,9 +11,11 @@ import { Question } from 'src/types/entity/question.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { QuizService } from 'src/quiz/quiz.service';
+import { questionsSeed, quizSeed } from 'src/types/seeds';
+import PayloadType from 'src/types/PayloadType';
 
 @Injectable()
-export class QuestionService {
+export class QuestionService implements OnModuleInit {
   constructor(
     @InjectRepository(Question)
     private questionRepository: Repository<Question>,
@@ -20,6 +23,10 @@ export class QuestionService {
     @Inject(forwardRef(() => QuizService))
     private readonly quizService: QuizService,
   ) {}
+
+  async onModuleInit() {
+    await this.seed();
+  }
 
   async create(createQuestionDto: CreateQuestionDto) {
     return await this.questionRepository.save({
@@ -64,5 +71,26 @@ export class QuestionService {
     await this.questionRepository.save(dbQuestion);
 
     return await this.questionRepository.remove(dbQuestion);
+  }
+
+  async seed() {
+    for await (const question of questionsSeed) {
+      const isExist = await this.questionRepository.findOne({
+        where: { text: question.text },
+      });
+      if (!isExist) {
+        for await (const quiz of quizSeed) {
+          if (quiz.title !== question.quizTitle) continue;
+
+          const dbQuiz = await (
+            await this.quizService.findAll(<PayloadType>{ role: 'admin' })
+          ).find((elem) => elem.title === quiz.title);
+
+          await this.questionRepository.save({ ...question, quiz: dbQuiz });
+
+          console.log(`Question ${question.text} seeded`);
+        }
+      }
+    }
   }
 }
