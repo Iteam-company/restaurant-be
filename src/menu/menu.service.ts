@@ -2,20 +2,24 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Menu from 'src/types/entity/menu.entity';
+import { menusSeed } from 'src/types/seeds';
 
 @Injectable()
-export class MenuService {
+export class MenuService implements OnModuleInit {
   constructor(
     @InjectRepository(Menu) private menuRepository: Repository<Menu>,
-    // @Inject(forwardRef(() => QuizService))
-    // private readonly quizService: QuizService,
   ) {}
+
+  async onModuleInit() {
+    await this.seed();
+  }
 
   async create(menu: CreateMenuDto): Promise<Menu> {
     const dbMenu = await this.menuRepository.findOneBy({ name: menu.name });
@@ -76,5 +80,21 @@ export class MenuService {
 
   async saveMenuToDB(menu: Menu) {
     return await this.menuRepository.save(menu);
+  }
+
+  async seed() {
+    for await (const menu of menusSeed) {
+      const isExist = await this.menuRepository.findOne({
+        where: { name: menu.name },
+      });
+      if (!isExist) {
+        const dbMenu = await this.menuRepository.create(<CreateMenuDto>{
+          ...menu,
+        });
+
+        await this.menuRepository.save(dbMenu);
+        console.log(`Menu ${menu.name} seeded`);
+      }
+    }
   }
 }

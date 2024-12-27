@@ -19,11 +19,13 @@ import { Quiz } from './types/entity/quiz.entity';
 import { LoggerMiddleware } from './logger/LoggerMiddleware';
 import { QuizResultsModule } from './quiz-results/quiz-results.module';
 import { QuizResult } from './types/entity/quiz-result.entity';
+import { MenuLinkModule } from './restaurant/menu-link/menu-link.module';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
+    MenuLinkModule,
     MenuModule,
     QuizModule,
     WorkersModule,
