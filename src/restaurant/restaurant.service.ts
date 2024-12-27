@@ -178,6 +178,15 @@ export class RestaurantService implements OnModuleInit {
     if (!dbRestaurant)
       throw new BadRequestException('Restaurant with this id is not exist');
 
+    if (
+      (await dbRestaurant.workers.findIndex(
+        (user) => user.id === dbUser.id,
+      )) !== -1
+    )
+      throw new BadRequestException(
+        'User is already in workers of this restaurant',
+      );
+
     await dbRestaurant.workers.push(dbUser);
 
     return await this.restaurantRepository.save(dbRestaurant);
