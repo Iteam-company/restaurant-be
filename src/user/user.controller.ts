@@ -14,13 +14,12 @@ import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import CreateUpdateUserDto from 'src/user/dto/update-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import RequestType from 'src/types/RequestType';
-import AdminAccess from 'src/types/AdminAccess';
 import UpdateUserPasswordDto from 'src/user/dto/update-user-password.dto';
 import UpdateUserRoleDto from 'src/user/dto/update-user-role.dto';
 import UseIconInterceptor from 'src/types/UseIconInterceptor';
 import SearchQueryDto from './dto/search-param.dto';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
-import UploadUsersDto from './dto/upload-users.dto';
+import UseCsvInterceptor from 'src/types/UseCsvInterceptor';
 
 @ApiBearerAuth()
 @Controller('user')
@@ -28,11 +27,11 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('upload')
+  @UseCsvInterceptor()
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
-  @ApiBody({ type: UploadUsersDto })
-  async uploadCsv(@Body() body: UploadUsersDto) {
-    return await this.userService.uploadUsers(body.csv);
+  async uploadCsv(@Request() req: RequestType) {
+    return await this.userService.uploadUsers(req.fileData);
   }
 
   @Get()
