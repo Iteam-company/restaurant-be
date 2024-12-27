@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import { CreateQuizResultDto } from './dto/create-quiz-result.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QuizResult } from 'src/types/entity/quiz-result.entity';
@@ -6,9 +6,10 @@ import { Repository } from 'typeorm';
 import { UserService } from 'src/user/user.service';
 import { QuizService } from 'src/quiz/quiz.service';
 import PayloadType from 'src/types/PayloadType';
+import { quizResultSeed } from 'src/types/seeds';
 
 @Injectable()
-export class QuizResultsService {
+export class QuizResultsService implements OnModuleInit {
   constructor(
     @InjectRepository(QuizResult)
     private quizResultsRepository: Repository<QuizResult>,
@@ -16,6 +17,10 @@ export class QuizResultsService {
     private readonly userService: UserService,
     private readonly quizService: QuizService,
   ) {}
+
+  async onModuleInit() {
+    await this.seed();
+  }
 
   async create(createQuizResultDto: CreateQuizResultDto, userId: number) {
     const dbQuiz = await this.quizService.findOne(createQuizResultDto.quizId);
@@ -64,5 +69,33 @@ export class QuizResultsService {
     dbQuizResult.quiz = null;
 
     return await this.quizResultsRepository.remove(dbQuizResult);
+  }
+
+  async seed() {
+    for await (const quizResult of quizResultSeed) {
+      const isExist = await this.quizResultsRepository.findOne({
+        where: { score: quizResult.score },
+      });
+      if (!isExist) {
+        const dbQuiz = await (
+          await this.quizService.findAll(<PayloadType>{ role: 'admin' })
+        ).find((elem) => elem.title === quizResult.quizTitle);
+
+        const dbUser = (
+          await this.userService.getSearch({
+            path: undefined,
+            search: quizResult.username,
+          })
+        )[0];
+
+        await this.quizResultsRepository.save({
+          ...quizResult,
+          quiz: dbQuiz,
+          user: dbUser,
+        });
+
+        console.log(`Quiz result ${quizResult.quizTitle} seeded`);
+      }
+    }
   }
 }

@@ -330,3 +330,26 @@ export const questionsSeed = [
     quizTitle: quizSeed[7].title,
   },
 ];
+
+export const quizResultSeed = [
+  {
+    score: '85',
+    quizTitle: quizSeed[1].title,
+    username: usersSeed[2].username,
+  },
+  {
+    score: '90',
+    quizTitle: quizSeed[4].title,
+    username: usersSeed[2].username,
+  },
+  {
+    score: '75',
+    quizTitle: quizSeed[1].title,
+    username: usersSeed[3].username,
+  },
+  {
+    score: '88',
+    quizTitle: quizSeed[4].title,
+    username: usersSeed[3].username,
+  },
+];

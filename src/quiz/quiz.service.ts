@@ -156,7 +156,7 @@ export class QuizService implements OnModuleInit {
           menu: dbMenu,
         });
 
-        console.log(`Menu ${quiz.title} seeded`);
+        console.log(`Quiz ${quiz.title} seeded`);
       }
     }
   }
