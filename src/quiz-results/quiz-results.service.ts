@@ -81,7 +81,7 @@ export class QuizResultsService implements OnModuleInit {
           await this.quizService.findAll(<PayloadType>{ role: 'admin' })
         ).find((elem) => elem.title === quizResult.quizTitle);
 
-        const dbUser = (
+        const dbUser = await (
           await this.userService.getSearch({
             path: undefined,
             search: quizResult.username,
