@@ -1,7 +1,7 @@
 export const usersSeed = [
   {
-    firstName: 'John',
-    lastName: 'Doe',
+    firstName: 'Mriia',
+    lastName: 'Petrenko',
     username: 'john_doe',
     role: 'owner',
     email: 'john.doe@example.com',
@@ -18,8 +18,8 @@ export const usersSeed = [
     password: '12345678',
   },
   {
-    firstName: 'Jane',
-    lastName: 'Smith',
+    firstName: 'Arthur',
+    lastName: 'Morgan',
     username: 'jane_smith',
     role: 'waiter',
     email: 'jane.smith@example.com',
