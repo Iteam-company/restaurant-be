@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
@@ -13,15 +14,20 @@ import { v2 as cloudinary } from 'cloudinary';
 import { join } from 'path';
 import { paginate } from 'nestjs-paginate';
 import SearchQueryDto from './dto/search-query.dto';
+import { restaurantsSeed } from 'src/types/seeds';
 
 @Injectable()
-export class RestaurantService {
+export class RestaurantService implements OnModuleInit {
   constructor(
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
 
     private readonly userService: UserService,
   ) {}
+
+  async onModuleInit() {
+    await this.seed();
+  }
 
   async getRestaurant(id: number) {
     const dbRestaurant = await this.restaurantRepository
@@ -202,5 +208,29 @@ export class RestaurantService {
     await cloudinary.api.delete_resources([
       join('restaurants', url[url.length - 1].split('.')[0]),
     ]);
+  }
+
+  async seed() {
+    for await (const restaurant of restaurantsSeed) {
+      const isExist = await this.restaurantRepository.findOne({
+        where: { address: restaurant.address },
+      });
+      if (!isExist) {
+        const owner = await this.userService.getSearch(
+          {
+            path: undefined,
+            search: restaurant.ownerUsername,
+          },
+          'owner',
+        );
+        const dbRestaurant = await this.restaurantRepository.create({
+          ...restaurant,
+          owner: owner[0],
+        });
+
+        await this.restaurantRepository.save(dbRestaurant);
+        console.log(`Restaurant ${restaurant.name} seeded`);
+      }
+    }
   }
 }

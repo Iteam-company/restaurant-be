@@ -23,6 +23,7 @@ import SearchQueryDto from './dto/search-param.dto';
 import { paginate } from 'nestjs-paginate';
 import * as CSV from 'csv-string';
 import { stringify } from 'csv-stringify';
+import { usersSeed } from 'src/types/seeds';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -87,10 +88,10 @@ export class UserService implements OnModuleInit {
     return { ...dbUser, password: undefined };
   }
 
-  async getSearch(query: SearchQueryDto) {
+  async getSearch(query: SearchQueryDto, role: string = 'waiter') {
     const dbUsers = await this.userRepository.createQueryBuilder('user');
 
-    dbUsers.andWhere('user.role = :role', { role: 'waiter' });
+    dbUsers.andWhere('user.role = :role', { role });
     return (
       await paginate(query, dbUsers, {
         sortableColumns: ['id'],
@@ -258,26 +259,24 @@ export class UserService implements OnModuleInit {
   }
 
   async seed() {
-    // Check if admin exists
-    const adminExists = await this.userRepository.findOne({
-      where: { email: 'test@gmail.com' },
-    });
-
-    if (!adminExists) {
-      const hashedPassword = await bcrypt.hash('12345678', 10);
-
-      const admin = this.userRepository.create({
-        firstName: 'Admin',
-        lastName: 'User',
-        username: 'admin',
-        role: 'admin',
-        email: 'test@gmail.com',
-        phoneNumber: '+1234567890',
-        password: hashedPassword,
+    for await (const user of usersSeed) {
+      const isExist = await this.userRepository.findOne({
+        where: { email: user.email },
       });
+      if (!isExist) {
+        const hashedPassword = await bcrypt.hash(
+          user.password,
+          this.saltRounds,
+        );
 
-      await this.userRepository.save(admin);
-      console.log('Admin user seeded');
+        const dbUser = await this.userRepository.create(<CreateUserDto>{
+          ...user,
+          password: hashedPassword,
+        });
+
+        await this.userRepository.save(dbUser);
+        console.log(`User ${user.username} seeded`);
+      }
     }
   }
 }
