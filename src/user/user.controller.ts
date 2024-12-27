@@ -44,6 +44,7 @@ export class UserController {
   }
 
   @Get('one/:id')
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @UseIconInterceptor()
   async getOne(@Param('id') id: string) {
