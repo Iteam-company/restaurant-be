@@ -92,6 +92,11 @@ export class UserService implements OnModuleInit {
     const dbUsers = await this.userRepository.createQueryBuilder('user');
 
     dbUsers.andWhere('user.role = :role', { role });
+    if (query.restarauntId)
+      dbUsers.andWhere('user.restaurant = :restarauntId', {
+        restarauntId: +query.restarauntId,
+      });
+
     return (
       await paginate(query, dbUsers, {
         sortableColumns: ['id'],
