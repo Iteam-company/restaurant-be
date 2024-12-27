@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import CreateWorkerDto from 'src/restaurant/workers/dto/create-worker.dto';
@@ -22,14 +30,21 @@ export class WorkersController {
     );
   }
 
-  @Delete()
+  @Delete(':restaurantId/:userId')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: DeleteWorkerDto })
-  async removeWorker(@Body() body: DeleteWorkerDto) {
-    return await this.restaurantService.removeWorker(
-      body.userId,
-      body.restaurantId,
-    );
+  async removeWorker(
+    @Param('restaurantId') restaurantId: string,
+    @Param('userId') userId: string,
+  ) {
+    if (Number.isNaN(+restaurantId))
+      throw new BadRequestException(
+        `Param id: ${restaurantId} is not a number`,
+      );
+    if (Number.isNaN(+userId))
+      throw new BadRequestException(`Param id: ${userId} is not a number`);
+
+    return await this.restaurantService.removeWorker(+userId, +restaurantId);
   }
 }
