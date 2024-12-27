@@ -17,7 +17,6 @@ import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import CreateUpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto';
-import AdminAccess from 'src/types/AdminAccess';
 import RequestType from 'src/types/RequestType';
 import UseImageInterceptor from 'src/types/UseImageInterceptor';
 import SearchQueryDto from './dto/search-query.dto';
