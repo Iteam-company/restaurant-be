@@ -8,6 +8,8 @@ class SearchQueryDto implements PaginateQuery {
   page?: number;
   @ApiProperty({ description: 'Search by name or address of restaurant' })
   search?: string;
+  @ApiProperty({ description: 'Search by restaurant' })
+  restarauntId?: number;
   path: string;
 }
 
