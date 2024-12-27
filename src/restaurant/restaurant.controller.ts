@@ -21,6 +21,7 @@ import AdminAccess from 'src/types/AdminAccess';
 import RequestType from 'src/types/RequestType';
 import UseImageInterceptor from 'src/types/UseImageInterceptor';
 import SearchQueryDto from './dto/search-query.dto';
+import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 
 @ApiBearerAuth()
 @Controller('restaurant')
@@ -28,7 +29,7 @@ export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
   @Post()
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateRestaurantDto })
   @UseImageInterceptor()
@@ -74,7 +75,7 @@ export class RestaurantController {
   }
 
   @Patch(':restaurantId')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateUpdateRestaurantDto })
   async updateRestaurant(
@@ -89,7 +90,7 @@ export class RestaurantController {
 
   @Patch(':restaurantId/image')
   @UseImageInterceptor()
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async updateRestaurantImage(
     @Request() req: RequestType,
@@ -103,7 +104,7 @@ export class RestaurantController {
 
   @Delete(':restaurantId')
   @ApiParam({ name: 'restaurantId' })
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async deleteRestaurant(@Param('restaurantId') id) {
     if (Number.isNaN(+id))

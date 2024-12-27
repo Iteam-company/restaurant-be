@@ -10,11 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ItemService } from './item.service';
-import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateMenuItemDto } from './dto/create-menu-item.dto';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
+import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 
 @ApiBearerAuth()
 @Controller('menu/item')
@@ -22,7 +22,7 @@ export class ItemController {
   constructor(private readonly menuItemService: ItemService) {}
 
   @Post()
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateMenuItemDto })
   async create(@Body() body: CreateMenuItemDto) {
@@ -39,7 +39,7 @@ export class ItemController {
   }
 
   @Patch(':itemId')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: UpdateMenuItemDto })
   async change(
@@ -53,7 +53,7 @@ export class ItemController {
   }
 
   @Delete(':itemId')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async remove(@Param('itemId') itemId: string) {
     if (Number.isNaN(+itemId))

@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { QuizResultsService } from './quiz-results.service';
 import { CreateQuizResultDto } from './dto/create-quiz-result.dto';
-import AdminAccess from 'src/types/AdminAccess';
+import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import RequestType from 'src/types/RequestType';
@@ -46,7 +46,7 @@ export class QuizResultsController {
   }
 
   @Delete(':id')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string) {
     return this.quizResultsService.remove(+id);

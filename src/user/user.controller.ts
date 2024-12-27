@@ -73,7 +73,7 @@ export class UserController {
   }
 
   @Patch('password')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: UpdateUserPasswordDto })
   async changePassword(@Body() body: UpdateUserPasswordDto) {
@@ -81,7 +81,7 @@ export class UserController {
   }
 
   @Patch('role')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: UpdateUserRoleDto })
   async changeRole(@Body() body: UpdateUserRoleDto) {

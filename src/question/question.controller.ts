@@ -12,9 +12,9 @@ import {
 import { QuestionService } from './question.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
-import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 
 @ApiBearerAuth()
 @Controller('question')
@@ -22,14 +22,14 @@ export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
   @Post()
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async create(@Body() createQuestionDto: CreateQuestionDto) {
     return await this.questionService.create(createQuestionDto);
   }
 
   @Post('create-many')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards()
   @ApiBody({ type: [CreateQuestionDto] })
   async createMany(@Body() body: CreateQuestionDto[]) {
@@ -52,7 +52,7 @@ export class QuestionController {
   }
 
   @Patch(':id')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async update(
     @Param('id') id: string,
@@ -65,7 +65,7 @@ export class QuestionController {
   }
 
   @Delete(':id')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string) {
     if (Number.isNaN(+id))

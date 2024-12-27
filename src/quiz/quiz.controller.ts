@@ -15,10 +15,10 @@ import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
-import AdminAccess from 'src/types/AdminAccess';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import RequestType from 'src/types/RequestType';
 import { OpenaiService } from './openai/openai.service';
+import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 
 @ApiBearerAuth()
 @Controller('quiz')
@@ -29,7 +29,7 @@ export class QuizController {
   ) {}
 
   @Post()
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateQuizDto })
   async create(@Body() createQuizDto: CreateQuizDto) {
@@ -61,7 +61,7 @@ export class QuizController {
   }
 
   @Patch(':id')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: UpdateQuizDto })
   async update(@Param('id') id: string, @Body() updateQuizDto: UpdateQuizDto) {
@@ -72,7 +72,7 @@ export class QuizController {
   }
 
   @Delete(':id')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string) {
     if (Number.isNaN(+id))
@@ -82,7 +82,7 @@ export class QuizController {
   }
 
   @Patch(':menuId/:quizId')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async linkQuizToMenu(
     @Param('menuId') menuId: string,
@@ -97,7 +97,7 @@ export class QuizController {
   }
 
   @Delete(':menuId/:quizId')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async unlinkQuizToMenu(
     @Param('menuId') menuId: string,
@@ -112,7 +112,7 @@ export class QuizController {
   }
 
   @Get('generate/questions/:menuId')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async getQuestions(
     @Param('menuId') menuId: number,

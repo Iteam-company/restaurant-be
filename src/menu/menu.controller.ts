@@ -13,9 +13,9 @@ import { MenuService } from './menu.service';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
-import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ItemService } from './item/item.service';
+import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 
 @ApiBearerAuth()
 @Controller('menu')
@@ -26,7 +26,7 @@ export class MenuController {
   ) {}
 
   @Post()
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateMenuDto })
   async create(@Body() createMenuDto: CreateMenuDto) {
@@ -49,7 +49,7 @@ export class MenuController {
   }
 
   @Patch(':id')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: UpdateMenuDto })
   async update(@Param('id') id: string, @Body() updateMenuDto: UpdateMenuDto) {
@@ -60,7 +60,7 @@ export class MenuController {
   }
 
   @Delete(':id')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string) {
     if (Number.isNaN(+id))
@@ -70,7 +70,7 @@ export class MenuController {
   }
 
   @Post(':menuId/:itemId')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async addItem(
     @Param('menuId') menuId: string,
@@ -85,7 +85,7 @@ export class MenuController {
   }
 
   @Delete(':menuId/:itemId')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async removeItem(
     @Param('menuId') menuId: string,

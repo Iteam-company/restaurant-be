@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
-import AdminAccess from 'src/types/AdminAccess';
 import CreateWorkerDto from 'src/restaurant/workers/dto/create-worker.dto';
 import { RestaurantService } from '../restaurant.service';
 import DeleteWorkerDto from './dto/delete-worker.dto';
+import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 
 @ApiBearerAuth()
 @Controller('restaurant/workers')
@@ -12,7 +12,7 @@ export class WorkersController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
   @Post()
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateWorkerDto })
   async addWorker(@Body() body: CreateWorkerDto) {
@@ -23,7 +23,7 @@ export class WorkersController {
   }
 
   @Delete()
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: DeleteWorkerDto })
   async removeWorker(@Body() body: DeleteWorkerDto) {

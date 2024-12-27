@@ -7,9 +7,9 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { MenuLinkService } from './menu-link.service';
-import AdminAccess from 'src/types/AdminAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 
 @ApiBearerAuth()
 @Controller('restaurant/menu')
@@ -17,7 +17,7 @@ export class MenuLinkController {
   constructor(private readonly menuLinkService: MenuLinkService) {}
 
   @Post(':restaurantId/:menuId')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async link(
     @Param('menuId') menuId: string,
@@ -37,7 +37,7 @@ export class MenuLinkController {
   }
 
   @Delete(':restaurantId/:menuId')
-  @AdminAccess()
+  @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async unlink(
     @Param('menuId') menuId: string,
