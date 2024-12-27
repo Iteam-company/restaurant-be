@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  Param,
   Patch,
   Post,
   Query,
@@ -39,6 +41,16 @@ export class UserController {
   @UseIconInterceptor()
   async getUser(@Request() req: RequestType) {
     return await this.userService.getUserById(req.user.id);
+  }
+
+  @Get('one/:id')
+  @UseGuards(AuthGuard)
+  @UseIconInterceptor()
+  async getOne(@Param('id') id: string) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
+    return await this.userService.getUserById(+id);
   }
 
   @Get('search')
