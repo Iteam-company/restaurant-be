@@ -58,7 +58,7 @@ describe('QuizResultService', () => {
     lastName: 'Kerry',
     username: 'JKBest',
     email: 'JK1@mail.com',
-    phoneNumber: '+380000000012',
+    phoneNumber: '+380970000012',
     role: 'admin',
     password: 'qwertyuiop',
   };

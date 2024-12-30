@@ -18,6 +18,7 @@ import { QuizResult } from 'src/types/entity/quiz-result.entity';
 import PayloadType from 'src/types/PayloadType';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { BadRequestException } from '@nestjs/common';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -37,6 +38,19 @@ describe('UserService', () => {
   };
 
   let userResource: User;
+
+  const csv = `firstName,lastName,username,role,email,phoneNumber,password
+John,Morgan,waiter,waiter,waiter0@mail.com,+380000000010,qwertyuiop
+John,Morgan,waiter1,waiter,waiter10@mail.com,+380000000011,qwertyuiop
+John,Morgan,waiter2,waiter,waiter20@mail.com,+380000000012,qwertyuiop`;
+
+  const usersValidation = [
+    { email: 'waiter0@mail.com', password: 'qwertyuiop' },
+    { email: 'waiter10@mail.com', password: 'qwertyuiop' },
+    { email: 'waiter20@mail.com', password: 'qwertyuiop' },
+  ];
+
+  const users = [];
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -119,6 +133,55 @@ describe('UserService', () => {
       email: userResource.email,
       icon: null,
     });
+  });
+
+  it('should create few users', async () => {
+    const errors = await userService.uploadUsers(csv);
+
+    expect(errors).toEqual([]);
+
+    for await (const user of usersValidation) {
+      const dbUser = await userService.validateUser(
+        '',
+        user.email,
+        '',
+        user.password,
+      );
+
+      expect(dbUser).toBeDefined();
+
+      users.push({ ...dbUser, ...user });
+    }
+  });
+
+  it('should remove few users and create again', async () => {
+    await userService.removeUser(users[0].id);
+    await userService.removeUser(users[1].id);
+
+    const errors = await userService.uploadUsers(csv);
+
+    expect(errors).toEqual([
+      {
+        error: new BadRequestException(
+          'User with this email, phone number or username is already exist',
+        ),
+        user: {
+          email: 'waiter20@mail.com',
+          firstName: 'John',
+          lastName: 'Morgan',
+          password: 'qwertyuiop',
+          phoneNumber: '+380000000012',
+          role: 'waiter',
+          username: 'waiter2',
+        },
+      },
+    ]);
+
+    for await (const user of users) {
+      expect(
+        await userService.validateUser('', user.email, '', user.password),
+      ).toBeDefined();
+    }
   });
 
   it('should update password and save existing user', async () => {
