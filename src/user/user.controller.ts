@@ -102,7 +102,7 @@ export class UserController {
   @UseIconInterceptor()
   async changeIconByAdmin(
     @Request() req: RequestType,
-    @Param(':id') id: string,
+    @Param('id') id: string,
   ) {
     if (Number.isNaN(+id))
       throw new BadRequestException(`Param id: ${id} is not a number`);
