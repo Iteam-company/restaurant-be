@@ -20,6 +20,8 @@ import { LoggerMiddleware } from './logger/LoggerMiddleware';
 import { QuizResultsModule } from './quiz-results/quiz-results.module';
 import { QuizResult } from './types/entity/quiz-result.entity';
 import { MenuLinkModule } from './restaurant/menu-link/menu-link.module';
+import { QuizSummaryModule } from './quiz-summary/quiz-summary.module';
+import { QuizSummary } from './types/entity/quiz-summary.entity';
 
 @Module({
   imports: [
@@ -30,6 +32,7 @@ import { MenuLinkModule } from './restaurant/menu-link/menu-link.module';
     QuizModule,
     WorkersModule,
     RestaurantModule,
+    QuizSummaryModule,
     QuizResultsModule,
     SharedJwtAuthModule,
     ConfigModule.forRoot({
@@ -50,6 +53,7 @@ import { MenuLinkModule } from './restaurant/menu-link/menu-link.module';
           Quiz,
           Question,
           QuizResult,
+          QuizSummary,
         ],
         synchronize: true,
       }),

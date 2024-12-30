@@ -7,15 +7,23 @@ import MenuItem from '../src/types/entity/menu-item.entity';
 import { Quiz } from '../src/types/entity/quiz.entity';
 import { Question } from '../src/types/entity/question.entity';
 import { QuizResult } from '../src/types/entity/quiz-result.entity';
+import { QuizSummary } from '../src/types/entity/quiz-summary.entity';
 
-// Load environment variables from the .env file
 dotenv.config();
 
-// Configure the TypeORM DataSource
 const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.TEST_DB_CONNECT,
-  entities: [User, Restaurant, Menu, MenuItem, Quiz, Question, QuizResult],
+  entities: [
+    User,
+    Restaurant,
+    Menu,
+    MenuItem,
+    Quiz,
+    Question,
+    QuizResult,
+    QuizSummary,
+  ],
   synchronize: true,
 });
 
