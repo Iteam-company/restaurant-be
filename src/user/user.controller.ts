@@ -97,6 +97,18 @@ export class UserController {
     return await this.userService.updateIcon(req.user.id, req.imageUrl);
   }
 
+  @Patch('icon/:id/admin')
+  @UseGuards(AuthGuard)
+  @UseIconInterceptor()
+  async changeIconByAdmin(
+    @Request() req: RequestType,
+    @Param(':id') id: string,
+  ) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+    return await this.userService.updateIcon(+id, req.imageUrl);
+  }
+
   @Patch('password')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
