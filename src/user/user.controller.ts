@@ -77,6 +77,19 @@ export class UserController {
     return await this.userService.updateUser(req.user.id, body);
   }
 
+  @Patch(':id')
+  @AdminOwnerAccess()
+  @UseGuards(AuthGuard)
+  @ApiBody({ type: CreateUpdateUserDto })
+  async changeAdminUser(
+    @Body() body: CreateUpdateUserDto,
+    @Param('id') id: string,
+  ) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+    return await this.userService.updateUser(+id, body);
+  }
+
   @Patch('icon')
   @UseGuards(AuthGuard)
   @UseIconInterceptor()
