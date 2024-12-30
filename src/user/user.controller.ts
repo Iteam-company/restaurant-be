@@ -77,7 +77,7 @@ export class UserController {
     return await this.userService.updateUser(req.user.id, body);
   }
 
-  @Patch(':id')
+  @Patch('/:id/admin')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateUpdateUserDto })
