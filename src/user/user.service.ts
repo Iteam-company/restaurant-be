@@ -175,12 +175,15 @@ export class UserService implements OnModuleInit {
       password: await this.hashPassword(user.password),
     });
 
-    return await this.authService.login(<PayloadType>{
+    return {
+      ...(await this.authService.login(<PayloadType>{
+        id: savedUser.id,
+        username: savedUser.username,
+        role: savedUser.role,
+        email: savedUser.email,
+      })),
       id: savedUser.id,
-      username: savedUser.username,
-      role: savedUser.role,
-      email: savedUser.email,
-    });
+    };
   }
 
   async updateUser(id: number, user: UpdateUserDto) {
