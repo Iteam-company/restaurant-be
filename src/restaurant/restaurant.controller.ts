@@ -64,6 +64,15 @@ export class RestaurantController {
     return await this.restaurantService.getAllOwnerRestaurants(req.user.id);
   }
 
+  @Get('/:id/menus')
+  @UseGuards(AuthGuard)
+  async getMenusFromRestaurant(@Param('id') id: string) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
+    return await this.restaurantService.getMenusFromRestaurant(+id);
+  }
+
   @Get(':restaurantId')
   @UseGuards(AuthGuard)
   async getRestaurant(@Param('restaurantId') id: string) {

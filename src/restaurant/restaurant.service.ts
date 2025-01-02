@@ -110,6 +110,20 @@ export class RestaurantService implements OnModuleInit {
     ).data;
   }
 
+  async getMenusFromRestaurant(id: number) {
+    const menus = await (
+      await this.restaurantRepository.findOne({
+        where: { id },
+        relations: ['menu'],
+      })
+    ).menu;
+    if (!menus)
+      throw new BadRequestException(
+        'This restaurant is not exist or menus in this restaurant is not exits',
+      );
+    return menus;
+  }
+
   async createRestaurant(restaurant: CreateRestaurantDto, url: string) {
     const dbUser = await this.userService.getUserById(restaurant.ownerId);
     if (!dbUser) throw new NotFoundException('Owner with this id is not exist');
