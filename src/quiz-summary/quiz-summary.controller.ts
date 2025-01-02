@@ -10,10 +10,11 @@ import {
 } from '@nestjs/common';
 import { QuizSummaryService } from './quiz-summary.service';
 import { CreateQuizSummaryDto } from './dto/create-quiz-summary.dto';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 
+@ApiBearerAuth()
 @Controller('quiz-summary')
 export class QuizSummaryController {
   constructor(private readonly quizSummaryService: QuizSummaryService) {}
