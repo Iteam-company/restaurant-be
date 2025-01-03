@@ -4,13 +4,6 @@ import { MenuModule } from 'src/menu/menu.module';
 import { forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import User from 'src/types/entity/user.entity';
-import Restaurant from 'src/types/entity/restaurant.entity';
-import Menu from 'src/types/entity/menu.entity';
-import MenuItem from 'src/types/entity/menu-item.entity';
-import { Quiz } from 'src/types/entity/quiz.entity';
-import { Question } from 'src/types/entity/question.entity';
-import { QuizResult } from 'src/types/entity/quiz-result.entity';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import { QuizModule } from '../quiz.module';
 import { QuizService } from '../quiz.service';
@@ -29,6 +22,7 @@ import { CreateMenuItemDto } from 'src/menu/item/dto/create-menu-item.dto';
 import { ItemModule } from 'src/menu/item/item.module';
 import { ItemService } from 'src/menu/item/item.service';
 import { UserModule } from 'src/user/user.module';
+import { getTestDataSource } from 'test/testDataSource';
 
 describe('OpenaiService', () => {
   jest.setTimeout(15000);
@@ -92,20 +86,8 @@ describe('OpenaiService', () => {
         TypeOrmModule.forRootAsync({
           imports: [ConfigModule],
           inject: [ConfigService],
-          useFactory: (configService: ConfigService) => ({
-            type: 'postgres',
-            url: configService.get('TEST_DB_CONNECT'),
-            entities: [
-              User,
-              Restaurant,
-              Menu,
-              MenuItem,
-              Quiz,
-              Question,
-              QuizResult,
-            ],
-            synchronize: true,
-          }),
+          useFactory: (configService: ConfigService) =>
+            getTestDataSource(configService),
         }),
         forwardRef(() => MenuModule),
         UserModule,

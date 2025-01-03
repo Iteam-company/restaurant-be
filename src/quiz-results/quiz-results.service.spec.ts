@@ -2,11 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import User from 'src/types/entity/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import Restaurant from 'src/types/entity/restaurant.entity';
-import Menu from 'src/types/entity/menu.entity';
-import MenuItem from 'src/types/entity/menu-item.entity';
-import { Quiz } from 'src/types/entity/quiz.entity';
-import { Question } from 'src/types/entity/question.entity';
 import { QuizResult } from 'src/types/entity/quiz-result.entity';
 import { QuizResultsService } from './quiz-results.service';
 import { QuizModule } from 'src/quiz/quiz.module';
@@ -29,6 +24,7 @@ import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module'
 import CreateUserDto from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import { CreateQuizResultDto } from './dto/create-quiz-result.dto';
+import { getTestDataSource } from 'test/testDataSource';
 
 describe('QuizResultService', () => {
   let quizResultService: QuizResultsService;
@@ -76,20 +72,8 @@ describe('QuizResultService', () => {
         TypeOrmModule.forRootAsync({
           imports: [ConfigModule],
           inject: [ConfigService],
-          useFactory: (configService: ConfigService) => ({
-            type: 'postgres',
-            url: configService.get('TEST_DB_CONNECT'),
-            entities: [
-              User,
-              Restaurant,
-              Menu,
-              MenuItem,
-              Quiz,
-              Question,
-              QuizResult,
-            ],
-            synchronize: true,
-          }),
+          useFactory: (configService: ConfigService) =>
+            getTestDataSource(configService),
         }),
         TypeOrmModule.forFeature([QuizResult]),
         UserModule,

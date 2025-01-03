@@ -9,16 +9,11 @@ import UpdateUserRoleDto from './dto/update-user-role.dto';
 import UpdateUserDto from './dto/update-user.dto';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
-import Restaurant from 'src/types/entity/restaurant.entity';
-import Menu from 'src/types/entity/menu.entity';
-import MenuItem from 'src/types/entity/menu-item.entity';
-import { Quiz } from 'src/types/entity/quiz.entity';
-import { Question } from 'src/types/entity/question.entity';
-import { QuizResult } from 'src/types/entity/quiz-result.entity';
 import PayloadType from 'src/types/PayloadType';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { BadRequestException } from '@nestjs/common';
+import { getTestDataSource } from 'test/testDataSource';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -62,20 +57,8 @@ John,Morgan,waiter2,waiter,waiter20@mail.com,+380000000012,qwertyuiop`;
         TypeOrmModule.forRootAsync({
           imports: [ConfigModule],
           inject: [ConfigService],
-          useFactory: (configService: ConfigService) => ({
-            type: 'postgres',
-            url: configService.get('TEST_DB_CONNECT'),
-            entities: [
-              User,
-              Restaurant,
-              Menu,
-              MenuItem,
-              Quiz,
-              Question,
-              QuizResult,
-            ],
-            synchronize: true,
-          }),
+          useFactory: (configService: ConfigService) =>
+            getTestDataSource(configService),
         }),
         TypeOrmModule.forFeature([User]),
         AuthModule,

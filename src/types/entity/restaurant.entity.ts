@@ -22,12 +22,12 @@ export default class Restaurant {
   @Column({ nullable: true })
   image: string;
 
-  @OneToMany(() => User, (user) => user.restaurant)
+  @OneToMany(() => User, (user) => user.restaurant, { onDelete: 'CASCADE' })
   workers: User[];
 
   @OneToMany(() => Menu, (menu) => menu.restaurant)
   menu: Menu[];
 
-  @ManyToOne(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
   owner: User;
 }
