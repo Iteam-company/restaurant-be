@@ -35,7 +35,7 @@ export class ItemController {
     if (Number.isNaN(+menuId))
       throw new BadRequestException(`Param menuId: ${menuId} is not a number`);
 
-    return await this.menuItemService.getMenu(+menuId);
+    return await this.menuItemService.getMenuItem(+menuId);
   }
 
   @Patch(':itemId')

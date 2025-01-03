@@ -34,8 +34,8 @@ export class ItemService implements OnModuleInit {
     return await this.menuItemRepository.save(menuItem);
   }
 
-  async getMenu(menuId: number) {
-    return await this.menuRepository.findBy({ id: menuId });
+  async getMenuItem(menuId: number) {
+    return await this.menuRepository.findOneBy({ id: menuId });
   }
 
   async changeItem(menuItemId: number, item: UpdateMenuItemDto) {

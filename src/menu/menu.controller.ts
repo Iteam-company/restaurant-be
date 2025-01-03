@@ -69,7 +69,7 @@ export class MenuController {
     return await this.menuService.remove(+id);
   }
 
-  @Post(':menuId/:itemId')
+  @Post('item/:menuId/:itemId')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async addItem(
@@ -84,7 +84,7 @@ export class MenuController {
     return await this.itemService.linkItem(+menuId, +itemId);
   }
 
-  @Delete(':menuId/:itemId')
+  @Delete('item/:menuId/:itemId')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async removeItem(
