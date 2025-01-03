@@ -21,6 +21,9 @@ export default class MenuItem {
   @Column('float')
   price: number;
 
+  @Column({ nullable: true })
+  image: string;
+
   @ManyToOne(() => Menu, (menu) => menu.menuItems, { onDelete: 'CASCADE' })
   menu: Menu;
 }

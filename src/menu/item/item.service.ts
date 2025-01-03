@@ -11,6 +11,8 @@ import { Repository } from 'typeorm';
 import { CreateMenuItemDto } from './dto/create-menu-item.dto';
 import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 import { menuItemsSeed, menusSeed } from 'src/types/seeds';
+import { v2 as cloudinary } from 'cloudinary';
+import { join } from 'path';
 
 @Injectable()
 export class ItemService implements OnModuleInit {
@@ -35,7 +37,10 @@ export class ItemService implements OnModuleInit {
   }
 
   async getMenuItem(menuId: number) {
-    return await this.menuRepository.findOneBy({ id: menuId });
+    const dbItem = await this.menuItemRepository.findOneBy({ id: menuId });
+    if (!dbItem)
+      throw new BadRequestException('Menu item with this id is not exist');
+    return dbItem;
   }
 
   async changeItem(menuItemId: number, item: UpdateMenuItemDto) {
@@ -50,9 +55,21 @@ export class ItemService implements OnModuleInit {
     return await this.menuItemRepository.findOneBy({ id: menuItemId });
   }
 
+  async patchIcon(id: number, imageUrl: string) {
+    const dbItem = await this.getMenuItem(id);
+
+    if (dbItem.image) await this.removeCloudinaryImage(dbItem.image);
+
+    await this.menuItemRepository.update(id, { image: imageUrl });
+
+    return { imageUrl };
+  }
+
   async remove(menuItemId: number) {
     const dbItem = await this.menuItemRepository.findOneBy({ id: menuItemId });
     if (!dbItem) throw new NotFoundException('Menu item not found');
+
+    if (dbItem.image) await this.removeCloudinaryImage(dbItem.image);
 
     return await this.menuItemRepository.remove(dbItem);
   }
@@ -96,6 +113,13 @@ export class ItemService implements OnModuleInit {
     );
 
     return await this.menuRepository.save(dbMenu);
+  }
+
+  async removeCloudinaryImage(image: string) {
+    const url = image.split('/');
+    await cloudinary.api.delete_resources([
+      join('dishes', url[url.length - 1].split('.')[0]),
+    ]);
   }
 
   async seed() {
