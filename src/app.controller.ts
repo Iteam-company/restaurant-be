@@ -6,4 +6,9 @@ export class AppController {
   async qq() {
     return 'qq';
   }
+
+  @Get('qq')
+  async qq1() {
+    return 'qwerty';
+  }
 }
