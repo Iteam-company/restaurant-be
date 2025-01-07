@@ -46,9 +46,8 @@ export class ItemService implements OnModuleInit {
 
     return (
       await paginate(query, dbItem, {
-        searchableColumns: ['menu.id'],
+        searchableColumns: ['name'],
         sortableColumns: ['id'],
-        relations: ['menu'],
       })
     ).data;
   }
