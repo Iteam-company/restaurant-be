@@ -18,6 +18,9 @@ export default class MenuItem {
   @Column()
   timeForCook: string;
 
+  @Column()
+  weight: number;
+
   @Column('float')
   price: number;
 

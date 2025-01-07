@@ -17,6 +17,11 @@ export class CreateMenuItemDto {
   @IsNotEmpty()
   ingredients: string;
 
+  @ApiProperty({ description: 'Menu item weight' })
+  @IsNumber()
+  @IsNotEmpty()
+  weight: number;
+
   @ApiProperty({ description: 'How much time a cook need to cook' })
   @IsString()
   @IsNotEmpty()

@@ -44,6 +44,7 @@ export const menuItemsSeed = [
       'Classic pizza with tomato sauce, mozzarella cheese, and fresh basil.',
     ingredients: 'Tomato sauce, mozzarella cheese, basil, olive oil',
     timeForCook: '15 minutes',
+    weight: 700,
     price: 12.99,
   },
   {
@@ -52,6 +53,7 @@ export const menuItemsSeed = [
       'Crisp romaine lettuce with Caesar dressing, croutons, and parmesan cheese.',
     ingredients: 'Romaine lettuce, Caesar dressing, croutons, parmesan cheese',
     timeForCook: '10 minutes',
+    weight: 700,
     price: 8.99,
   },
   {
@@ -60,6 +62,7 @@ export const menuItemsSeed = [
       'Traditional Italian pasta with eggs, pecorino cheese, pancetta, and black pepper.',
     ingredients: 'Spaghetti, eggs, pecorino cheese, pancetta, black pepper',
     timeForCook: '20 minutes',
+    weight: 700,
     price: 13.49,
   },
   {
@@ -68,6 +71,7 @@ export const menuItemsSeed = [
       'Fresh salmon fillet grilled to perfection with a side of vegetables.',
     ingredients: 'Salmon fillet, lemon, olive oil, mixed vegetables',
     timeForCook: '25 minutes',
+    weight: 700,
     price: 19.99,
   },
   {
@@ -75,6 +79,7 @@ export const menuItemsSeed = [
     description: 'Spicy Thai soup with shrimp, lemongrass, and coconut milk.',
     ingredients: 'Shrimp, lemongrass, coconut milk, chili, lime juice',
     timeForCook: '15 minutes',
+    weight: 700,
     price: 9.99,
   },
   {
@@ -83,6 +88,7 @@ export const menuItemsSeed = [
       'Slow-cooked pork ribs with a smoky BBQ glaze, served with fries.',
     ingredients: 'Pork ribs, BBQ sauce, fries, spices',
     timeForCook: '40 minutes',
+    weight: 700,
     price: 18.49,
   },
   {
@@ -91,6 +97,7 @@ export const menuItemsSeed = [
       'Layers of creamy Greek yogurt, honey, granola, and fresh berries.',
     ingredients: 'Greek yogurt, honey, granola, strawberries, blueberries',
     timeForCook: '5 minutes',
+    weight: 700,
     price: 5.99,
   },
   {
@@ -99,6 +106,7 @@ export const menuItemsSeed = [
       'Soft tortillas filled with seasoned beef, fresh salsa, and cheese.',
     ingredients: 'Ground beef, tortillas, salsa, cheese, lettuce',
     timeForCook: '15 minutes',
+    weight: 700,
     price: 10.99,
   },
 ];
