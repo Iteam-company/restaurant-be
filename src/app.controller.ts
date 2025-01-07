@@ -1,14 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 
 @Controller()
-export class AppController {
-  @Get()
-  async qq() {
-    return 'qq';
-  }
-
-  @Get('qq')
-  async qq1() {
-    return 'qwerty';
-  }
-}
+export class AppController {}
