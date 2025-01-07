@@ -18,7 +18,7 @@ export default class MenuItem {
   @Column()
   timeForCook: string;
 
-  @Column()
+  @Column({ nullable: true })
   weight: number;
 
   @Column('float')
