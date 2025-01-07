@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 import UseDishIconInterceptor from 'src/types/UseDishIconInterceptor';
 import RequestType from 'src/types/RequestType';
+import SearchItemQueryDto from './dto/search-item.dto';
 
 @ApiBearerAuth()
 @Controller('menu/item')
@@ -30,6 +32,12 @@ export class ItemController {
   @ApiBody({ type: CreateMenuItemDto })
   async create(@Body() body: CreateMenuItemDto) {
     return await this.menuItemService.create(body);
+  }
+
+  @Get('search/')
+  @UseGuards(AuthGuard)
+  async findItems(@Query() query: SearchItemQueryDto) {
+    return await this.menuItemService.search(query);
   }
 
   @Get(':itemId')

@@ -13,6 +13,8 @@ import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 import { menuItemsSeed, menusSeed } from 'src/types/seeds';
 import { v2 as cloudinary } from 'cloudinary';
 import { join } from 'path';
+import SearchItemQueryDto from './dto/search-item.dto';
+import { paginate } from 'nestjs-paginate';
 
 @Injectable()
 export class ItemService implements OnModuleInit {
@@ -34,6 +36,20 @@ export class ItemService implements OnModuleInit {
       throw new BadRequestException('Menu item with this id is already exist');
 
     return await this.menuItemRepository.save(menuItem);
+  }
+
+  async search(query: SearchItemQueryDto) {
+    const dbItem = await this.menuItemRepository.createQueryBuilder('menuItem');
+
+    if (query.menuId)
+      dbItem.andWhere('menuItem.menu.id = :menuId', { menuId: query.menuId });
+
+    return (
+      await paginate(query, dbItem, {
+        searchableColumns: ['menu.id'],
+        sortableColumns: ['id'],
+      })
+    ).data;
   }
 
   async getMenuItem(menuId: number) {
