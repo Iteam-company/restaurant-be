@@ -17,6 +17,8 @@ import { QuestionService } from 'src/question/question.service';
 import PayloadType from 'src/types/PayloadType';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
 import { quizSeed } from 'src/types/seeds';
+import SearchItemQueryDto from 'src/menu/item/dto/search-item.dto';
+import { paginate } from 'nestjs-paginate';
 
 @Injectable()
 export class QuizService implements OnModuleInit {
@@ -43,6 +45,23 @@ export class QuizService implements OnModuleInit {
       menu: await this.menuService.findOne(+createQuizDto.menuId),
       createAt: new Date(),
     });
+  }
+
+  async getSearch(query: SearchItemQueryDto) {
+    const dbQuiz = await this.quizRepository.createQueryBuilder('quiz');
+
+    if (query.menuId)
+      dbQuiz.andWhere('quiz.menu = :menuId', {
+        menuId: +query.menuId,
+      });
+
+    return (
+      await paginate(query, dbQuiz, {
+        sortableColumns: ['id'],
+        searchableColumns: ['title'],
+        relations: ['menu'],
+      })
+    ).data;
   }
 
   async getAllByRestaurant(id: number) {

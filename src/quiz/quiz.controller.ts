@@ -19,6 +19,7 @@ import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import RequestType from 'src/types/RequestType';
 import { OpenaiService } from './openai/openai.service';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
+import SearchItemQueryDto from 'src/menu/item/dto/search-item.dto';
 
 @ApiBearerAuth()
 @Controller('quiz')
@@ -34,6 +35,12 @@ export class QuizController {
   @ApiBody({ type: CreateQuizDto })
   async create(@Body() createQuizDto: CreateQuizDto) {
     return await this.quizService.create(createQuizDto);
+  }
+
+  @Get('search/')
+  @UseGuards(AuthGuard)
+  async search(@Query() query: SearchItemQueryDto) {
+    return await this.quizService.getSearch(query);
   }
 
   @Get('for-menu/:id')
