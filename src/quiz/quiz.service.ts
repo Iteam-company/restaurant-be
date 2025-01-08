@@ -56,6 +56,15 @@ export class QuizService implements OnModuleInit {
     return result;
   }
 
+  async getAllByMenu(id: number) {
+    const dbMenuQuizes = await this.quizRepository.find({
+      where: { menu: { id } },
+      relations: ['menu'],
+    });
+
+    return dbMenuQuizes;
+  }
+
   async findAll(user: PayloadType) {
     if (user.role === 'waiter')
       return await this.quizRepository.find({
@@ -152,7 +161,8 @@ export class QuizService implements OnModuleInit {
         );
         await this.quizRepository.save(<CreateQuizDto>{
           ...quiz,
-          menuId: undefined,
+          menuId: dbMenu.id,
+
           menu: dbMenu,
         });
 

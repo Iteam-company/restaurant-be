@@ -36,6 +36,15 @@ export class QuizController {
     return await this.quizService.create(createQuizDto);
   }
 
+  @Get('for-menu/:id')
+  @UseGuards(AuthGuard)
+  async getAllByMenu(@Param('id') id: string) {
+    if (Number.isNaN(+id))
+      throw new BadRequestException(`Param id: ${id} is not a number`);
+
+    return await this.quizService.getAllByMenu(+id);
+  }
+
   @Get('for-restaurant/:id')
   @UseGuards(AuthGuard)
   async findAllByRestaurant(@Param('id') id: string) {
