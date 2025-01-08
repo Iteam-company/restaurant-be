@@ -48,11 +48,19 @@ export class QuizService implements OnModuleInit {
   }
 
   async getSearch(query: SearchItemQueryDto) {
-    const dbQuiz = await this.quizRepository.createQueryBuilder('quiz');
+    const dbQuiz = await this.quizRepository
+      .createQueryBuilder('quiz')
+      .leftJoinAndSelect('quiz.menu', 'menu')
+      .leftJoinAndSelect('menu.restaurant', 'restaurant');
 
     if (query.menuId)
       dbQuiz.andWhere('quiz.menu = :menuId', {
         menuId: +query.menuId,
+      });
+
+    if (query.restaurantId)
+      dbQuiz.andWhere('restaurant.id = :restaurantId', {
+        restaurantId: query.restaurantId,
       });
 
     return (

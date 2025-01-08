@@ -13,6 +13,8 @@ class SearchItemQueryDto implements PaginateQuery {
   search?: string;
   @ApiProperty({ description: 'Search by menuId', required: false })
   menuId?: string;
+  @ApiProperty({ description: 'Search by restaurantId', required: false })
+  restaurantId?: string;
   path: string;
 }
 

@@ -12,7 +12,7 @@ class SearchQuizQueryDto implements PaginateQuery {
   })
   search?: string;
   @ApiProperty({ description: 'Search by restaurant', required: false })
-  menuId?: number;
+  menuId?: string;
   path: string;
 }
 
