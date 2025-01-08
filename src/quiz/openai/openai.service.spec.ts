@@ -64,6 +64,7 @@ describe('OpenaiService', () => {
                     grated Parmesan cheese
                     croutons`,
       timeForCook: '60 min',
+      weight: 700,
       price: 130,
     },
     {
@@ -72,6 +73,7 @@ describe('OpenaiService', () => {
         ' is a sour soup, made with meat stock, vegetables and seasonings, common in Eastern Europe and Northern Asia.',
       ingredients: `beetroots, white cabbage, carrots, parsley root, potatoes, onions and tomatoes.`,
       timeForCook: '60 min',
+      weight: 700,
       price: 130,
     },
   ];

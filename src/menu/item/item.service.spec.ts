@@ -29,6 +29,7 @@ describe('UserService', () => {
     description: 'Salat cezar',
     ingredients: 'inifjvnijmsl,pql,xlwemokrmv',
     timeForCook: '60 min',
+    weight: 700,
     price: 130,
   };
 
@@ -85,6 +86,7 @@ describe('UserService', () => {
   it('should update and save existed item', async () => {
     const updateData = {
       ingredients: 'salat, egg, tomato',
+      weight: 800,
     };
     const result = await itemService.changeItem(itemResource.id, updateData);
 
