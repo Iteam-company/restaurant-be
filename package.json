@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
     "start:docker": "docker compose up --build",
-    "start:prod:docker": "docker compose up --build -d",
+    "start:prod:docker": "docker compose up --build",
     "stop:prod:docker": "docker compose down",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest --detectOpenHandles",
