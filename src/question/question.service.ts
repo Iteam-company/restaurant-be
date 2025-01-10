@@ -47,6 +47,8 @@ export class QuestionService implements OnModuleInit {
     if (!dbQuestion)
       throw new NotFoundException('Question with this id is not exist ');
 
+    delete dbQuestion.correct;
+
     return dbQuestion;
   }
 
