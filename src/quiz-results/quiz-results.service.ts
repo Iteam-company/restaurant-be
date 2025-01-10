@@ -1,5 +1,8 @@
 import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
-import { CreateQuizResultDto } from './dto/create-quiz-result.dto';
+import {
+  CreateQuizResultDto,
+  ResultAnswersDto,
+} from './dto/create-quiz-result.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QuizResult } from 'src/types/entity/quiz-result.entity';
 import { Repository } from 'typeorm';
@@ -7,6 +10,7 @@ import { UserService } from 'src/user/user.service';
 import { QuizService } from 'src/quiz/quiz.service';
 import PayloadType from 'src/types/PayloadType';
 import { quizResultSeed } from 'src/types/seeds';
+import { Question } from 'src/types/entity/question.entity';
 
 @Injectable()
 export class QuizResultsService implements OnModuleInit {
@@ -29,8 +33,15 @@ export class QuizResultsService implements OnModuleInit {
         'This quiz is not already started or is already finished',
       );
 
+    const score = await this.checkAnswers(
+      createQuizResultDto.answers,
+      dbQuiz.questions,
+    );
+
+    delete dbQuiz.questions;
+
     return await this.quizResultsRepository.save({
-      ...createQuizResultDto,
+      score,
       raitingDate: new Date(),
       user: await this.userService.getUserById(userId),
       quiz: dbQuiz,
@@ -69,6 +80,28 @@ export class QuizResultsService implements OnModuleInit {
     dbQuizResult.quiz = null;
 
     return await this.quizResultsRepository.remove(dbQuizResult);
+  }
+
+  async checkAnswers(answers: ResultAnswersDto[], questions: Question[]) {
+    let correctAnswers = 0;
+    let countCorrectAnswers = 0;
+
+    for await (const question of questions) {
+      const answer = await answers.find(
+        (elem) => elem.questionId === question.id,
+      );
+      if (!answer)
+        throw new BadRequestException(
+          'Question with this id is no in quiz with this id',
+        );
+
+      for await (const ans of answer.answers)
+        if (await question.correct.includes(ans)) correctAnswers += 1;
+
+      countCorrectAnswers += question.correct.length;
+    }
+
+    return `${correctAnswers}/${countCorrectAnswers}`;
   }
 
   async seed() {
