@@ -23,19 +23,17 @@ import { UserModule } from 'src/user/user.module';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import CreateUserDto from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
-import { CreateQuizResultDto } from './dto/create-quiz-result.dto';
 import { getTestDataSource } from 'test/testDataSource';
+import { CreateQuestionDto } from 'src/question/dto/create-question.dto';
+import { QuestionModule } from 'src/question/question.module';
+import { QuestionService } from 'src/question/question.service';
 
 describe('QuizResultService', () => {
   let quizResultService: QuizResultsService;
   let menuService: MenuService;
   let quizService: QuizService;
   let userService: UserService;
-
-  const quizResultExample: CreateQuizResultDto = {
-    score: '90/100',
-    quizId: 0,
-  };
+  let questionService: QuestionService;
 
   const menuExample: CreateMenuDto = {
     name: 'zxcvbnm',
@@ -49,6 +47,22 @@ describe('QuizResultService', () => {
     status: StatusEnum.IN_PROGRESS,
     menuId: 0,
   };
+  const question1Example: CreateQuestionDto = {
+    text: 'qq1',
+    variants: ['1', '2', '3', '4'],
+    correct: [2],
+    multipleCorrect: false,
+    quizId: 0,
+  };
+  const question2Example: CreateQuestionDto = {
+    text: 'qq2',
+    variants: ['1', '2', '3', '4'],
+    correct: [4],
+    multipleCorrect: false,
+    quizId: 0,
+  };
+  const correctAnswers = '2/2';
+
   const userExample: CreateUserDto = {
     firstName: 'Jim',
     lastName: 'Kerry',
@@ -79,6 +93,7 @@ describe('QuizResultService', () => {
         UserModule,
         QuizModule,
         MenuModule,
+        QuestionModule,
         SharedJwtAuthModule,
       ],
       providers: [QuizResultsService],
@@ -88,6 +103,7 @@ describe('QuizResultService', () => {
     menuService = module.get<MenuService>(MenuService);
     quizService = module.get<QuizService>(QuizService);
     userService = module.get<UserService>(UserService);
+    questionService = module.get<QuestionService>(QuestionService);
   });
 
   it('should be defined', async () => {
@@ -109,10 +125,21 @@ describe('QuizResultService', () => {
       menuId: dbMenu.id,
       id: undefined,
     });
+    const dbQuestion1 = await questionService.create(<CreateQuestionDto>{
+      ...question1Example,
+      quizId: dbQuiz.id,
+    });
+    const dbQuestion2 = await questionService.create(<CreateQuestionDto>{
+      ...question2Example,
+      quizId: dbQuiz.id,
+    });
 
     const result = await quizResultService.create(
       {
-        ...quizResultExample,
+        answers: [
+          { questionId: dbQuestion1.id, answers: [...dbQuestion1.correct] },
+          { questionId: dbQuestion2.id, answers: [...dbQuestion2.correct] },
+        ],
         quizId: dbQuiz.id,
       },
       dbUser.id,
@@ -122,10 +149,9 @@ describe('QuizResultService', () => {
     expect(result.user).toBeDefined();
     expect(result.raitingDate).toBeDefined();
     expect({ ...result, quiz: undefined, raitingDate: undefined }).toEqual({
-      ...quizResultExample,
+      score: correctAnswers,
       id: result.id,
       quiz: undefined,
-      quizId: result.quizId,
       user: dbUser,
     });
     quizResultResource = {

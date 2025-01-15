@@ -111,7 +111,7 @@ describe('QuestionService', () => {
   });
 
   it('should update and save existing question', async () => {
-    const updateData = { correct: [2] };
+    const updateData = { text: 'it work' };
     const result = await questionService.update(
       questionResource.id,
       updateData,
@@ -121,8 +121,9 @@ describe('QuestionService', () => {
     expect({ ...result, quiz: undefined }).toEqual({
       ...questionResource,
       ...updateData,
-      quiz: undefined,
+      correct: undefined,
       quizId: undefined,
+      quiz: undefined,
     });
 
     questionResource = { ...questionResource, ...updateData };
@@ -164,6 +165,11 @@ describe('QuestionService', () => {
       quizId: undefined,
       id: result.id,
     });
-    expect(removedResult).toEqual({ ...result, quiz: null, id: undefined });
+    expect(removedResult).toEqual({
+      ...result,
+      quiz: null,
+      correct: undefined,
+      id: undefined,
+    });
   });
 });
