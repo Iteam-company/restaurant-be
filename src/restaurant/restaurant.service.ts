@@ -15,13 +15,14 @@ import { join } from 'path';
 import { paginate } from 'nestjs-paginate';
 import SearchQueryDto from './dto/search-query.dto';
 import { restaurantsSeed } from 'src/types/seeds';
+import { MenuService } from 'src/menu/menu.service';
 
 @Injectable()
 export class RestaurantService implements OnModuleInit {
   constructor(
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
-
+    private readonly menuService: MenuService,
     private readonly userService: UserService,
   ) {}
 
@@ -166,12 +167,15 @@ export class RestaurantService implements OnModuleInit {
   async removeRestaurant(id: number) {
     const dbRestaurant = await this.restaurantRepository.findOne({
       where: { id: id },
-      relations: ['workers'],
+      relations: ['workers', 'menu'],
     });
     if (!dbRestaurant) throw new NotFoundException('Restaurant not found');
 
     for await (const worker of dbRestaurant.workers) {
       await this.removeWorker(worker.id, id);
+    }
+    for await (const menu of dbRestaurant.menu) {
+      await this.menuService.remove(menu.id);
     }
 
     if (dbRestaurant.image)
