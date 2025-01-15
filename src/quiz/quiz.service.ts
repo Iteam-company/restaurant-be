@@ -186,9 +186,9 @@ export class QuizService implements OnModuleInit {
         const dbMenu = (await this.menuService.findAll()).find(
           (elem) => elem.name === quiz.menuName,
         );
-        await this.quizRepository.save(<CreateQuizDto>{
+        await this.quizRepository.save({
           ...quiz,
-          menuId: dbMenu.id,
+          createdAt: new Date(),
 
           menu: dbMenu,
         });

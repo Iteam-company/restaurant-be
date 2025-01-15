@@ -1,3 +1,5 @@
+import { DifficultyLevelEnum, StatusEnum } from 'src/quiz/dto/create-quiz.dto';
+
 export const usersSeed = [
   {
     firstName: 'Mriia',
@@ -158,58 +160,58 @@ export const restaurantsSeed = [
 export const quizSeed = [
   {
     title: 'Italian Cuisine Quiz',
-    difficultyLevel: 'easy',
+    difficultyLevel: DifficultyLevelEnum.EASY,
     timeLimit: 10,
-    status: 'not-started',
+    status: StatusEnum.IN_PROGRESS,
     menuName: menusSeed[0].name,
   },
   {
     title: 'Mexican Cuisine Quiz',
-    difficultyLevel: 'medium',
+    difficultyLevel: DifficultyLevelEnum.MEDIUM,
     timeLimit: 15,
-    status: 'in-progress',
+    status: StatusEnum.IN_PROGRESS,
     menuName: menusSeed[0].name,
   },
   {
     title: 'Vegetarian Menu Quiz',
-    difficultyLevel: 'hard',
+    difficultyLevel: DifficultyLevelEnum.HARD,
     timeLimit: 20,
-    status: 'not-started',
+    status: StatusEnum.NOT_STARTED,
     menuName: menusSeed[1].name,
   },
   {
     title: 'Desserts Quiz',
-    difficultyLevel: 'medium',
+    difficultyLevel: DifficultyLevelEnum.MEDIUM,
     timeLimit: 25,
-    status: 'completed',
+    status: StatusEnum.COMPLETED,
     menuName: menusSeed[1].name,
   },
   {
     title: 'Grilled Dishes Quiz',
-    difficultyLevel: 'hard',
+    difficultyLevel: DifficultyLevelEnum.HARD,
     timeLimit: 20,
-    status: 'not-started',
+    status: StatusEnum.NOT_STARTED,
     menuName: menusSeed[2].name,
   },
   {
     title: 'Beverages Quiz',
-    difficultyLevel: 'easy',
+    difficultyLevel: DifficultyLevelEnum.EASY,
     timeLimit: 15,
-    status: 'completed',
+    status: StatusEnum.COMPLETED,
     menuName: menusSeed[2].name,
   },
   {
     title: 'Seafood Menu Quiz',
-    difficultyLevel: 'medium',
+    difficultyLevel: DifficultyLevelEnum.MEDIUM,
     timeLimit: 30,
-    status: 'in-progress',
+    status: StatusEnum.IN_PROGRESS,
     menuName: menusSeed[3].name,
   },
   {
     title: 'Vegan Menu Quiz',
-    difficultyLevel: 'easy',
+    difficultyLevel: DifficultyLevelEnum.EASY,
     timeLimit: 15,
-    status: 'not-started',
+    status: StatusEnum.NOT_STARTED,
     menuName: menusSeed[3].name,
   },
 ];
