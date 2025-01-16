@@ -154,6 +154,7 @@ export class UserService implements OnModuleInit {
       role: user.role,
       email: user.email,
       icon: user.icon,
+      phoneNumber: user.phoneNumber,
     };
   }
 
