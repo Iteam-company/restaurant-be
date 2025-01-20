@@ -59,7 +59,7 @@ export class QuestionService implements OnModuleInit {
     if (!dbQuestion)
       throw new NotFoundException('Question with this id is not exist ');
 
-    if (user.role === 'waiter' || user === undefined) delete dbQuestion.correct;
+    if (user === undefined || user.role === 'waiter') delete dbQuestion.correct;
 
     return dbQuestion;
   }
