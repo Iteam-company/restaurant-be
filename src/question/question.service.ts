@@ -39,6 +39,18 @@ export class QuestionService implements OnModuleInit {
     return await this.questionRepository.find();
   }
 
+  async findAllByQuizId(quizId: number) {
+    const dbQuestions = await this.questionRepository.find({
+      where: { quiz: { id: quizId } },
+      relations: ['quiz'],
+      select: ['id', 'text', 'variants', 'multipleCorrect', 'quiz'],
+    });
+    if (!dbQuestions)
+      throw new NotFoundException('Questions with this quizId is not exist');
+
+    return dbQuestions;
+  }
+
   async findOne(id: number) {
     const dbQuestion = await this.questionRepository.findOne({
       where: { id },

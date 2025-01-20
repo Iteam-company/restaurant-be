@@ -42,6 +42,15 @@ export class QuestionController {
     return questions;
   }
 
+  @Get('by-quiz/:quizId')
+  @UseGuards(AuthGuard)
+  async findByQuizId(@Param('quizId') quizId: string) {
+    if (Number.isNaN(+quizId))
+      throw new BadRequestException(`Param quizId: ${quizId} is not a number`);
+
+    return await this.questionService.findAllByQuizId(+quizId);
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string) {
