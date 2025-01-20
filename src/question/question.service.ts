@@ -51,7 +51,7 @@ export class QuestionService implements OnModuleInit {
     return dbQuestions;
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, user?: PayloadType) {
     const dbQuestion = await this.questionRepository.findOne({
       where: { id },
       relations: ['quiz'],
@@ -59,7 +59,7 @@ export class QuestionService implements OnModuleInit {
     if (!dbQuestion)
       throw new NotFoundException('Question with this id is not exist ');
 
-    delete dbQuestion.correct;
+    if (user.role === 'waiter' || user === undefined) delete dbQuestion.correct;
 
     return dbQuestion;
   }

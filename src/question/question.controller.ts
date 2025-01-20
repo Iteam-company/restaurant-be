@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   BadRequestException,
+  Request,
 } from '@nestjs/common';
 import { QuestionService } from './question.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -15,6 +16,7 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
+import RequestType from 'src/types/RequestType';
 
 @ApiBearerAuth()
 @Controller('question')
@@ -53,11 +55,11 @@ export class QuestionController {
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string, @Request() req: RequestType) {
     if (Number.isNaN(+id))
       throw new BadRequestException(`Param id: ${id} is not a number`);
 
-    return await this.questionService.findOne(+id);
+    return await this.questionService.findOne(+id, req.user);
   }
 
   @Patch(':id')
