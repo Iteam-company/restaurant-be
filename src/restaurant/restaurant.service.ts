@@ -57,7 +57,23 @@ export class RestaurantService implements OnModuleInit {
   }
 
   async getAllAdminRestaurant(id: number) {
-    return await this.restaurantRepository.find({ where: { admin: { id } } });
+    return await this.restaurantRepository
+      .createQueryBuilder('restaurant')
+      .leftJoinAndSelect('restaurant.workers', 'user')
+      .leftJoinAndSelect('restaurant.menu', 'menu')
+      .select([
+        'restaurant',
+        'user.id',
+        'user.firstName',
+        'user.lastName',
+        'user.username',
+        'user.role',
+        'user.email',
+        'user.phoneNumber',
+        'menu',
+      ])
+      .where('restaurant.admin = :admin', { admin: id })
+      .getMany();
   }
 
   async getAllOwnerRestaurants(id: number) {
