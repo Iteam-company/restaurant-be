@@ -36,6 +36,13 @@ export class UserController {
     return await this.userService.uploadUsers(req.fileData);
   }
 
+  @Get('owners')
+  @AdminOwnerAccess()
+  @UseGuards(AuthGuard)
+  async getOwners() {
+    return await this.userService.getOwners();
+  }
+
   @Get()
   @UseGuards(AuthGuard)
   @UseIconInterceptor()

@@ -56,8 +56,8 @@ export class RestaurantController {
   }
 
   @Get('for-owner-admin/')
-  @UseGuards(AuthGuard)
   @AdminOwnerAccess()
+  @UseGuards(AuthGuard)
   async getAllRestaurants(@Request() req: RequestType) {
     if (req.user.role === 'owner')
       return await this.restaurantService.getAllOwnerRestaurants(req.user.id);

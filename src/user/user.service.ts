@@ -81,6 +81,12 @@ export class UserService implements OnModuleInit {
     return { data };
   }
 
+  async getOwners() {
+    return await this.userRepository.find({
+      where: { role: 'owner' },
+    });
+  }
+
   async getUserById(id: number) {
     const dbUser = await this.userRepository.findOneBy({ id: id });
     if (!dbUser) throw new NotFoundException('User not found');
