@@ -16,6 +16,7 @@ import { paginate } from 'nestjs-paginate';
 import SearchQueryDto from './dto/search-query.dto';
 import { restaurantsSeed } from 'src/types/seeds';
 import { MenuService } from 'src/menu/menu.service';
+import PayloadType from 'src/types/PayloadType';
 
 @Injectable()
 export class RestaurantService implements OnModuleInit {
@@ -53,6 +54,10 @@ export class RestaurantService implements OnModuleInit {
       throw new NotFoundException('Restaurant with this id is not exist');
 
     return dbRestaurant;
+  }
+
+  async getAllAdminRestaurant(id: number) {
+    return await this.restaurantRepository.find({ where: { admin: { id } } });
   }
 
   async getAllOwnerRestaurants(id: number) {
@@ -125,7 +130,11 @@ export class RestaurantService implements OnModuleInit {
     return menus;
   }
 
-  async createRestaurant(restaurant: CreateRestaurantDto, url: string) {
+  async createRestaurant(
+    restaurant: CreateRestaurantDto,
+    url: string,
+    user: PayloadType,
+  ) {
     const dbUser = await this.userService.getUserById(restaurant.ownerId);
     if (!dbUser) throw new NotFoundException('Owner with this id is not exist');
 
@@ -136,6 +145,10 @@ export class RestaurantService implements OnModuleInit {
       ...restaurant,
       image: url,
       owner: dbUser,
+      admin:
+        user.role === 'admin'
+          ? await this.userService.getUserById(user.id)
+          : undefined,
     });
   }
 

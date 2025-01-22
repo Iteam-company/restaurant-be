@@ -3,7 +3,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -37,6 +36,7 @@ export class RestaurantController {
       const restaurant = await this.restaurantService.createRestaurant(
         body,
         req.imageUrl,
+        req.user,
       );
 
       await this.restaurantService.addWorker(req.user.id, restaurant.id);
@@ -55,13 +55,14 @@ export class RestaurantController {
     return await this.restaurantService.getSearch(query);
   }
 
-  @Get('owner-by/')
+  @Get('for-owner-admin/')
   @UseGuards(AuthGuard)
+  @AdminOwnerAccess()
   async getAllRestaurants(@Request() req: RequestType) {
-    if (req.user.role !== 'owner')
-      throw new ForbiddenException('This user is not a owner');
+    if (req.user.role === 'owner')
+      return await this.restaurantService.getAllOwnerRestaurants(req.user.id);
 
-    return await this.restaurantService.getAllOwnerRestaurants(req.user.id);
+    return await this.restaurantService.getAllAdminRestaurant(req.user.id);
   }
 
   @Get('/:id/menus')

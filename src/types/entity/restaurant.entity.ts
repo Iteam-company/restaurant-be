@@ -30,4 +30,10 @@ export default class Restaurant {
 
   @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
   owner: User;
+
+  @ManyToOne(() => User, (user) => user.id, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  admin: User;
 }
