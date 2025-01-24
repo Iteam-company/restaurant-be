@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
@@ -111,13 +110,8 @@ export class QuizService implements OnModuleInit {
     return dbQuiz;
   }
 
-  async findOneValidate(id: number, user: PayloadType) {
+  async findOneById(id: number) {
     const dbQuiz = await this.findOne(id);
-
-    if (dbQuiz.status !== 'in-progress' && user.role === 'waiter')
-      throw new ForbiddenException(
-        'Quiz is not started yet or quiz is already finished',
-      );
 
     return dbQuiz;
   }

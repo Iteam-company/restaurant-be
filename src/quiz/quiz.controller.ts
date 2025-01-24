@@ -69,11 +69,11 @@ export class QuizController {
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  async findOne(@Param('id') id: string, @Request() req: RequestType) {
+  async findOne(@Param('id') id: string) {
     if (Number.isNaN(+id))
       throw new BadRequestException(`Param id: ${id} is not a number`);
 
-    return await this.quizService.findOneValidate(+id, req.user);
+    return await this.quizService.findOneById(+id);
   }
 
   @Patch(':id')
