@@ -76,6 +76,14 @@ export class RestaurantService implements OnModuleInit {
       .getMany();
   }
 
+  async getAllWaiterRestaurant(id: number) {
+    return await this.restaurantRepository.findOne({
+      where: { workers: { id } },
+      relations: ['menu', 'workers'],
+      select: ['id', 'address', 'name', 'image', 'menu'],
+    });
+  }
+
   async getAllOwnerRestaurants(id: number) {
     const dbUser = await this.userService.getUserById(id);
     if (!dbUser) throw new NotFoundException('Owner with this id is not exist');

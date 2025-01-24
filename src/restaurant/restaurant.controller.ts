@@ -55,14 +55,15 @@ export class RestaurantController {
     return await this.restaurantService.getSearch(query);
   }
 
-  @Get('for-owner-admin/')
-  @AdminOwnerAccess()
+  @Get('parse-owner-admin-waiter/')
   @UseGuards(AuthGuard)
   async getAllRestaurants(@Request() req: RequestType) {
     if (req.user.role === 'owner')
       return await this.restaurantService.getAllOwnerRestaurants(req.user.id);
+    else if (req.user.role === 'admin')
+      return await this.restaurantService.getAllAdminRestaurant(req.user.id);
 
-    return await this.restaurantService.getAllAdminRestaurant(req.user.id);
+    return await this.restaurantService.getAllWaiterRestaurant(req.user.id);
   }
 
   @Get('/:id/menus')
