@@ -48,8 +48,15 @@ export class QuizResultsService implements OnModuleInit {
     });
   }
 
-  async findAll(user: PayloadType) {
-    if (user.role !== 'waiter') return await this.quizResultsRepository.find();
+  async findAll(user: PayloadType, restaurantId: number) {
+    if (user.role !== 'waiter')
+      return this.quizResultsRepository
+        .createQueryBuilder('quizResult')
+        .innerJoinAndSelect('quizResult.user', 'user')
+        .innerJoinAndSelect('user.restaurant', 'restaurant')
+        .innerJoinAndSelect('quizResult.quiz', 'quiz')
+        .where('restaurant.id = :restaurantId', { restaurantId })
+        .getMany();
 
     return await this.quizResultsRepository.find({
       where: {

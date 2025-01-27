@@ -33,10 +33,13 @@ export class QuizResultsController {
     );
   }
 
-  @Get()
+  @Get('/get-by-restaurant/:restaurantId')
   @UseGuards(AuthGuard)
-  async findAll(@Request() req: RequestType) {
-    return await this.quizResultsService.findAll(req.user);
+  async findAll(
+    @Request() req: RequestType,
+    @Param('restaurantId') restaurantId: number,
+  ) {
+    return await this.quizResultsService.findAll(req.user, restaurantId);
   }
 
   @Get(':id')
