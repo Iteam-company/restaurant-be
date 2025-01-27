@@ -49,6 +49,8 @@ export class QuizResultsService implements OnModuleInit {
   }
 
   async findAll(user: PayloadType) {
+    if (user.role !== 'waiter') return await this.quizResultsRepository.find();
+
     return await this.quizResultsRepository.find({
       where: {
         user: await this.userService.getUserById(user.id),
