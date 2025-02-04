@@ -71,7 +71,10 @@ export class QuizResultsService implements OnModuleInit {
     const dbQuizResult = await this.quizResultsRepository.findOne({
       where: {
         id,
-        user: await this.userService.getUserById(user.id),
+        user:
+          user.role === 'waiter'
+            ? await this.userService.getUserById(user.id)
+            : {},
       },
     });
     if (!dbQuizResult)
@@ -82,7 +85,7 @@ export class QuizResultsService implements OnModuleInit {
     return dbQuizResult;
   }
 
-  async search(query: SearchQueryDto) {
+  async search(query: SearchQueryDto, user: PayloadType) {
     const dbQuizResults = this.quizResultsRepository
       .createQueryBuilder('quizResult')
       .leftJoinAndSelect('quizResult.user', 'user')
@@ -93,6 +96,9 @@ export class QuizResultsService implements OnModuleInit {
       dbQuizResults.andWhere('restaurant.id = :restaurantId', {
         restaurantId: query.restaurantId,
       });
+
+    if (user && user.role === 'waiter')
+      dbQuizResults.andWhere('user.id = :userId', { userId: user.id });
 
     return (
       await paginate(query, dbQuizResults, {

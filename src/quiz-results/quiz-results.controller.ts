@@ -46,8 +46,8 @@ export class QuizResultsController {
 
   @Get('search')
   @UseGuards(AuthGuard)
-  async search(@Query() query: SearchQueryDto) {
-    return await this.quizResultsService.search(query);
+  async search(@Query() query: SearchQueryDto, @Request() req: RequestType) {
+    return await this.quizResultsService.search(query, req.user);
   }
 
   @Get(':id')
