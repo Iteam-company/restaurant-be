@@ -11,6 +11,8 @@ import { QuizService } from 'src/quiz/quiz.service';
 import PayloadType from 'src/types/PayloadType';
 import { quizResultSeed } from 'src/types/seeds';
 import { Question } from 'src/types/entity/question.entity';
+import SearchQueryDto from './dto/search-query.dto';
+import { paginate } from 'nestjs-paginate';
 
 @Injectable()
 export class QuizResultsService implements OnModuleInit {
@@ -78,6 +80,39 @@ export class QuizResultsService implements OnModuleInit {
       );
 
     return dbQuizResult;
+  }
+
+  async search(query: SearchQueryDto) {
+    const dbQuizResults = this.quizResultsRepository
+      .createQueryBuilder('quizResult')
+      .leftJoinAndSelect('quizResult.user', 'user')
+      .leftJoinAndSelect('quizResult.quiz', 'quiz')
+      .leftJoinAndSelect('user.restaurant', 'restaurant');
+
+    if (query.restaurantId)
+      dbQuizResults.andWhere('restaurant.id = :restaurantId', {
+        restaurantId: query.restaurantId,
+      });
+
+    return (
+      await paginate(query, dbQuizResults, {
+        sortableColumns: ['id'],
+        searchableColumns: ['user.firstName', 'user.lastName', 'quiz.title'],
+        relations: ['user', 'quiz'],
+        select: [
+          'id',
+          'raitingDate',
+          'score',
+          'user.id',
+          'user.firstName',
+          'user.lastName',
+          'quiz.id',
+          'quiz.title',
+          'quiz.difficultyLevel',
+          'quiz.status',
+        ],
+      })
+    ).data;
   }
 
   async remove(id: number) {
