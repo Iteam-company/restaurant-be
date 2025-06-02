@@ -19,6 +19,7 @@ services:
       - app_network
 
   nest:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile
