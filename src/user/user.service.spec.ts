@@ -114,6 +114,8 @@ John,Morgan,waiter2,waiter,waiter20@mail.com,+380000000012,qwertyuiop`;
       username: userResource.username,
       role: userResource.role,
       email: userResource.email,
+      phoneNumber: userResource.phoneNumber,
+      restaurantId: undefined,
       icon: null,
     });
   });

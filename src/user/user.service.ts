@@ -162,7 +162,7 @@ export class UserService implements OnModuleInit {
       email: user.email,
       icon: user.icon,
       phoneNumber: user.phoneNumber,
-      restaurantId: user.role !== 'waiter' ? undefined : user.restaurant.id,
+      restaurantId: user.role !== 'waiter' ? undefined : user.restaurant?.id,
     };
   }
 

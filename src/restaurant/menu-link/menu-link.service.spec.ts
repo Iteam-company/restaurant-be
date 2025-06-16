@@ -103,6 +103,13 @@ describe('MenuLinkService', () => {
         ownerId: payloadUser.id,
       },
       undefined,
+      {
+        role: 'admin',
+        id: payloadUser.id,
+        username: '',
+        email: '',
+        icon: null,
+      },
     );
     const dbMenu = await menuService.create(<CreateMenuDto>menuExample);
 
@@ -128,6 +135,7 @@ describe('MenuLinkService', () => {
     }).toEqual({
       ...restarauntResource,
       menu: [<Menu>menuResource],
+      admin: undefined,
     });
   });
 

@@ -13,6 +13,8 @@ import PayloadType from 'src/types/PayloadType';
 import { forwardRef } from '@nestjs/common';
 import CreateUserDto from 'src/user/dto/create-user.dto';
 import { getTestDataSource } from 'test/testDataSource';
+import Menu from 'src/types/entity/menu.entity';
+import { MenuService } from 'src/menu/menu.service';
 
 describe('RestaurantService', () => {
   let restaurantService: RestaurantService;
@@ -62,11 +64,11 @@ describe('RestaurantService', () => {
           useFactory: (configService: ConfigService) =>
             getTestDataSource(configService),
         }),
-        TypeOrmModule.forFeature([Restaurant, User]),
+        TypeOrmModule.forFeature([Restaurant, User, Menu]),
         forwardRef(() => UserModule),
         SharedJwtAuthModule,
       ],
-      providers: [RestaurantService],
+      providers: [RestaurantService, MenuService],
     }).compile();
 
     restaurantService = module.get<RestaurantService>(RestaurantService);
@@ -96,9 +98,19 @@ describe('RestaurantService', () => {
         ownerId: userPayload.id,
       },
       undefined,
+      {
+        role: 'admin',
+        id: userPayload.id,
+        username: '',
+        email: '',
+        icon: null,
+      },
     );
 
-    expect(result).toEqual({
+    expect({
+      ...result,
+      admin: undefined,
+    }).toEqual({
       ...restaurantExample,
       id: result.id,
       image: null,
@@ -152,6 +164,7 @@ describe('RestaurantService', () => {
       workers: dbRestaurant.workers.map((elem) => {
         return { ...elem, password: undefined };
       }),
+      menu: undefined,
     }).toEqual({ ...dbRestaurantWithWorker, id: undefined });
   });
 });
