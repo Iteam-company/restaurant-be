@@ -22,6 +22,7 @@ import { QuizResult } from './types/entity/quiz-result.entity';
 import { MenuLinkModule } from './restaurant/menu-link/menu-link.module';
 import { QuizSummaryModule } from './quiz-summary/quiz-summary.module';
 import { QuizSummary } from './types/entity/quiz-summary.entity';
+import { OpenaiModule } from './openai/openai.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { QuizSummary } from './types/entity/quiz-summary.entity';
         synchronize: true,
       }),
     }),
+    OpenaiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

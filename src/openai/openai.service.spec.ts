@@ -5,8 +5,8 @@ import { forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
-import { QuizModule } from '../quiz.module';
-import { QuizService } from '../quiz.service';
+import { QuizModule } from 'src/quiz/quiz.module';
+import { QuizService } from 'src/quiz/quiz.service';
 import { MenuService } from 'src/menu/menu.service';
 import {
   CategoriesEnum,
@@ -17,7 +17,7 @@ import {
   CreateQuizDto,
   DifficultyLevelEnum,
   StatusEnum,
-} from '../dto/create-quiz.dto';
+} from 'src/quiz/dto/create-quiz.dto';
 import { CreateMenuItemDto } from 'src/menu/item/dto/create-menu-item.dto';
 import { ItemModule } from 'src/menu/item/item.module';
 import { ItemService } from 'src/menu/item/item.service';

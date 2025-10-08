@@ -6,7 +6,7 @@ import { Quiz } from 'src/types/entity/quiz.entity';
 import { MenuModule } from 'src/menu/menu.module';
 import { QuestionModule } from 'src/question/question.module';
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
-import { OpenaiService } from './openai/openai.service';
+import { OpenaiModule } from 'src/openai/openai.module';
 
 @Module({
   imports: [
@@ -14,9 +14,10 @@ import { OpenaiService } from './openai/openai.service';
     forwardRef(() => QuestionModule),
     MenuModule,
     RestaurantModule,
+    OpenaiModule,
   ],
   exports: [QuizService],
   controllers: [QuizController],
-  providers: [QuizService, OpenaiService],
+  providers: [QuizService],
 })
 export class QuizModule {}

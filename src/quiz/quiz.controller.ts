@@ -10,6 +10,8 @@ import {
   UseGuards,
   Request,
   Query,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
@@ -17,9 +19,10 @@ import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import RequestType from 'src/types/RequestType';
-import { OpenaiService } from './openai/openai.service';
+import { OpenaiService } from 'src/openai/openai.service';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 import SearchItemQueryDto from 'src/menu/item/dto/search-item.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiBearerAuth()
 @Controller('quiz')
@@ -138,5 +141,13 @@ export class QuizController {
       throw new BadRequestException(`Param menuId: ${menuId} is not a number`);
 
     return await this.openaiService.getQuestions(menuId, count);
+  }
+
+  @Get('generate/quiz')
+  @AdminOwnerAccess()
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FilesInterceptor('files'))
+  async generateQuizzes(@UploadedFiles() files: Express.Multer.File[]) {
+    return await this.openaiService.generateQuiz(files);
   }
 }

@@ -40,13 +40,16 @@
     "csv-stringify": "^6.5.2",
     "dotenv": "^16.4.7",
     "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.11.0",
     "multer": "^1.4.5-lts.1",
     "nestjs-paginate": "^10.0.0",
-    "openai": "^4.77.0",
+    "openai": "^6.2.0",
+    "pdf-parse": "^2.2.2",
     "pg": "^8.13.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
+    "tesseract.js": "^6.0.1",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
