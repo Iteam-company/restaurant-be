@@ -1,6 +1,6 @@
 import * as pdfParse from 'pdf-parse';
-import mammoth from 'mammoth';
-import Tesseract from 'tesseract.js';
+import * as mammoth from 'mammoth';
+import * as Tesseract from 'tesseract.js';
 
 export async function extractTextFromImage(
   file: Express.Multer.File,
