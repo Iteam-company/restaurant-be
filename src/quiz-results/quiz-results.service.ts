@@ -29,7 +29,9 @@ export class QuizResultsService implements OnModuleInit {
   }
 
   async create(createQuizResultDto: CreateQuizResultDto, userId: number) {
-    const dbQuiz = await this.quizService.findOne(createQuizResultDto.quizId);
+    const dbQuiz = await this.quizService.findOneById(
+      createQuizResultDto.quizId,
+    );
     if (dbQuiz.status !== 'in-progress')
       throw new BadRequestException(
         'This quiz is not already started or is already finished',

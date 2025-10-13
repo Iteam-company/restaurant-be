@@ -1,6 +1,4 @@
 import { ConfigService } from '@nestjs/config';
-import MenuItem from '../src/types/entity/menu-item.entity';
-import Menu from '../src/types/entity/menu.entity';
 import { Question } from '../src/types/entity/question.entity';
 import { QuizResult } from '../src/types/entity/quiz-result.entity';
 import { QuizSummary } from '../src/types/entity/quiz-summary.entity';
@@ -15,16 +13,7 @@ export const getTestDataSource = (
   return {
     type: 'postgres',
     url: configService.get('TEST_DB_CONNECT'),
-    entities: [
-      User,
-      Restaurant,
-      Menu,
-      MenuItem,
-      Quiz,
-      Question,
-      QuizResult,
-      QuizSummary,
-    ],
+    entities: [User, Restaurant, Quiz, Question, QuizResult, QuizSummary],
     synchronize: true,
   };
 };

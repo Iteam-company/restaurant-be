@@ -11,7 +11,7 @@ import { OpenaiService } from './openai/openai.service';
   imports: [
     TypeOrmModule.forFeature([Quiz]),
     forwardRef(() => QuestionModule),
-    RestaurantModule,
+    forwardRef(() => RestaurantModule),
   ],
   exports: [QuizService],
   controllers: [QuizController],

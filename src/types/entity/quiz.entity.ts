@@ -2,11 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Question } from './question.entity';
 import { QuizResult } from './quiz-result.entity';
+import Restaurant from './restaurant.entity';
 
 @Entity()
 export class Quiz {
@@ -33,6 +35,12 @@ export class Quiz {
 
   @Column({ enum: ['in-progress', 'completed', 'not-started'] })
   status: 'in-progress' | 'completed' | 'not-started';
+
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.quizzes, {
+    cascade: true,
+    nullable: true,
+  })
+  restaurant: Restaurant;
 
   @OneToMany(() => QuizResult, (quizResult) => quizResult.quiz, {
     cascade: true,

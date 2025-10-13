@@ -9,7 +9,7 @@ import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Quiz } from 'src/types/entity/quiz.entity';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { QuestionService } from 'src/question/question.service';
 import PayloadType from 'src/types/PayloadType';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
@@ -23,7 +23,8 @@ export class QuizService implements OnModuleInit {
     @InjectRepository(Quiz)
     private quizRepository: Repository<Quiz>,
 
-    private readonly restarauntService: RestaurantService,
+    @Inject(forwardRef(() => RestaurantService))
+    private readonly restaurantService: RestaurantService,
 
     @Inject(forwardRef(() => QuestionService))
     private readonly questionService: QuestionService,
@@ -40,22 +41,17 @@ export class QuizService implements OnModuleInit {
     });
   }
 
-  async getSearch(query: SearchQuizQueryDto) {
-    const dbQuiz = await this.quizRepository
-      .createQueryBuilder('quiz')
-      .leftJoinAndSelect('quiz.menu', 'menu')
-      .leftJoinAndSelect('menu.restaurant', 'restaurant');
+  async getAllByRestaurant(id: number) {
+    return await this.quizRepository.find({ where: { restaurant: { id } } });
+  }
 
-    if (query.restaurantId)
-      dbQuiz.andWhere('restaurant.id = :restaurantId', {
-        restaurantId: query.restaurantId,
-      });
+  async getSearch(query: SearchQuizQueryDto) {
+    const dbQuiz = await this.quizRepository.createQueryBuilder('quiz');
 
     return (
       await paginate(query, dbQuiz, {
         sortableColumns: ['id'],
         searchableColumns: ['title'],
-        relations: ['menu'],
       })
     ).data;
   }
@@ -64,15 +60,15 @@ export class QuizService implements OnModuleInit {
     if (user.role === 'waiter')
       return await this.quizRepository.find({
         where: { status: 'in-progress' },
-        relations: ['menu'],
+        relations: ['restaurant'],
       });
     return await this.quizRepository.find();
   }
 
-  async findOne(id: number) {
+  async findOne(options: FindOneOptions<Quiz>['where']) {
     const dbQuiz = await this.quizRepository.findOne({
-      where: { id: id },
-      relations: ['questions', 'menu'],
+      where: options,
+      relations: ['questions', 'restaurant'],
     });
     if (!dbQuiz) throw new NotFoundException('Quiz with this id is not exist');
 
@@ -80,18 +76,16 @@ export class QuizService implements OnModuleInit {
   }
 
   async findOneById(id: number) {
-    const dbQuiz = await this.findOne(id);
-
-    return dbQuiz;
+    return await this.findOne({ id });
   }
 
   async update(id: number, updateQuizDto: UpdateQuizDto) {
     await this.quizRepository.update(id, updateQuizDto);
-    return await this.findOne(id);
+    return await this.findOneById(id);
   }
 
   async remove(id: number) {
-    const dbQuiz = await this.findOne(id);
+    const dbQuiz = await this.findOneById(id);
 
     for await (const question of dbQuiz.questions) {
       await this.questionService.remove(question.id);

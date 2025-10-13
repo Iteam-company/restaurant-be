@@ -16,6 +16,7 @@ import { paginate } from 'nestjs-paginate';
 import SearchQueryDto from './dto/search-query.dto';
 import { restaurantsSeed } from 'src/types/seeds';
 import PayloadType from 'src/types/PayloadType';
+import { QuizService } from 'src/quiz/quiz.service';
 
 @Injectable()
 export class RestaurantService implements OnModuleInit {
@@ -23,6 +24,7 @@ export class RestaurantService implements OnModuleInit {
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
     private readonly userService: UserService,
+    private readonly quizService: QuizService,
   ) {}
 
   async onModuleInit() {
@@ -33,7 +35,6 @@ export class RestaurantService implements OnModuleInit {
     const dbRestaurant = await this.restaurantRepository
       .createQueryBuilder('restaurant')
       .leftJoinAndSelect('restaurant.workers', 'user')
-      .leftJoinAndSelect('restaurant.menu', 'menu')
       .select([
         'restaurant',
         'user.id',
@@ -43,7 +44,6 @@ export class RestaurantService implements OnModuleInit {
         'user.role',
         'user.email',
         'user.phoneNumber',
-        'menu',
       ])
       .where('restaurant.id = :id', { id })
       .getOne();
@@ -105,13 +105,12 @@ export class RestaurantService implements OnModuleInit {
     return (
       await paginate<Restaurant>(query, this.restaurantRepository, {
         sortableColumns: ['id'],
-        relations: ['menu', 'owner', 'workers'],
+        relations: ['owner', 'workers'],
         select: [
           'id',
           'name',
           'address',
           'image',
-          'menu.id',
           'owner.id',
           'owner.firstName',
           'owner.lastName',
@@ -184,7 +183,7 @@ export class RestaurantService implements OnModuleInit {
   async removeRestaurant(id: number) {
     const dbRestaurant = await this.restaurantRepository.findOne({
       where: { id: id },
-      relations: ['workers', 'menu'],
+      relations: ['workers', 'quizzes'],
     });
     if (!dbRestaurant) throw new NotFoundException('Restaurant not found');
 
@@ -274,6 +273,15 @@ export class RestaurantService implements OnModuleInit {
           owner: owner[0],
           admin: admin[0],
         });
+
+        const quizzes = await Promise.all(
+          restaurant.quizzesTitle.map(async (title) => ({
+            ...(await this.quizService.findOne({ title })),
+            restaurant: dbRestaurant,
+          })),
+        );
+
+        dbRestaurant.quizzes = quizzes;
 
         await this.restaurantRepository.save(dbRestaurant);
 

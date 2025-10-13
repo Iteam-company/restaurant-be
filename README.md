@@ -1,17 +1,17 @@
 # Restaurant Management System API
 
-A comprehensive restaurant management system built with NestJS, TypeScript, and PostgreSQL. This system provides staff training through quizzes, menu management, user role management, and image handling capabilities.
+A comprehensive restaurant management system built with NestJS, TypeScript, and PostgreSQL. This system provides staff training through quizzes, user role management, and image handling capabilities.
 
 ## 🚀 Features
 
 - **User Management**: Multi-role system (Owner, Admin, Waiter) with JWT authentication
 - **Restaurant Management**: Restaurant profiles with image upload support
-- **Dynamic Menu System**: Seasonal menus with categorized items (appetizers, main courses, desserts)
+
 - **Staff Training Platform**: Quiz system with multiple difficulty levels and progress tracking
-- **Image Management**: Cloudinary integration for restaurant and menu item images
+- **Image Management**: Cloudinary integration for restaurant images
 - **AI Integration**: OpenAI integration for enhanced quiz generation
 - **Real-time Features**: Socket.io support for live updates
-- **CSV Export/Import**: Menu and quiz data management
+- **CSV Export/Import**: Quiz data management
 - **Pagination**: Efficient data loading with nestjs-paginate
 
 ## 🛠️ Tech Stack
@@ -123,7 +123,6 @@ After starting the server, visit:
 
 - `POST /auth/login` - User authentication
 - `GET /restaurant` - Get restaurant information
-- `GET /menu` - Get seasonal menus
 - `POST /quiz` - Create staff training quiz
 - `GET /quiz-results` - Get quiz performance data
 
@@ -229,10 +228,9 @@ erDiagram
 ## Key Relationships
 
 1. **Restaurant-User**: One restaurant has many workers, one owner, and optionally one admin
-2. **Restaurant-Menu**: One restaurant has multiple seasonal menus
-3. **Quiz-Question**: Each quiz contains multiple questions
-4. **User-QuizResult**: Users can take multiple quizes
-5. **Quiz-QuizSummary**: Each quiz has one summary with multiple member participants
+2. **Quiz-Question**: Each quiz contains multiple questions
+3. **User-QuizResult**: Users can take multiple quizes
+4. **Quiz-QuizSummary**: Each quiz has one summary with multiple member participants
 
 ## Business Logic Notes
 

@@ -31,7 +31,7 @@ export class QuestionService implements OnModuleInit {
   async create(createQuestionDto: CreateQuestionDto) {
     return await this.questionRepository.save({
       ...createQuestionDto,
-      quiz: await this.quizService.findOne(createQuestionDto.quizId),
+      quiz: await this.quizService.findOneById(createQuestionDto.quizId),
     });
   }
 

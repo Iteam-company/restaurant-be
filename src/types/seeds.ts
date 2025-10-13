@@ -39,23 +39,6 @@ export const usersSeed = [
   },
 ];
 
-export const restaurantsSeed = [
-  {
-    name: 'Ocean View Restaurant',
-    address: '123 Beachside Blvd, Miami, FL',
-    ownerUsername: usersSeed[0].username,
-    waiterUsername: [usersSeed[2].username],
-    adminUsername: usersSeed[1].username,
-  },
-  {
-    name: 'Mountain Retreat Cafe',
-    address: '456 Alpine Road, Denver, CO',
-    ownerUsername: usersSeed[0].username,
-    waiterUsername: [usersSeed[3].username],
-    adminUsername: usersSeed[1].username,
-  },
-];
-
 export const quizSeed = [
   {
     title: 'Italian Cuisine Quiz',
@@ -104,6 +87,35 @@ export const quizSeed = [
     difficultyLevel: DifficultyLevelEnum.EASY,
     timeLimit: 15,
     status: StatusEnum.NOT_STARTED,
+  },
+];
+
+export const restaurantsSeed = [
+  {
+    name: 'Ocean View Restaurant',
+    address: '123 Beachside Blvd, Miami, FL',
+    ownerUsername: usersSeed[0].username,
+    waiterUsername: [usersSeed[2].username],
+    adminUsername: usersSeed[1].username,
+    quizzesTitle: [
+      quizSeed[0].title,
+      quizSeed[1].title,
+      quizSeed[2].title,
+      quizSeed[3].title,
+    ],
+  },
+  {
+    name: 'Mountain Retreat Cafe',
+    address: '456 Alpine Road, Denver, CO',
+    ownerUsername: usersSeed[0].username,
+    waiterUsername: [usersSeed[3].username],
+    adminUsername: usersSeed[1].username,
+    quizzesTitle: [
+      quizSeed[4].title,
+      quizSeed[5].title,
+      quizSeed[6].title,
+      quizSeed[7].title,
+    ],
   },
 ];
 
