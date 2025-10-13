@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import User from './user.entity';
-import Menu from './menu.entity';
+import { Quiz } from './quiz.entity';
 
 @Entity()
 export default class Restaurant {
@@ -22,11 +22,11 @@ export default class Restaurant {
   @Column({ nullable: true })
   image: string;
 
+  @OneToMany(() => Quiz, (quiz) => quiz.restaurant, { onDelete: 'CASCADE' })
+  quizzes: Quiz[];
+
   @OneToMany(() => User, (user) => user.restaurant, { onDelete: 'CASCADE' })
   workers: User[];
-
-  @OneToMany(() => Menu, (menu) => menu.restaurant)
-  menu: Menu[];
 
   @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
   owner: User;

@@ -19,7 +19,7 @@ import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import RequestType from 'src/types/RequestType';
 import { OpenaiService } from './openai/openai.service';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
-import SearchItemQueryDto from 'src/menu/item/dto/search-item.dto';
+import SearchQuizQueryDto from './dto/search-quiz-param.dt';
 
 @ApiBearerAuth()
 @Controller('quiz')
@@ -39,17 +39,8 @@ export class QuizController {
 
   @Get('search/')
   @UseGuards(AuthGuard)
-  async search(@Query() query: SearchItemQueryDto) {
+  async search(@Query() query: SearchQuizQueryDto) {
     return await this.quizService.getSearch(query);
-  }
-
-  @Get('for-menu/:id')
-  @UseGuards(AuthGuard)
-  async getAllByMenu(@Param('id') id: string) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
-    return await this.quizService.getAllByMenu(+id);
   }
 
   @Get('for-restaurant/:id')
@@ -97,46 +88,10 @@ export class QuizController {
     return await this.quizService.remove(+id);
   }
 
-  @Patch(':menuId/:quizId')
+  @Get('generate/questions/')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
-  async linkQuizToMenu(
-    @Param('menuId') menuId: string,
-    @Param('quizId') quizId: string,
-  ) {
-    if (Number.isNaN(+menuId))
-      throw new BadRequestException(`Param menuId: ${menuId} is not a number`);
-    if (Number.isNaN(+quizId))
-      throw new BadRequestException(`Param id: ${quizId} is not a number`);
-
-    return await this.quizService.linkMenuQuiz(+menuId, +quizId);
-  }
-
-  @Delete(':menuId/:quizId')
-  @AdminOwnerAccess()
-  @UseGuards(AuthGuard)
-  async unlinkQuizToMenu(
-    @Param('menuId') menuId: string,
-    @Param('quizId') quizId: string,
-  ) {
-    if (Number.isNaN(+menuId))
-      throw new BadRequestException(`Param menuId: ${menuId} is not a number`);
-    if (Number.isNaN(+quizId))
-      throw new BadRequestException(`Param id: ${quizId} is not a number`);
-
-    return await this.quizService.unlinkMenuQuiz(+menuId, +quizId);
-  }
-
-  @Get('generate/questions/:menuId')
-  @AdminOwnerAccess()
-  @UseGuards(AuthGuard)
-  async getQuestions(
-    @Param('menuId') menuId: number,
-    @Query('count') count: number,
-  ) {
-    if (Number.isNaN(+menuId))
-      throw new BadRequestException(`Param menuId: ${menuId} is not a number`);
-
-    return await this.openaiService.getQuestions(menuId, count);
+  async getQuestions(@Query('count') count: number) {
+    return await this.openaiService.getQuestions(count);
   }
 }

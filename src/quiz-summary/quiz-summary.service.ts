@@ -14,7 +14,7 @@ export class QuizSummaryService {
   ) {}
 
   async create(createQuizSummaryDto: CreateQuizSummaryDto) {
-    const quiz = await this.quizService.findOne(+createQuizSummaryDto.quiz);
+    const quiz = await this.quizService.findOneById(+createQuizSummaryDto.quiz);
     if (await this.findOneByQuizId(+createQuizSummaryDto.quiz, true))
       throw new BadRequestException('Quiz with this id is already has summary');
 

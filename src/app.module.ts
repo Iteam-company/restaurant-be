@@ -8,18 +8,14 @@ import { SharedJwtAuthModule } from './shared-jwt-auth/shared-jwt-auth.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { WorkersModule } from './restaurant/workers/workers.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MenuModule } from './menu/menu.module';
 import { QuizModule } from './quiz/quiz.module';
 import User from './types/entity/user.entity';
 import Restaurant from './types/entity/restaurant.entity';
-import MenuItem from './types/entity/menu-item.entity';
-import Menu from './types/entity/menu.entity';
 import { Question } from './types/entity/question.entity';
 import { Quiz } from './types/entity/quiz.entity';
 import { LoggerMiddleware } from './logger/LoggerMiddleware';
 import { QuizResultsModule } from './quiz-results/quiz-results.module';
 import { QuizResult } from './types/entity/quiz-result.entity';
-import { MenuLinkModule } from './restaurant/menu-link/menu-link.module';
 import { QuizSummaryModule } from './quiz-summary/quiz-summary.module';
 import { QuizSummary } from './types/entity/quiz-summary.entity';
 
@@ -27,8 +23,6 @@ import { QuizSummary } from './types/entity/quiz-summary.entity';
   imports: [
     AuthModule,
     UserModule,
-    MenuLinkModule,
-    MenuModule,
     QuizModule,
     WorkersModule,
     RestaurantModule,
@@ -45,16 +39,7 @@ import { QuizSummary } from './types/entity/quiz-summary.entity';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get('DB_CONNECT'),
-        entities: [
-          User,
-          Restaurant,
-          Menu,
-          MenuItem,
-          Quiz,
-          Question,
-          QuizResult,
-          QuizSummary,
-        ],
+        entities: [User, Restaurant, Quiz, Question, QuizResult, QuizSummary],
         synchronize: true,
       }),
     }),
