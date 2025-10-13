@@ -202,6 +202,7 @@ erDiagram
     Restaurant ||--o{ User : "has workers"
     Restaurant ||--|| User : "owned by"
     Restaurant ||--|| User : "administered by"
+    Restaurant ||--o{ Quiz : "has quizzes"
 
     Quiz ||--o{ Question : "contains questions"
     Quiz ||--o{ QuizResult : "has results"
