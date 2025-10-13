@@ -263,10 +263,13 @@ export class RestaurantService implements OnModuleInit {
           },
           'owner',
         );
-        const admin = await this.userService.getSearch({
-          path: undefined,
-          search: restaurant.adminUsername,
-        });
+        const admin = await this.userService.getSearch(
+          {
+            path: undefined,
+            search: restaurant.adminUsername,
+          },
+          'admin',
+        );
 
         const dbRestaurant = await this.restaurantRepository.create({
           ...restaurant,
