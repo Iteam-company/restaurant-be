@@ -15,7 +15,6 @@ import { join } from 'path';
 import { paginate } from 'nestjs-paginate';
 import SearchQueryDto from './dto/search-query.dto';
 import { restaurantsSeed } from 'src/types/seeds';
-import { MenuService } from 'src/menu/menu.service';
 import PayloadType from 'src/types/PayloadType';
 
 @Injectable()
@@ -23,7 +22,6 @@ export class RestaurantService implements OnModuleInit {
   constructor(
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
-    private readonly menuService: MenuService,
     private readonly userService: UserService,
   ) {}
 
@@ -80,7 +78,7 @@ export class RestaurantService implements OnModuleInit {
     return await this.restaurantRepository.findOne({
       where: { workers: { id } },
       relations: ['menu', 'workers'],
-      select: ['id', 'address', 'name', 'image', 'menu'],
+      select: ['id', 'address', 'name', 'image'],
     });
   }
 
@@ -140,20 +138,6 @@ export class RestaurantService implements OnModuleInit {
     ).data;
   }
 
-  async getMenusFromRestaurant(id: number) {
-    const menus = await (
-      await this.restaurantRepository.findOne({
-        where: { id },
-        relations: ['menu'],
-      })
-    ).menu;
-    if (!menus)
-      throw new BadRequestException(
-        'This restaurant is not exist or menus in this restaurant is not exits',
-      );
-    return menus;
-  }
-
   async createRestaurant(
     restaurant: CreateRestaurantDto,
     url: string,
@@ -210,9 +194,6 @@ export class RestaurantService implements OnModuleInit {
 
     for await (const worker of dbRestaurant.workers) {
       await this.removeWorker(worker.id, id);
-    }
-    for await (const menu of dbRestaurant.menu) {
-      await this.menuService.remove(menu.id);
     }
 
     if (dbRestaurant.image)

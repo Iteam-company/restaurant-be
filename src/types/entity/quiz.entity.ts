@@ -2,12 +2,10 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Question } from './question.entity';
-import Menu from './menu.entity';
 import { QuizResult } from './quiz-result.entity';
 
 @Entity()
@@ -35,9 +33,6 @@ export class Quiz {
 
   @Column({ enum: ['in-progress', 'completed', 'not-started'] })
   status: 'in-progress' | 'completed' | 'not-started';
-
-  @ManyToOne(() => Menu, (menu) => menu.quizes, { onDelete: 'CASCADE' })
-  menu: Menu;
 
   @OneToMany(() => QuizResult, (quizResult) => quizResult.quiz, {
     cascade: true,
