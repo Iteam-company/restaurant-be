@@ -58,7 +58,6 @@ export class RestaurantService implements OnModuleInit {
     return await this.restaurantRepository
       .createQueryBuilder('restaurant')
       .leftJoinAndSelect('restaurant.workers', 'user')
-      .leftJoinAndSelect('restaurant.menu', 'menu')
       .select([
         'restaurant',
         'user.id',
@@ -68,7 +67,6 @@ export class RestaurantService implements OnModuleInit {
         'user.role',
         'user.email',
         'user.phoneNumber',
-        'menu',
       ])
       .where('restaurant.admin = :admin', { admin: id })
       .getMany();
@@ -77,7 +75,7 @@ export class RestaurantService implements OnModuleInit {
   async getAllWaiterRestaurant(id: number) {
     return await this.restaurantRepository.findOne({
       where: { workers: { id } },
-      relations: ['menu', 'workers'],
+      relations: ['workers'],
       select: ['id', 'address', 'name', 'image'],
     });
   }
@@ -89,7 +87,6 @@ export class RestaurantService implements OnModuleInit {
     return await this.restaurantRepository
       .createQueryBuilder('restaurant')
       .leftJoinAndSelect('restaurant.workers', 'user')
-      .leftJoinAndSelect('restaurant.menu', 'menu')
       .select([
         'restaurant',
         'user.id',
@@ -99,7 +96,6 @@ export class RestaurantService implements OnModuleInit {
         'user.role',
         'user.email',
         'user.phoneNumber',
-        'menu',
       ])
       .where('restaurant.owner = :owner', { owner: dbUser.id })
       .getMany();
@@ -268,9 +264,15 @@ export class RestaurantService implements OnModuleInit {
           },
           'owner',
         );
+        const admin = await this.userService.getSearch({
+          path: undefined,
+          search: restaurant.adminUsername,
+        });
+
         const dbRestaurant = await this.restaurantRepository.create({
           ...restaurant,
           owner: owner[0],
+          admin: admin[0],
         });
 
         await this.restaurantRepository.save(dbRestaurant);

@@ -45,12 +45,14 @@ export const restaurantsSeed = [
     address: '123 Beachside Blvd, Miami, FL',
     ownerUsername: usersSeed[0].username,
     waiterUsername: [usersSeed[2].username],
+    adminUsername: usersSeed[1].username,
   },
   {
     name: 'Mountain Retreat Cafe',
     address: '456 Alpine Road, Denver, CO',
     ownerUsername: usersSeed[0].username,
     waiterUsername: [usersSeed[3].username],
+    adminUsername: usersSeed[1].username,
   },
 ];
 
