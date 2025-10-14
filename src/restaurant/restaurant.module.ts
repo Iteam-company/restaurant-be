@@ -5,9 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import Restaurant from 'src/types/entity/restaurant.entity';
 import { UserModule } from 'src/user/user.module';
 import { QuizModule } from 'src/quiz/quiz.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Restaurant]), UserModule, QuizModule],
+  imports: [
+    TypeOrmModule.forFeature([Restaurant]),
+    UserModule,
+    QuizModule,
+    ConfigModule,
+  ],
   exports: [RestaurantService],
   controllers: [RestaurantController],
   providers: [RestaurantService],

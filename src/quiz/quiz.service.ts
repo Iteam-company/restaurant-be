@@ -16,6 +16,7 @@ import { RestaurantService } from 'src/restaurant/restaurant.service';
 import { quizSeed } from 'src/types/seeds';
 import { paginate } from 'nestjs-paginate';
 import SearchQuizQueryDto from './dto/search-quiz-param.dt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class QuizService implements OnModuleInit {
@@ -28,10 +29,12 @@ export class QuizService implements OnModuleInit {
 
     @Inject(forwardRef(() => QuestionService))
     private readonly questionService: QuestionService,
+
+    private readonly configService: ConfigService,
   ) {}
 
   async onModuleInit() {
-    await this.seed();
+    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
   }
 
   async create(createQuizDto: CreateQuizDto): Promise<Quiz> {

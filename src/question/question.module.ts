@@ -4,9 +4,14 @@ import { QuestionController } from './question.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Question } from 'src/types/entity/question.entity';
 import { QuizModule } from 'src/quiz/quiz.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Question]), forwardRef(() => QuizModule)],
+  imports: [
+    TypeOrmModule.forFeature([Question]),
+    forwardRef(() => QuizModule),
+    ConfigModule,
+  ],
   exports: [QuestionService],
   controllers: [QuestionController],
   providers: [QuestionService],

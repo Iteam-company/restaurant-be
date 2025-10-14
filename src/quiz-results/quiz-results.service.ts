@@ -13,6 +13,7 @@ import { quizResultSeed } from 'src/types/seeds';
 import { Question } from 'src/types/entity/question.entity';
 import SearchQueryDto from './dto/search-query.dto';
 import { paginate } from 'nestjs-paginate';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class QuizResultsService implements OnModuleInit {
@@ -22,10 +23,11 @@ export class QuizResultsService implements OnModuleInit {
 
     private readonly userService: UserService,
     private readonly quizService: QuizService,
+    private readonly configService: ConfigService,
   ) {}
 
   async onModuleInit() {
-    await this.seed();
+    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
   }
 
   async create(createQuizResultDto: CreateQuizResultDto, userId: number) {

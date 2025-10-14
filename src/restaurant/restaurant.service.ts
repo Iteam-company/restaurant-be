@@ -17,6 +17,7 @@ import SearchQueryDto from './dto/search-query.dto';
 import { restaurantsSeed } from 'src/types/seeds';
 import PayloadType from 'src/types/PayloadType';
 import { QuizService } from 'src/quiz/quiz.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RestaurantService implements OnModuleInit {
@@ -25,10 +26,11 @@ export class RestaurantService implements OnModuleInit {
     private restaurantRepository: Repository<Restaurant>,
     private readonly userService: UserService,
     private readonly quizService: QuizService,
+    private readonly configService: ConfigService,
   ) {}
 
   async onModuleInit() {
-    await this.seed();
+    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
   }
 
   async getRestaurant(id: number) {

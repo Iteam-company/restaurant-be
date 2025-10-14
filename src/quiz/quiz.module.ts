@@ -6,12 +6,14 @@ import { Quiz } from 'src/types/entity/quiz.entity';
 import { QuestionModule } from 'src/question/question.module';
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
 import { OpenaiService } from './openai/openai.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Quiz]),
     forwardRef(() => QuestionModule),
     forwardRef(() => RestaurantModule),
+    ConfigModule,
   ],
   exports: [QuizService],
   controllers: [QuizController],
