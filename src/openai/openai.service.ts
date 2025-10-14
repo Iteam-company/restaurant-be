@@ -1,9 +1,8 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { CreateQuestionDto } from 'src/question/dto/create-question.dto';
 import { basePrompt, generateQuizSystemPrompt } from './prompts';
-import { MenuService } from 'src/menu/menu.service';
 import {
   extractTextFromDocx,
   extractTextFromImage,
@@ -13,10 +12,7 @@ import { Quiz } from 'src/types/entity/quiz.entity';
 
 @Injectable()
 export class OpenaiService {
-  constructor(
-    @Inject(forwardRef(() => MenuService))
-    private readonly menuService: MenuService,
-  ) {
+  constructor() {
     this.client = new OpenAI({
       apiKey: new ConfigService().get('OPENAI_API_KEY'),
     });
@@ -59,16 +55,11 @@ export class OpenaiService {
     return result;
   }
 
-  async getQuestions(
-    menuId: number,
-    count: number = 10,
-  ): Promise<[CreateQuestionDto]> {
+  async getQuestions(count: number = 10): Promise<[CreateQuestionDto]> {
     return JSON.parse(
       (
         await this.client.chat.completions.create({
-          messages: [
-            { role: 'user', content: await this.fillPrompt(count, menuId) },
-          ],
+          messages: [{ role: 'user', content: await this.fillPrompt(count) }],
           model: 'o1-mini',
         })
       ).choices?.[0]?.message.content
@@ -77,14 +68,11 @@ export class OpenaiService {
     );
   }
 
-  private async fillPrompt(questionCount: number, menuId: number) {
+  private async fillPrompt(questionCount: number) {
     return basePrompt
       .replace('${number_of_questions}', questionCount.toString())
       .replace('${Question}', await this.getResponseSchema())
-      .replace(
-        '${array of quizItem elements}',
-        JSON.stringify(await this.menuService.getAllForPrompt(menuId)),
-      )
+      .replace('${array of quizItem elements}', '')
       .replaceAll('\n', '');
   }
 

@@ -18,7 +18,6 @@ const quizStructure: string = `
   "difficultyLevel": "easy|medium|hard",
   "timeLimit": 600, // in minutes
   "status": "in-progress|completed|not-started",
-  "menu": null
 }
 `;
 
@@ -56,7 +55,6 @@ Example output:
   "difficultyLevel": "medium",
   "timeLimit": 600,
   "status": "in-progress",
-  "menu": null
 }
 `,
   };
