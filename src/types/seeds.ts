@@ -39,104 +39,54 @@ export const usersSeed = [
   },
 ];
 
-export const menuItemsSeed = [
+export const quizSeed = [
   {
-    name: 'Margherita Pizza',
-    description:
-      'Classic pizza with tomato sauce, mozzarella cheese, and fresh basil.',
-    ingredients: 'Tomato sauce, mozzarella cheese, basil, olive oil',
-    timeForCook: '15 minutes',
-    weight: 700,
-    price: 12.99,
+    title: 'Italian Cuisine Quiz',
+    difficultyLevel: DifficultyLevelEnum.EASY,
+    timeLimit: 10,
+    status: StatusEnum.IN_PROGRESS,
   },
   {
-    name: 'Caesar Salad',
-    description:
-      'Crisp romaine lettuce with Caesar dressing, croutons, and parmesan cheese.',
-    ingredients: 'Romaine lettuce, Caesar dressing, croutons, parmesan cheese',
-    timeForCook: '10 minutes',
-    weight: 700,
-    price: 8.99,
+    title: 'Mexican Cuisine Quiz',
+    difficultyLevel: DifficultyLevelEnum.MEDIUM,
+    timeLimit: 15,
+    status: StatusEnum.IN_PROGRESS,
   },
   {
-    name: 'Spaghetti Carbonara',
-    description:
-      'Traditional Italian pasta with eggs, pecorino cheese, pancetta, and black pepper.',
-    ingredients: 'Spaghetti, eggs, pecorino cheese, pancetta, black pepper',
-    timeForCook: '20 minutes',
-    weight: 700,
-    price: 13.49,
+    title: 'Vegetarian Menu Quiz',
+    difficultyLevel: DifficultyLevelEnum.HARD,
+    timeLimit: 20,
+    status: StatusEnum.NOT_STARTED,
   },
   {
-    name: 'Grilled Salmon',
-    description:
-      'Fresh salmon fillet grilled to perfection with a side of vegetables.',
-    ingredients: 'Salmon fillet, lemon, olive oil, mixed vegetables',
-    timeForCook: '25 minutes',
-    weight: 700,
-    price: 19.99,
+    title: 'Desserts Quiz',
+    difficultyLevel: DifficultyLevelEnum.MEDIUM,
+    timeLimit: 25,
+    status: StatusEnum.COMPLETED,
   },
   {
-    name: 'Tom Yum Soup',
-    description: 'Spicy Thai soup with shrimp, lemongrass, and coconut milk.',
-    ingredients: 'Shrimp, lemongrass, coconut milk, chili, lime juice',
-    timeForCook: '15 minutes',
-    weight: 700,
-    price: 9.99,
+    title: 'Grilled Dishes Quiz',
+    difficultyLevel: DifficultyLevelEnum.HARD,
+    timeLimit: 20,
+    status: StatusEnum.NOT_STARTED,
   },
   {
-    name: 'BBQ Ribs',
-    description:
-      'Slow-cooked pork ribs with a smoky BBQ glaze, served with fries.',
-    ingredients: 'Pork ribs, BBQ sauce, fries, spices',
-    timeForCook: '40 minutes',
-    weight: 700,
-    price: 18.49,
+    title: 'Beverages Quiz',
+    difficultyLevel: DifficultyLevelEnum.EASY,
+    timeLimit: 15,
+    status: StatusEnum.COMPLETED,
   },
   {
-    name: 'Greek Yogurt Parfait',
-    description:
-      'Layers of creamy Greek yogurt, honey, granola, and fresh berries.',
-    ingredients: 'Greek yogurt, honey, granola, strawberries, blueberries',
-    timeForCook: '5 minutes',
-    weight: 700,
-    price: 5.99,
+    title: 'Seafood Menu Quiz',
+    difficultyLevel: DifficultyLevelEnum.MEDIUM,
+    timeLimit: 30,
+    status: StatusEnum.IN_PROGRESS,
   },
   {
-    name: 'Beef Tacos',
-    description:
-      'Soft tortillas filled with seasoned beef, fresh salsa, and cheese.',
-    ingredients: 'Ground beef, tortillas, salsa, cheese, lettuce',
-    timeForCook: '15 minutes',
-    weight: 700,
-    price: 10.99,
-  },
-];
-
-export const menusSeed = [
-  {
-    name: 'Spring Delights',
-    season: 'spring',
-    categories: 'appetizers',
-    menuItemNames: [menuItemsSeed[0].name, menuItemsSeed[1].name],
-  },
-  {
-    name: 'Summer Feast',
-    season: 'summer',
-    categories: 'main courses',
-    menuItemNames: [menuItemsSeed[2].name, menuItemsSeed[3].name],
-  },
-  {
-    name: 'Autumn Sweets',
-    season: 'fall',
-    categories: 'desserts',
-    menuItemNames: [menuItemsSeed[4].name, menuItemsSeed[5].name],
-  },
-  {
-    name: 'Winter Comforts',
-    season: 'winter',
-    categories: 'main courses',
-    menuItemNames: [menuItemsSeed[7].name, menuItemsSeed[6].name],
+    title: 'Vegan Menu Quiz',
+    difficultyLevel: DifficultyLevelEnum.EASY,
+    timeLimit: 15,
+    status: StatusEnum.NOT_STARTED,
   },
 ];
 
@@ -146,73 +96,26 @@ export const restaurantsSeed = [
     address: '123 Beachside Blvd, Miami, FL',
     ownerUsername: usersSeed[0].username,
     waiterUsername: [usersSeed[2].username],
-    menuNames: [menusSeed[2].name, menusSeed[3].name],
+    adminUsername: usersSeed[1].username,
+    quizzesTitle: [
+      quizSeed[0].title,
+      quizSeed[1].title,
+      quizSeed[2].title,
+      quizSeed[3].title,
+    ],
   },
   {
     name: 'Mountain Retreat Cafe',
     address: '456 Alpine Road, Denver, CO',
     ownerUsername: usersSeed[0].username,
     waiterUsername: [usersSeed[3].username],
-    menuNames: [menusSeed[0].name, menusSeed[1].name],
-  },
-];
-
-export const quizSeed = [
-  {
-    title: 'Italian Cuisine Quiz',
-    difficultyLevel: DifficultyLevelEnum.EASY,
-    timeLimit: 10,
-    status: StatusEnum.IN_PROGRESS,
-    menuName: menusSeed[0].name,
-  },
-  {
-    title: 'Mexican Cuisine Quiz',
-    difficultyLevel: DifficultyLevelEnum.MEDIUM,
-    timeLimit: 15,
-    status: StatusEnum.IN_PROGRESS,
-    menuName: menusSeed[0].name,
-  },
-  {
-    title: 'Vegetarian Menu Quiz',
-    difficultyLevel: DifficultyLevelEnum.HARD,
-    timeLimit: 20,
-    status: StatusEnum.NOT_STARTED,
-    menuName: menusSeed[1].name,
-  },
-  {
-    title: 'Desserts Quiz',
-    difficultyLevel: DifficultyLevelEnum.MEDIUM,
-    timeLimit: 25,
-    status: StatusEnum.COMPLETED,
-    menuName: menusSeed[1].name,
-  },
-  {
-    title: 'Grilled Dishes Quiz',
-    difficultyLevel: DifficultyLevelEnum.HARD,
-    timeLimit: 20,
-    status: StatusEnum.NOT_STARTED,
-    menuName: menusSeed[2].name,
-  },
-  {
-    title: 'Beverages Quiz',
-    difficultyLevel: DifficultyLevelEnum.EASY,
-    timeLimit: 15,
-    status: StatusEnum.COMPLETED,
-    menuName: menusSeed[2].name,
-  },
-  {
-    title: 'Seafood Menu Quiz',
-    difficultyLevel: DifficultyLevelEnum.MEDIUM,
-    timeLimit: 30,
-    status: StatusEnum.IN_PROGRESS,
-    menuName: menusSeed[3].name,
-  },
-  {
-    title: 'Vegan Menu Quiz',
-    difficultyLevel: DifficultyLevelEnum.EASY,
-    timeLimit: 15,
-    status: StatusEnum.NOT_STARTED,
-    menuName: menusSeed[3].name,
+    adminUsername: usersSeed[1].username,
+    quizzesTitle: [
+      quizSeed[4].title,
+      quizSeed[5].title,
+      quizSeed[6].title,
+      quizSeed[7].title,
+    ],
   },
 ];
 

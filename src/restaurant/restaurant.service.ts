@@ -15,27 +15,28 @@ import { join } from 'path';
 import { paginate } from 'nestjs-paginate';
 import SearchQueryDto from './dto/search-query.dto';
 import { restaurantsSeed } from 'src/types/seeds';
-import { MenuService } from 'src/menu/menu.service';
 import PayloadType from 'src/types/PayloadType';
+import { QuizService } from 'src/quiz/quiz.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RestaurantService implements OnModuleInit {
   constructor(
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
-    private readonly menuService: MenuService,
     private readonly userService: UserService,
+    private readonly quizService: QuizService,
+    private readonly configService: ConfigService,
   ) {}
 
   async onModuleInit() {
-    await this.seed();
+    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
   }
 
   async getRestaurant(id: number) {
     const dbRestaurant = await this.restaurantRepository
       .createQueryBuilder('restaurant')
       .leftJoinAndSelect('restaurant.workers', 'user')
-      .leftJoinAndSelect('restaurant.menu', 'menu')
       .select([
         'restaurant',
         'user.id',
@@ -45,7 +46,6 @@ export class RestaurantService implements OnModuleInit {
         'user.role',
         'user.email',
         'user.phoneNumber',
-        'menu',
       ])
       .where('restaurant.id = :id', { id })
       .getOne();
@@ -60,7 +60,6 @@ export class RestaurantService implements OnModuleInit {
     return await this.restaurantRepository
       .createQueryBuilder('restaurant')
       .leftJoinAndSelect('restaurant.workers', 'user')
-      .leftJoinAndSelect('restaurant.menu', 'menu')
       .select([
         'restaurant',
         'user.id',
@@ -70,7 +69,6 @@ export class RestaurantService implements OnModuleInit {
         'user.role',
         'user.email',
         'user.phoneNumber',
-        'menu',
       ])
       .where('restaurant.admin = :admin', { admin: id })
       .getMany();
@@ -79,8 +77,8 @@ export class RestaurantService implements OnModuleInit {
   async getAllWaiterRestaurant(id: number) {
     return await this.restaurantRepository.findOne({
       where: { workers: { id } },
-      relations: ['menu', 'workers'],
-      select: ['id', 'address', 'name', 'image', 'menu'],
+      relations: ['workers'],
+      select: ['id', 'address', 'name', 'image'],
     });
   }
 
@@ -91,7 +89,6 @@ export class RestaurantService implements OnModuleInit {
     return await this.restaurantRepository
       .createQueryBuilder('restaurant')
       .leftJoinAndSelect('restaurant.workers', 'user')
-      .leftJoinAndSelect('restaurant.menu', 'menu')
       .select([
         'restaurant',
         'user.id',
@@ -101,7 +98,6 @@ export class RestaurantService implements OnModuleInit {
         'user.role',
         'user.email',
         'user.phoneNumber',
-        'menu',
       ])
       .where('restaurant.owner = :owner', { owner: dbUser.id })
       .getMany();
@@ -111,13 +107,12 @@ export class RestaurantService implements OnModuleInit {
     return (
       await paginate<Restaurant>(query, this.restaurantRepository, {
         sortableColumns: ['id'],
-        relations: ['menu', 'owner', 'workers'],
+        relations: ['owner', 'workers'],
         select: [
           'id',
           'name',
           'address',
           'image',
-          'menu.id',
           'owner.id',
           'owner.firstName',
           'owner.lastName',
@@ -138,20 +133,6 @@ export class RestaurantService implements OnModuleInit {
         searchableColumns: ['name', 'address'],
       })
     ).data;
-  }
-
-  async getMenusFromRestaurant(id: number) {
-    const menus = await (
-      await this.restaurantRepository.findOne({
-        where: { id },
-        relations: ['menu'],
-      })
-    ).menu;
-    if (!menus)
-      throw new BadRequestException(
-        'This restaurant is not exist or menus in this restaurant is not exits',
-      );
-    return menus;
   }
 
   async createRestaurant(
@@ -204,15 +185,12 @@ export class RestaurantService implements OnModuleInit {
   async removeRestaurant(id: number) {
     const dbRestaurant = await this.restaurantRepository.findOne({
       where: { id: id },
-      relations: ['workers', 'menu'],
+      relations: ['workers', 'quizzes'],
     });
     if (!dbRestaurant) throw new NotFoundException('Restaurant not found');
 
     for await (const worker of dbRestaurant.workers) {
       await this.removeWorker(worker.id, id);
-    }
-    for await (const menu of dbRestaurant.menu) {
-      await this.menuService.remove(menu.id);
     }
 
     if (dbRestaurant.image)
@@ -287,10 +265,28 @@ export class RestaurantService implements OnModuleInit {
           },
           'owner',
         );
+        const admin = await this.userService.getSearch(
+          {
+            path: undefined,
+            search: restaurant.adminUsername,
+          },
+          'admin',
+        );
+
         const dbRestaurant = await this.restaurantRepository.create({
           ...restaurant,
           owner: owner[0],
+          admin: admin[0],
         });
+
+        const quizzes = await Promise.all(
+          restaurant.quizzesTitle.map(async (title) => ({
+            ...(await this.quizService.findOne({ title })),
+            restaurant: dbRestaurant,
+          })),
+        );
+
+        dbRestaurant.quizzes = quizzes;
 
         await this.restaurantRepository.save(dbRestaurant);
 

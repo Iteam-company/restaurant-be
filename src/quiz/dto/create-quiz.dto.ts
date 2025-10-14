@@ -33,9 +33,4 @@ export class CreateQuizDto {
   @IsEnum(StatusEnum)
   @IsNotEmpty()
   status: StatusEnum;
-
-  @ApiProperty({ description: 'Menu id quiz for' })
-  @IsNumber()
-  @IsNotEmpty()
-  menuId: number;
 }

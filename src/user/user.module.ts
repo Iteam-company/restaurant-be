@@ -4,11 +4,15 @@ import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import User from 'src/types/entity/user.entity';
 import { AuthModule } from 'src/auth/auth.module';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), forwardRef(() => AuthModule)],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    forwardRef(() => AuthModule),
+    ConfigModule,
+  ],
   exports: [UserService],
   controllers: [UserController],
   providers: [

@@ -21,24 +21,6 @@ erDiagram
         string image "nullable"
     }
 
-    Menu {
-        int id PK
-        string name
-        string categories "appetizers, main courses, desserts"
-        string season "spring, summer, fall, winter"
-    }
-
-    MenuItem {
-        int id PK
-        string name
-        string description
-        string ingredients
-        string timeForCook
-        float weight "nullable"
-        float price
-        string image "nullable"
-    }
-
     Quiz {
         int id PK
         string title
@@ -73,15 +55,12 @@ erDiagram
     Restaurant ||--o{ User : "has workers"
     Restaurant ||--|| User : "owned by"
     Restaurant ||--|| User : "administered by"
-    Restaurant ||--o{ Menu : "has menus"
-    
-    Menu ||--o{ MenuItem : "contains items"
-    Menu ||--o{ Quiz : "has quizes"
-    
+    Restaurant ||--o{ Quiz : "has quizzes"
+
     Quiz ||--o{ Question : "contains questions"
     Quiz ||--o{ QuizResult : "has results"
     Quiz ||--|| QuizSummary : "summarized by"
-    
+
     User ||--o{ QuizResult : "takes quizes"
     User }o--o{ QuizSummary : "members of quiz summary"
 ```
@@ -92,8 +71,6 @@ erDiagram
 
 - **User**: Represents system users (owners, waiters, admins)
 - **Restaurant**: Restaurant information and settings
-- **Menu**: Seasonal menu categories (appetizers, main courses, desserts)
-- **MenuItem**: Individual food items with details and pricing
 
 ### Quiz System Entities
 
@@ -105,16 +82,12 @@ erDiagram
 ## Key Relationships
 
 1. **Restaurant-User**: One restaurant has many workers, one owner, and optionally one admin
-2. **Restaurant-Menu**: One restaurant has multiple seasonal menus
-3. **Menu-MenuItem**: Each menu contains multiple food items
-4. **Menu-Quiz**: Each menu can have associated training quizes
-5. **Quiz-Question**: Each quiz contains multiple questions
-6. **User-QuizResult**: Users can take multiple quizes
-7. **Quiz-QuizSummary**: Each quiz has one summary with multiple member participants
+2. **Quiz-Question**: Each quiz contains multiple questions
+3. **User-QuizResult**: Users can take multiple quizes
+4. **Quiz-QuizSummary**: Each quiz has one summary with multiple member participants
 
 ## Business Logic Notes
 
 - Users have roles: `owner`, `waiter`, `admin`
-- Menus are categorized by type and season
 - Quiz system supports staff training with different difficulty levels
 - Quiz results track individual performance over time

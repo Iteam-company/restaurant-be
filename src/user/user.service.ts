@@ -24,6 +24,7 @@ import { paginate } from 'nestjs-paginate';
 import * as CSV from 'csv-string';
 import { stringify } from 'csv-stringify';
 import { usersSeed } from 'src/types/seeds';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -33,6 +34,8 @@ export class UserService implements OnModuleInit {
 
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
+
+    private readonly configService: ConfigService,
   ) {}
 
   async uploadUsers(csv: string) {
@@ -133,7 +136,7 @@ export class UserService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    await this.seed();
+    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
   }
 
   async validateUser(

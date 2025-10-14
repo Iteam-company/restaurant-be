@@ -13,6 +13,7 @@ import { Repository } from 'typeorm';
 import { QuizService } from 'src/quiz/quiz.service';
 import { questionsSeed, quizSeed } from 'src/types/seeds';
 import PayloadType from 'src/types/PayloadType';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class QuestionService implements OnModuleInit {
@@ -22,16 +23,18 @@ export class QuestionService implements OnModuleInit {
 
     @Inject(forwardRef(() => QuizService))
     private readonly quizService: QuizService,
+
+    private readonly configService: ConfigService,
   ) {}
 
   async onModuleInit() {
-    await this.seed();
+    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
   }
 
   async create(createQuestionDto: CreateQuestionDto) {
     return await this.questionRepository.save({
       ...createQuestionDto,
-      quiz: await this.quizService.findOne(createQuestionDto.quizId),
+      quiz: await this.quizService.findOneById(createQuestionDto.quizId),
     });
   }
 
