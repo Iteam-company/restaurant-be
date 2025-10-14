@@ -33,7 +33,11 @@ export class OpenaiService {
     return file.buffer.toString('utf-8');
   }
 
-  async generateQuiz(filesBlob: Array<Express.Multer.File>): Promise<Quiz> {
+  async generateQuiz(
+    filesBlob: Array<Express.Multer.File>,
+    prompt?: string,
+    count: number = 5,
+  ): Promise<Quiz> {
     const filesText = (
       await Promise.all(filesBlob.map((f) => this.extractTextFromFile(f)))
     ).join('\n\n');
@@ -44,8 +48,9 @@ export class OpenaiService {
         generateQuizSystemPrompt,
         {
           role: 'user',
-          content: `Generate 5 quiz questions based on the following content:\n\n${filesText}`,
+          content: `Generate ${count} quiz questions based on the following content:\n\n${filesText}`,
         },
+        prompt && { role: 'user', content: prompt },
       ],
     });
 

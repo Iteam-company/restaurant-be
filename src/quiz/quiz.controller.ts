@@ -23,6 +23,7 @@ import { OpenaiService } from 'src/openai/openai.service';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import SearchQuizQueryDto from './dto/search-quiz-param.dt';
+import GenerateQuizzesDto from './dto/generate-quizzes.dto';
 
 @ApiBearerAuth()
 @Controller('quiz')
@@ -102,7 +103,14 @@ export class QuizController {
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @UseInterceptors(FilesInterceptor('files'))
-  async generateQuizzes(@UploadedFiles() files: Express.Multer.File[]) {
-    return await this.openaiService.generateQuiz(files);
+  async generateQuizzes(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body() body: GenerateQuizzesDto,
+  ) {
+    return await this.openaiService.generateQuiz(
+      files,
+      body.prompt,
+      body.count,
+    );
   }
 }
