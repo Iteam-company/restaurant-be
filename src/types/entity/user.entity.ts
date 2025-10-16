@@ -8,6 +8,12 @@ import {
 import Restaurant from './restaurant.entity';
 import { QuizResult } from './quiz-result.entity';
 
+export enum UserRole {
+  OWNER = 'owner',
+  WAITER = 'waiter',
+  ADMIN = 'admin',
+}
+
 @Entity()
 export default class User {
   @PrimaryGeneratedColumn()
@@ -22,8 +28,8 @@ export default class User {
   @Column()
   username: string;
 
-  @Column({ enum: ['owner', 'waiter', 'admin'] })
-  role: 'owner' | 'waiter' | 'admin';
+  @Column({ enum: [UserRole] })
+  role: UserRole;
 
   @Column()
   email: string;

@@ -81,7 +81,7 @@ export class UserController {
     @Request() req: RequestType,
     @Body() body: CreateUpdateUserDto,
   ) {
-    return await this.userService.updateUser(req.user.id, body);
+    return await this.userService.updateUser(req.user.id, body, req.user);
   }
 
   @Patch('/:id/admin')
@@ -89,12 +89,13 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateUpdateUserDto })
   async changeAdminUser(
+    @Request() req: RequestType,
     @Body() body: CreateUpdateUserDto,
     @Param('id') id: string,
   ) {
     if (Number.isNaN(+id))
       throw new BadRequestException(`Param id: ${id} is not a number`);
-    return await this.userService.updateUser(+id, body);
+    return await this.userService.updateUser(+id, body, req.user);
   }
 
   @Patch('icon')

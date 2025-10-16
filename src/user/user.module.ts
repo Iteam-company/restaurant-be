@@ -6,12 +6,14 @@ import User from 'src/types/entity/user.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
+import { RestaurantModule } from 'src/restaurant/restaurant.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     forwardRef(() => AuthModule),
     ConfigModule,
+    RestaurantModule,
   ],
   exports: [UserService],
   controllers: [UserController],

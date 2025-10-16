@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import CreateUserDto from 'src/user/dto/create-user.dto';
-import User from 'src/types/entity/user.entity';
+import User, { UserRole } from 'src/types/entity/user.entity';
 import { Repository } from 'typeorm';
 import UpdateUserPasswordDto from 'src/user/dto/update-user-password.dto';
 import * as bcrypt from 'bcrypt';
@@ -25,6 +25,7 @@ import * as CSV from 'csv-string';
 import { stringify } from 'csv-stringify';
 import { usersSeed } from 'src/types/seeds';
 import { ConfigService } from '@nestjs/config';
+import { RestaurantService } from 'src/restaurant/restaurant.service';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -36,6 +37,8 @@ export class UserService implements OnModuleInit {
     private readonly authService: AuthService,
 
     private readonly configService: ConfigService,
+
+    private readonly restaurantService: RestaurantService,
   ) {}
 
   async uploadUsers(csv: string) {
@@ -86,7 +89,7 @@ export class UserService implements OnModuleInit {
 
   async getOwners() {
     return await this.userRepository.find({
-      where: { role: 'owner' },
+      where: { role: UserRole.OWNER },
     });
   }
 
@@ -201,18 +204,30 @@ export class UserService implements OnModuleInit {
     };
   }
 
-  async updateUser(id: number, user: UpdateUserDto) {
+  async updateUser(id: number, user: UpdateUserDto, payload: PayloadType) {
     const dbUser = await this.userRepository.findOneBy({ id: id });
-    if (!dbUser)
-      throw new BadRequestException('User with this id is not exist');
 
-    const newUser = {
-      ...dbUser,
-      ...user,
-      id: dbUser.id,
-      role: dbUser.role,
-      password: dbUser.password,
-    };
+    if (dbUser.role === 'owner')
+      throw new BadRequestException('User cannot change role from owner');
+
+    let newUser;
+    if (payload.role !== 'waiter' || dbUser.role !== payload.role) {
+      await this.handleChangeRole(dbUser, user.role);
+      newUser = {
+        ...dbUser,
+        ...user,
+        id: dbUser.id,
+        password: dbUser.password,
+      };
+    } else {
+      newUser = {
+        ...dbUser,
+        ...user,
+        id: dbUser.id,
+        role: dbUser.role,
+        password: dbUser.password,
+      };
+    }
 
     await this.userRepository.update(id, newUser);
 
@@ -279,6 +294,35 @@ export class UserService implements OnModuleInit {
     hashedPassword: string,
   ): Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword);
+  }
+
+  private async handleChangeRole(user: User, role: UserRole) {
+    switch (role) {
+      case 'admin':
+        try {
+          const dbRestaurant = await this.restaurantService.removeWorker(
+            user.id,
+            user.restaurant.id,
+          );
+
+          await this.restaurantService.addAdmin(user.id, dbRestaurant.id);
+        } catch {}
+        break;
+      case 'waiter':
+        try {
+          const dbRestaurant = await this.restaurantService.removeAdmin(
+            user.id,
+            user.restaurant.id,
+          );
+
+          await this.restaurantService.addWorker(user.id, dbRestaurant.id);
+        } catch {}
+        break;
+      case 'owner':
+        throw new BadRequestException('User cannot change role to owner');
+      default:
+        break;
+    }
   }
 
   async seed() {

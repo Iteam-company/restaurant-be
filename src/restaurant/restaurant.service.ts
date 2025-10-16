@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
   OnModuleInit,
@@ -24,6 +26,8 @@ export class RestaurantService implements OnModuleInit {
   constructor(
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
+
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly quizService: QuizService,
     private readonly configService: ConfigService,
