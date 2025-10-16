@@ -97,14 +97,17 @@ export class UserService implements OnModuleInit {
     return { ...dbUser, password: undefined };
   }
 
-  async getSearch(query: SearchQueryDto, role: string = 'waiter') {
+  async getSearch(query: SearchQueryDto, role?: string) {
     const dbUsers = await this.userRepository.createQueryBuilder('user');
 
-    dbUsers.andWhere('user.role = :role', { role });
-    if (query.restaurantId)
-      dbUsers.andWhere('user.restaurant = :restarauntId', {
-        restarauntId: +query.restaurantId,
+    if (role) {
+      dbUsers.andWhere('user.role = :role', { role });
+    }
+    if (query.restaurantId) {
+      dbUsers.andWhere('user.restaurant = :restaurantId', {
+        restaurantId: +query.restaurantId,
       });
+    }
 
     return (
       await paginate(query, dbUsers, {

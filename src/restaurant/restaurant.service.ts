@@ -150,10 +150,10 @@ export class RestaurantService implements OnModuleInit {
       ...restaurant,
       image: url,
       owner: dbUser,
-      admin:
+      admins:
         user.role === 'admin'
-          ? await this.userService.getUserById(user.id)
-          : undefined,
+          ? [await this.userService.getUserById(user.id)]
+          : [],
     });
   }
 
@@ -276,7 +276,7 @@ export class RestaurantService implements OnModuleInit {
         const dbRestaurant = await this.restaurantRepository.create({
           ...restaurant,
           owner: owner[0],
-          admin: admin[0],
+          admins: [admin[0]],
         });
 
         const quizzes = await Promise.all(

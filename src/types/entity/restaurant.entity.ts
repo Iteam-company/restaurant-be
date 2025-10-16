@@ -28,12 +28,9 @@ export default class Restaurant {
   @OneToMany(() => User, (user) => user.restaurant, { onDelete: 'CASCADE' })
   workers: User[];
 
+  @OneToMany(() => User, (user) => user.restaurant, { onDelete: 'CASCADE' })
+  admins: User[];
+
   @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
   owner: User;
-
-  @ManyToOne(() => User, (user) => user.id, {
-    onDelete: 'CASCADE',
-    nullable: true,
-  })
-  admin: User;
 }
