@@ -60,6 +60,7 @@ export class RestaurantService implements OnModuleInit {
     return await this.restaurantRepository
       .createQueryBuilder('restaurant')
       .leftJoinAndSelect('restaurant.workers', 'user')
+      .leftJoinAndSelect('restaurant.admins', 'admin')
       .select([
         'restaurant',
         'user.id',
@@ -70,7 +71,7 @@ export class RestaurantService implements OnModuleInit {
         'user.email',
         'user.phoneNumber',
       ])
-      .where('restaurant.admin = :admin', { admin: id })
+      .where('admin.id = :admin', { admin: id })
       .getMany();
   }
 
@@ -191,6 +192,10 @@ export class RestaurantService implements OnModuleInit {
 
     for await (const worker of dbRestaurant.workers) {
       await this.removeWorker(worker.id, id);
+    }
+
+    for await (const quiz of dbRestaurant.quizzes) {
+      await this.quizService.remove(quiz.id);
     }
 
     if (dbRestaurant.image)
