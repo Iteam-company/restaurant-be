@@ -12,7 +12,6 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     TypeOrmModule.forFeature([Quiz]),
     forwardRef(() => QuestionModule),
-    RestaurantModule,
     OpenaiModule,
     forwardRef(() => RestaurantModule),
     ConfigModule,

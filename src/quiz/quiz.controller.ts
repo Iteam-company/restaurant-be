@@ -24,6 +24,7 @@ import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import SearchQuizQueryDto from './dto/search-quiz-param.dt';
 import GenerateQuizzesDto from './dto/generate-quizzes.dto';
+import GenerateQuestionsDto from './dto/generate-questions.dto';
 
 @ApiBearerAuth()
 @Controller('quiz')
@@ -92,11 +93,20 @@ export class QuizController {
     return await this.quizService.remove(+id);
   }
 
-  @Get('generate/questions/')
+  @Get('generate/questions')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
-  async getQuestions(@Query('count') count: number) {
-    return await this.openaiService.getQuestions(count);
+  @UseInterceptors(FilesInterceptor('files'))
+  async getQuestions(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body() body: GenerateQuestionsDto,
+  ) {
+    return await this.openaiService.generateQuestion(
+      files,
+      body.prompt,
+      body.previousQuestions,
+      body.count,
+    );
   }
 
   @Get('generate/quiz')
