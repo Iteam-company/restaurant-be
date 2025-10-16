@@ -85,7 +85,6 @@ export class RestaurantService implements OnModuleInit {
 
   async getAllOwnerRestaurants(id: number) {
     const dbUser = await this.userService.getUserById(id);
-    if (!dbUser) throw new NotFoundException('Owner with this id is not exist');
 
     return await this.restaurantRepository
       .createQueryBuilder('restaurant')
@@ -142,7 +141,6 @@ export class RestaurantService implements OnModuleInit {
     user: PayloadType,
   ) {
     const dbUser = await this.userService.getUserById(restaurant.ownerId);
-    if (!dbUser) throw new NotFoundException('Owner with this id is not exist');
 
     if (dbUser.role !== 'owner')
       throw new BadRequestException('User with this id is not owner');
@@ -194,6 +192,10 @@ export class RestaurantService implements OnModuleInit {
       await this.removeWorker(worker.id, id);
     }
 
+    for await (const admin of dbRestaurant.admins) {
+      await this.removeAdmin(admin.id, dbRestaurant.id);
+    }
+
     for await (const quiz of dbRestaurant.quizzes) {
       await this.quizService.remove(quiz.id);
     }
@@ -202,6 +204,43 @@ export class RestaurantService implements OnModuleInit {
       await this.removeCloudinaryImage(dbRestaurant.image);
 
     return await this.restaurantRepository.remove(dbRestaurant);
+  }
+
+  async addAdmin(userId: number, restaurantId: number) {
+    const dbUser = await this.userService.getUserById(userId);
+
+    const dbRestaurant = await this.getRestaurant(restaurantId);
+
+    if (
+      (await dbRestaurant.admins.findIndex((user) => user.id === dbUser.id)) !==
+      -1
+    )
+      throw new BadRequestException(
+        'User is already in admins of this restaurant',
+      );
+
+    await dbRestaurant.admins.push(dbUser);
+
+    return await this.restaurantRepository.save(dbRestaurant);
+  }
+
+  async removeAdmin(userId: number, restaurantId: number) {
+    const dbUser = await this.userService.getUserById(userId);
+
+    const dbRestaurant = await this.getRestaurant(restaurantId);
+
+    if (
+      (await dbRestaurant.admins.findIndex((user) => user.id === dbUser.id)) ===
+      -1
+    )
+      throw new BadRequestException('User is not a admin of this restaurant');
+
+    await dbRestaurant.workers.splice(
+      await dbRestaurant.workers.findIndex((elem) => elem.id === dbUser.id),
+      1,
+    );
+
+    return await this.restaurantRepository.save(dbRestaurant);
   }
 
   async addWorker(userId: number, restaurantId: number) {

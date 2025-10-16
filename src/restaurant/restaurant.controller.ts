@@ -31,7 +31,10 @@ export class RestaurantController {
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateRestaurantDto })
   @UseImageInterceptor()
-  async createRestaurant(@Request() req, @Body() body: CreateRestaurantDto) {
+  async createRestaurant(
+    @Request() req: RequestType,
+    @Body() body: CreateRestaurantDto,
+  ) {
     try {
       const restaurant = await this.restaurantService.createRestaurant(
         body,
@@ -39,7 +42,8 @@ export class RestaurantController {
         req.user,
       );
 
-      await this.restaurantService.addWorker(req.user.id, restaurant.id);
+      if (req.user.role === 'admin')
+        await this.restaurantService.addAdmin(req.user.id, restaurant.id);
 
       return restaurant;
     } catch (err) {
