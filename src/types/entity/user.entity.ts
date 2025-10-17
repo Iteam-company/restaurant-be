@@ -1,7 +1,7 @@
 import {
   Column,
   Entity,
-  ManyToOne,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -43,9 +43,15 @@ export default class User {
   @Column({ nullable: true })
   icon: string;
 
-  @ManyToOne(() => Restaurant, (restaurant) => restaurant.workers)
-  restaurant: Restaurant;
+  @ManyToMany(() => Restaurant, (restaurant) => restaurant.workers)
+  workerRestaurants: Restaurant[];
+
+  @ManyToMany(() => Restaurant, (restaurant) => restaurant.admins)
+  adminRestaurants: Restaurant[];
+
+  @OneToMany(() => Restaurant, (restaurant) => restaurant.owner)
+  ownedRestaurants: Restaurant[];
 
   @OneToMany(() => QuizResult, (quizResult) => quizResult.user)
-  quizes: QuizResult[];
+  quizzes: QuizResult[];
 }

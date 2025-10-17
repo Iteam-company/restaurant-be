@@ -13,7 +13,6 @@ import { quizResultSeed } from 'src/types/seeds';
 import { Question } from 'src/types/entity/question.entity';
 import SearchQueryDto from './dto/search-query.dto';
 import { paginate } from 'nestjs-paginate';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class QuizResultsService {
@@ -23,7 +22,6 @@ export class QuizResultsService {
 
     private readonly userService: UserService,
     private readonly quizService: QuizService,
-    private readonly configService: ConfigService,
   ) {}
 
   async create(createQuizResultDto: CreateQuizResultDto, userId: number) {
@@ -90,12 +88,14 @@ export class QuizResultsService {
       .createQueryBuilder('quizResult')
       .leftJoinAndSelect('quizResult.user', 'user')
       .leftJoinAndSelect('quizResult.quiz', 'quiz')
-      .leftJoinAndSelect('user.restaurant', 'restaurant');
+      .leftJoinAndSelect('user.workerRestaurants', 'workerRestaurants');
 
     if (query.restaurantId)
-      dbQuizResults.andWhere('restaurant.id = :restaurantId', {
-        restaurantId: query.restaurantId,
-      });
+      dbQuizResults
+        .leftJoin('user.workerRestaurants', 'workerRestaurants')
+        .andWhere('workerRestaurants.id = :restaurantId', {
+          restaurantId: query.restaurantId,
+        });
 
     if (user && user.role === 'waiter')
       dbQuizResults.andWhere('user.id = :userId', { userId: user.id });
@@ -107,7 +107,7 @@ export class QuizResultsService {
         relations: ['user', 'quiz'],
         select: [
           'id',
-          'raitingDate',
+          'ratingDate',
           'score',
           'user.id',
           'user.firstName',

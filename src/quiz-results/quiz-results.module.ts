@@ -5,15 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { QuizResult } from 'src/types/entity/quiz-result.entity';
 import { QuizModule } from 'src/quiz/quiz.module';
 import { UserModule } from 'src/user/user.module';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([QuizResult]),
-    QuizModule,
-    UserModule,
-    ConfigModule,
-  ],
+  imports: [TypeOrmModule.forFeature([QuizResult]), QuizModule, UserModule],
   exports: [QuizResultsService],
   controllers: [QuizResultsController],
   providers: [QuizResultsService],

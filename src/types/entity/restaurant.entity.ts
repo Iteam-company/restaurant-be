@@ -1,6 +1,8 @@
 import {
   Column,
   Entity,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -25,12 +27,28 @@ export default class Restaurant {
   @OneToMany(() => Quiz, (quiz) => quiz.restaurant, { onDelete: 'CASCADE' })
   quizzes: Quiz[];
 
-  @OneToMany(() => User, (user) => user.restaurant, { onDelete: 'CASCADE' })
+  @ManyToMany(() => User, (user) => user.workerRestaurants, {
+    onDelete: 'CASCADE',
+  })
+  @JoinTable({
+    name: 'restaurant_workers',
+    joinColumn: { name: 'restaurant_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
   workers: User[];
 
-  @OneToMany(() => User, (user) => user.restaurant, { onDelete: 'CASCADE' })
+  @ManyToMany(() => User, (user) => user.adminRestaurants, {
+    onDelete: 'CASCADE',
+  })
+  @JoinTable({
+    name: 'restaurant_admins',
+    joinColumn: { name: 'restaurant_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
   admins: User[];
 
-  @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.ownedRestaurants, {
+    onDelete: 'CASCADE',
+  })
   owner: User;
 }

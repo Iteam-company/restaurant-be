@@ -100,16 +100,16 @@ export class RestaurantService {
 
     return await this.restaurantRepository
       .createQueryBuilder('restaurant')
-      .leftJoinAndSelect('restaurant.workers', 'user')
+      .leftJoinAndSelect('restaurant.workers', 'workers')
       .select([
         'restaurant',
-        'user.id',
-        'user.firstName',
-        'user.lastName',
-        'user.username',
-        'user.role',
-        'user.email',
-        'user.phoneNumber',
+        'workers.id',
+        'workers.firstName',
+        'workers.lastName',
+        'workers.username',
+        'workers.role',
+        'workers.email',
+        'workers.phoneNumber',
       ])
       .where('restaurant.owner = :owner', { owner: dbUser.id })
       .getMany();

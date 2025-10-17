@@ -106,7 +106,8 @@ export class UserService {
       dbUsers.andWhere('user.role = :role', { role });
     }
     if (query.restaurantId) {
-      dbUsers.andWhere('user.restaurant = :restaurantId', {
+      dbUsers.leftJoin('user.workerRestaurants', 'workerRestaurants');
+      dbUsers.andWhere('workerRestaurants.id = :restaurantId', {
         restaurantId: +query.restaurantId,
       });
     }
@@ -114,7 +115,7 @@ export class UserService {
     return (
       await paginate(query, dbUsers, {
         sortableColumns: ['id'],
-        relations: ['restaurant'],
+        relations: ['workerRestaurants'],
         select: [
           'id',
           'username',
@@ -124,10 +125,10 @@ export class UserService {
           'phoneNumber',
           'icon',
           'role',
-          'restaurant.id',
-          'restaurant.address',
-          'restaurant.name',
-          'restaurant.image',
+          'workerRestaurants.id',
+          'workerRestaurants.address',
+          'workerRestaurants.name',
+          'workerRestaurants.image',
         ],
         searchableColumns: [
           'username',
@@ -152,7 +153,7 @@ export class UserService {
         { email: email || '' },
         { phoneNumber: phoneNumber ?? '' },
       ],
-      relations: ['restaurant'],
+      relations: ['workerRestaurants'],
     });
     if (!user) throw new UnauthorizedException();
 
@@ -166,7 +167,8 @@ export class UserService {
       email: user.email,
       icon: user.icon,
       phoneNumber: user.phoneNumber,
-      restaurantId: user.role !== 'waiter' ? undefined : user.restaurant?.id,
+      restaurantId:
+        user.role === 'waiter' ? user.workerRestaurants[0]?.id : undefined,
     };
   }
 
@@ -295,22 +297,42 @@ export class UserService {
     switch (role) {
       case 'admin':
         try {
-          const dbRestaurant = await this.restaurantService.removeWorker(
-            user.id,
-            user.restaurant.id,
+          const dbRestaurant = await Promise.all(
+            user.workerRestaurants.map(
+              async (restaurant) =>
+                await this.restaurantService.removeWorker(
+                  user.id,
+                  restaurant.id,
+                ),
+            ),
           );
 
-          await this.restaurantService.addAdmin(user.id, dbRestaurant.id);
+          await Promise.all(
+            dbRestaurant.map(
+              async (restaurant) =>
+                await this.restaurantService.addAdmin(user.id, restaurant.id),
+            ),
+          );
         } catch {}
         break;
       case 'waiter':
         try {
-          const dbRestaurant = await this.restaurantService.removeAdmin(
-            user.id,
-            user.restaurant.id,
+          const dbRestaurant = await Promise.all(
+            user.workerRestaurants.map(
+              async (restaurant) =>
+                await this.restaurantService.removeAdmin(
+                  user.id,
+                  restaurant.id,
+                ),
+            ),
           );
 
-          await this.restaurantService.addWorker(user.id, dbRestaurant.id);
+          await Promise.all(
+            dbRestaurant.map(
+              async (restaurant) =>
+                await this.restaurantService.addWorker(user.id, restaurant.id),
+            ),
+          );
         } catch {}
         break;
       case 'owner':
