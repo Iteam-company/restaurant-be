@@ -33,21 +33,34 @@ export class RestaurantService {
   ) {}
 
   async getRestaurant(id: number) {
-    const dbRestaurant = await this.restaurantRepository
-      .createQueryBuilder('restaurant')
-      .leftJoinAndSelect('restaurant.workers', 'user')
-      .select([
-        'restaurant',
-        'user.id',
-        'user.firstName',
-        'user.lastName',
-        'user.username',
-        'user.role',
-        'user.email',
-        'user.phoneNumber',
-      ])
-      .where('restaurant.id = :id', { id })
-      .getOne();
+    const dbRestaurant = await this.restaurantRepository.findOne({
+      where: { id },
+      relations: ['workers', 'owner', 'admins'],
+      select: {
+        id: true,
+        name: true,
+        address: true,
+        image: true,
+        workers: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          username: true,
+          role: true,
+          email: true,
+          phoneNumber: true,
+        },
+        admins: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          username: true,
+          role: true,
+          email: true,
+          phoneNumber: true,
+        },
+      },
+    });
 
     if (!dbRestaurant)
       throw new NotFoundException('Restaurant with this id is not exist');
@@ -192,7 +205,9 @@ export class RestaurantService {
     }
 
     for await (const admin of dbRestaurant.admins) {
-      await this.removeAdmin(admin.id, dbRestaurant.id);
+      try {
+        await this.removeAdmin(admin.id, dbRestaurant.id);
+      } catch {}
     }
 
     for await (const quiz of dbRestaurant.quizzes) {
@@ -201,7 +216,6 @@ export class RestaurantService {
 
     if (dbRestaurant.image)
       await this.removeCloudinaryImage(dbRestaurant.image);
-
     return await this.restaurantRepository.remove(dbRestaurant);
   }
 
