@@ -338,7 +338,6 @@ export class RestaurantService {
             search: user,
             path: undefined,
           });
-          console.log(user, worker);
 
           await this.addWorker(worker[0].id, dbRestaurant.id);
         }

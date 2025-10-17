@@ -14,6 +14,7 @@ import { ConfigModule } from '@nestjs/config';
     UserModule,
     ConfigModule,
   ],
+  exports: [QuizResultsService],
   controllers: [QuizResultsController],
   providers: [QuizResultsService],
 })
