@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber } from 'class-validator';
 import { PaginateQuery } from 'nestjs-paginate';
 
 class SearchQueryDto implements PaginateQuery {
@@ -12,7 +13,9 @@ class SearchQueryDto implements PaginateQuery {
   })
   search?: string;
   @ApiProperty({ description: 'Search by restaurant', required: false })
+  @IsNumber()
   restaurantId?: number;
+
   path: string;
 }
 
