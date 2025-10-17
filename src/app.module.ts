@@ -18,12 +18,14 @@ import { QuizResultsModule } from './quiz-results/quiz-results.module';
 import { QuizResult } from './types/entity/quiz-result.entity';
 import { QuizSummaryModule } from './quiz-summary/quiz-summary.module';
 import { QuizSummary } from './types/entity/quiz-summary.entity';
+import { QuestionModule } from './question/question.module';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
     QuizModule,
+    QuestionModule,
     WorkersModule,
     RestaurantModule,
     QuizSummaryModule,

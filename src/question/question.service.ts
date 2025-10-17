@@ -3,7 +3,6 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  OnModuleInit,
 } from '@nestjs/common';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
@@ -16,7 +15,7 @@ import PayloadType from 'src/types/PayloadType';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class QuestionService implements OnModuleInit {
+export class QuestionService {
   constructor(
     @InjectRepository(Question)
     private questionRepository: Repository<Question>,
@@ -26,10 +25,6 @@ export class QuestionService implements OnModuleInit {
 
     private readonly configService: ConfigService,
   ) {}
-
-  async onModuleInit() {
-    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
-  }
 
   async create(createQuestionDto: CreateQuestionDto) {
     return await this.questionRepository.save({

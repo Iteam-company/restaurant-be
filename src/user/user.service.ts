@@ -4,7 +4,6 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -28,7 +27,7 @@ import { ConfigService } from '@nestjs/config';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
 
 @Injectable()
-export class UserService implements OnModuleInit {
+export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -139,10 +138,6 @@ export class UserService implements OnModuleInit {
         ],
       })
     ).data;
-  }
-
-  async onModuleInit() {
-    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
   }
 
   async validateUser(

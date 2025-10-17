@@ -4,7 +4,6 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
@@ -22,7 +21,7 @@ import { QuizService } from 'src/quiz/quiz.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class RestaurantService implements OnModuleInit {
+export class RestaurantService {
   constructor(
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
@@ -32,10 +31,6 @@ export class RestaurantService implements OnModuleInit {
     private readonly quizService: QuizService,
     private readonly configService: ConfigService,
   ) {}
-
-  async onModuleInit() {
-    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
-  }
 
   async getRestaurant(id: number) {
     const dbRestaurant = await this.restaurantRepository
@@ -188,7 +183,7 @@ export class RestaurantService implements OnModuleInit {
   async removeRestaurant(id: number) {
     const dbRestaurant = await this.restaurantRepository.findOne({
       where: { id: id },
-      relations: ['workers', 'quizzes'],
+      relations: ['workers', 'quizzes', 'admins'],
     });
     if (!dbRestaurant) throw new NotFoundException('Restaurant not found');
 
@@ -343,6 +338,7 @@ export class RestaurantService implements OnModuleInit {
             search: user,
             path: undefined,
           });
+          console.log(user, worker);
 
           await this.addWorker(worker[0].id, dbRestaurant.id);
         }

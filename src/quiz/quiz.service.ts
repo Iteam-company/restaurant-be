@@ -3,7 +3,6 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  OnModuleInit,
 } from '@nestjs/common';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
@@ -19,7 +18,7 @@ import SearchQuizQueryDto from './dto/search-quiz-param.dt';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class QuizService implements OnModuleInit {
+export class QuizService {
   constructor(
     @InjectRepository(Quiz)
     private quizRepository: Repository<Quiz>,
@@ -32,10 +31,6 @@ export class QuizService implements OnModuleInit {
 
     private readonly configService: ConfigService,
   ) {}
-
-  async onModuleInit() {
-    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
-  }
 
   async create(createQuizDto: CreateQuizDto): Promise<Quiz> {
     return await this.quizRepository.save({

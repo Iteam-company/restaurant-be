@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   CreateQuizResultDto,
   ResultAnswersDto,
@@ -16,7 +16,7 @@ import { paginate } from 'nestjs-paginate';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class QuizResultsService implements OnModuleInit {
+export class QuizResultsService {
   constructor(
     @InjectRepository(QuizResult)
     private quizResultsRepository: Repository<QuizResult>,
@@ -25,10 +25,6 @@ export class QuizResultsService implements OnModuleInit {
     private readonly quizService: QuizService,
     private readonly configService: ConfigService,
   ) {}
-
-  async onModuleInit() {
-    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
-  }
 
   async create(createQuizResultDto: CreateQuizResultDto, userId: number) {
     const dbQuiz = await this.quizService.findOneById(
