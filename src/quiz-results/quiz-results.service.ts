@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   CreateQuizResultDto,
   ResultAnswersDto,
@@ -13,22 +13,16 @@ import { quizResultSeed } from 'src/types/seeds';
 import { Question } from 'src/types/entity/question.entity';
 import SearchQueryDto from './dto/search-query.dto';
 import { paginate } from 'nestjs-paginate';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class QuizResultsService implements OnModuleInit {
+export class QuizResultsService {
   constructor(
     @InjectRepository(QuizResult)
     private quizResultsRepository: Repository<QuizResult>,
 
     private readonly userService: UserService,
     private readonly quizService: QuizService,
-    private readonly configService: ConfigService,
   ) {}
-
-  async onModuleInit() {
-    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
-  }
 
   async create(createQuizResultDto: CreateQuizResultDto, userId: number) {
     const dbQuiz = await this.quizService.findOneById(
@@ -94,12 +88,14 @@ export class QuizResultsService implements OnModuleInit {
       .createQueryBuilder('quizResult')
       .leftJoinAndSelect('quizResult.user', 'user')
       .leftJoinAndSelect('quizResult.quiz', 'quiz')
-      .leftJoinAndSelect('user.restaurant', 'restaurant');
+      .leftJoinAndSelect('user.workerRestaurants', 'workerRestaurants');
 
     if (query.restaurantId)
-      dbQuizResults.andWhere('restaurant.id = :restaurantId', {
-        restaurantId: query.restaurantId,
-      });
+      dbQuizResults
+        .leftJoin('user.workerRestaurants', 'workerRestaurants')
+        .andWhere('workerRestaurants.id = :restaurantId', {
+          restaurantId: query.restaurantId,
+        });
 
     if (user && user.role === 'waiter')
       dbQuizResults.andWhere('user.id = :userId', { userId: user.id });
@@ -111,7 +107,7 @@ export class QuizResultsService implements OnModuleInit {
         relations: ['user', 'quiz'],
         select: [
           'id',
-          'raitingDate',
+          'ratingDate',
           'score',
           'user.id',
           'user.firstName',

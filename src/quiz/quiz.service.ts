@@ -3,7 +3,6 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  OnModuleInit,
 } from '@nestjs/common';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
@@ -12,30 +11,19 @@ import { Quiz } from 'src/types/entity/quiz.entity';
 import { FindOneOptions, Repository } from 'typeorm';
 import { QuestionService } from 'src/question/question.service';
 import PayloadType from 'src/types/PayloadType';
-import { RestaurantService } from 'src/restaurant/restaurant.service';
 import { quizSeed } from 'src/types/seeds';
 import { paginate } from 'nestjs-paginate';
 import SearchQuizQueryDto from './dto/search-quiz-param.dt';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class QuizService implements OnModuleInit {
+export class QuizService {
   constructor(
     @InjectRepository(Quiz)
     private quizRepository: Repository<Quiz>,
 
-    @Inject(forwardRef(() => RestaurantService))
-    private readonly restaurantService: RestaurantService,
-
     @Inject(forwardRef(() => QuestionService))
     private readonly questionService: QuestionService,
-
-    private readonly configService: ConfigService,
   ) {}
-
-  async onModuleInit() {
-    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
-  }
 
   async create(createQuizDto: CreateQuizDto): Promise<Quiz> {
     return await this.quizRepository.save({
@@ -50,6 +38,13 @@ export class QuizService implements OnModuleInit {
 
   async getSearch(query: SearchQuizQueryDto) {
     const dbQuiz = await this.quizRepository.createQueryBuilder('quiz');
+
+    if (query.restaurantId)
+      dbQuiz
+        .leftJoin('quiz.restaurant', 'restaurant')
+        .where('restaurant.id = :restaurantId', {
+          restaurantId: query.restaurantId,
+        });
 
     return (
       await paginate(query, dbQuiz, {

@@ -19,12 +19,14 @@ import { QuizResult } from './types/entity/quiz-result.entity';
 import { QuizSummaryModule } from './quiz-summary/quiz-summary.module';
 import { QuizSummary } from './types/entity/quiz-summary.entity';
 import { OpenaiModule } from './openai/openai.module';
+import { QuestionModule } from './question/question.module';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
     QuizModule,
+    QuestionModule,
     WorkersModule,
     RestaurantModule,
     QuizSummaryModule,

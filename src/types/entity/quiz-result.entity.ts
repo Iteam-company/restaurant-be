@@ -17,9 +17,9 @@ export class QuizResult {
   score: string;
 
   @CreateDateColumn()
-  raitingDate: Date;
+  ratingDate: Date;
 
-  @ManyToOne(() => User, (user) => user.quizes, { eager: true })
+  @ManyToOne(() => User, (user) => user.quizzes, { eager: true })
   user: User;
 
   @ManyToOne(() => Quiz, (quiz) => quiz.quizResults, {

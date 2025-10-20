@@ -4,12 +4,11 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import CreateUserDto from 'src/user/dto/create-user.dto';
-import User from 'src/types/entity/user.entity';
+import User, { UserRole } from 'src/types/entity/user.entity';
 import { Repository } from 'typeorm';
 import UpdateUserPasswordDto from 'src/user/dto/update-user-password.dto';
 import * as bcrypt from 'bcrypt';
@@ -25,9 +24,10 @@ import * as CSV from 'csv-string';
 import { stringify } from 'csv-stringify';
 import { usersSeed } from 'src/types/seeds';
 import { ConfigService } from '@nestjs/config';
+import { RestaurantService } from 'src/restaurant/restaurant.service';
 
 @Injectable()
-export class UserService implements OnModuleInit {
+export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -36,6 +36,8 @@ export class UserService implements OnModuleInit {
     private readonly authService: AuthService,
 
     private readonly configService: ConfigService,
+
+    private readonly restaurantService: RestaurantService,
   ) {}
 
   async uploadUsers(csv: string) {
@@ -86,7 +88,7 @@ export class UserService implements OnModuleInit {
 
   async getOwners() {
     return await this.userRepository.find({
-      where: { role: 'owner' },
+      where: { role: UserRole.OWNER },
     });
   }
 
@@ -97,19 +99,23 @@ export class UserService implements OnModuleInit {
     return { ...dbUser, password: undefined };
   }
 
-  async getSearch(query: SearchQueryDto, role: string = 'waiter') {
+  async getSearch(query: SearchQueryDto, role?: string) {
     const dbUsers = await this.userRepository.createQueryBuilder('user');
 
-    dbUsers.andWhere('user.role = :role', { role });
-    if (query.restaurantId)
-      dbUsers.andWhere('user.restaurant = :restarauntId', {
-        restarauntId: +query.restaurantId,
+    if (role) {
+      dbUsers.andWhere('user.role = :role', { role });
+    }
+    if (query.restaurantId) {
+      dbUsers.leftJoin('user.workerRestaurants', 'workerRestaurants');
+      dbUsers.andWhere('workerRestaurants.id = :restaurantId', {
+        restaurantId: +query.restaurantId,
       });
+    }
 
     return (
       await paginate(query, dbUsers, {
         sortableColumns: ['id'],
-        relations: ['restaurant'],
+        relations: ['workerRestaurants'],
         select: [
           'id',
           'username',
@@ -119,10 +125,10 @@ export class UserService implements OnModuleInit {
           'phoneNumber',
           'icon',
           'role',
-          'restaurant.id',
-          'restaurant.address',
-          'restaurant.name',
-          'restaurant.image',
+          'workerRestaurants.id',
+          'workerRestaurants.address',
+          'workerRestaurants.name',
+          'workerRestaurants.image',
         ],
         searchableColumns: [
           'username',
@@ -133,10 +139,6 @@ export class UserService implements OnModuleInit {
         ],
       })
     ).data;
-  }
-
-  async onModuleInit() {
-    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
   }
 
   async validateUser(
@@ -151,7 +153,7 @@ export class UserService implements OnModuleInit {
         { email: email || '' },
         { phoneNumber: phoneNumber ?? '' },
       ],
-      relations: ['restaurant'],
+      relations: ['workerRestaurants'],
     });
     if (!user) throw new UnauthorizedException();
 
@@ -165,7 +167,8 @@ export class UserService implements OnModuleInit {
       email: user.email,
       icon: user.icon,
       phoneNumber: user.phoneNumber,
-      restaurantId: user.role !== 'waiter' ? undefined : user.restaurant?.id,
+      restaurantId:
+        user.role === 'waiter' ? user.workerRestaurants[0]?.id : undefined,
     };
   }
 
@@ -198,18 +201,30 @@ export class UserService implements OnModuleInit {
     };
   }
 
-  async updateUser(id: number, user: UpdateUserDto) {
+  async updateUser(id: number, user: UpdateUserDto, payload: PayloadType) {
     const dbUser = await this.userRepository.findOneBy({ id: id });
-    if (!dbUser)
-      throw new BadRequestException('User with this id is not exist');
 
-    const newUser = {
-      ...dbUser,
-      ...user,
-      id: dbUser.id,
-      role: dbUser.role,
-      password: dbUser.password,
-    };
+    if (dbUser.role === 'owner')
+      throw new BadRequestException('User cannot change role from owner');
+
+    let newUser;
+    if (payload.role !== 'waiter' || dbUser.role !== payload.role) {
+      await this.handleChangeRole(dbUser, user.role);
+      newUser = {
+        ...dbUser,
+        ...user,
+        id: dbUser.id,
+        password: dbUser.password,
+      };
+    } else {
+      newUser = {
+        ...dbUser,
+        ...user,
+        id: dbUser.id,
+        role: dbUser.role,
+        password: dbUser.password,
+      };
+    }
 
     await this.userRepository.update(id, newUser);
 
@@ -276,6 +291,55 @@ export class UserService implements OnModuleInit {
     hashedPassword: string,
   ): Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword);
+  }
+
+  private async handleChangeRole(user: User, role: UserRole) {
+    switch (role) {
+      case 'admin':
+        try {
+          const dbRestaurant = await Promise.all(
+            user.workerRestaurants.map(
+              async (restaurant) =>
+                await this.restaurantService.removeWorker(
+                  user.id,
+                  restaurant.id,
+                ),
+            ),
+          );
+
+          await Promise.all(
+            dbRestaurant.map(
+              async (restaurant) =>
+                await this.restaurantService.addAdmin(user.id, restaurant.id),
+            ),
+          );
+        } catch {}
+        break;
+      case 'waiter':
+        try {
+          const dbRestaurant = await Promise.all(
+            user.workerRestaurants.map(
+              async (restaurant) =>
+                await this.restaurantService.removeAdmin(
+                  user.id,
+                  restaurant.id,
+                ),
+            ),
+          );
+
+          await Promise.all(
+            dbRestaurant.map(
+              async (restaurant) =>
+                await this.restaurantService.addWorker(user.id, restaurant.id),
+            ),
+          );
+        } catch {}
+        break;
+      case 'owner':
+        throw new BadRequestException('User cannot change role to owner');
+      default:
+        break;
+    }
   }
 
   async seed() {

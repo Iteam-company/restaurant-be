@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
+import { UserRole } from 'src/types/entity/user.entity';
 
 export default class UpdateUserRoleDto {
   @ApiProperty({ description: 'User who need to change role' })
@@ -8,7 +9,7 @@ export default class UpdateUserRoleDto {
   userId: number;
 
   @ApiProperty({ description: 'Role on what need to change' })
-  @IsString()
+  @IsEnum(UserRole)
   @IsNotEmpty()
-  role: 'owner' | 'waiter' | 'admin';
+  role: UserRole;
 }

@@ -1,8 +1,9 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
-  OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
@@ -20,35 +21,46 @@ import { QuizService } from 'src/quiz/quiz.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class RestaurantService implements OnModuleInit {
+export class RestaurantService {
   constructor(
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
+
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly quizService: QuizService,
     private readonly configService: ConfigService,
   ) {}
 
-  async onModuleInit() {
-    if (this.configService.get('MODE') !== 'PRODUCTION') await this.seed();
-  }
-
   async getRestaurant(id: number) {
-    const dbRestaurant = await this.restaurantRepository
-      .createQueryBuilder('restaurant')
-      .leftJoinAndSelect('restaurant.workers', 'user')
-      .select([
-        'restaurant',
-        'user.id',
-        'user.firstName',
-        'user.lastName',
-        'user.username',
-        'user.role',
-        'user.email',
-        'user.phoneNumber',
-      ])
-      .where('restaurant.id = :id', { id })
-      .getOne();
+    const dbRestaurant = await this.restaurantRepository.findOne({
+      where: { id },
+      relations: ['workers', 'owner', 'admins'],
+      select: {
+        id: true,
+        name: true,
+        address: true,
+        image: true,
+        workers: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          username: true,
+          role: true,
+          email: true,
+          phoneNumber: true,
+        },
+        admins: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          username: true,
+          role: true,
+          email: true,
+          phoneNumber: true,
+        },
+      },
+    });
 
     if (!dbRestaurant)
       throw new NotFoundException('Restaurant with this id is not exist');
@@ -60,6 +72,7 @@ export class RestaurantService implements OnModuleInit {
     return await this.restaurantRepository
       .createQueryBuilder('restaurant')
       .leftJoinAndSelect('restaurant.workers', 'user')
+      .leftJoinAndSelect('restaurant.admins', 'admin')
       .select([
         'restaurant',
         'user.id',
@@ -70,7 +83,7 @@ export class RestaurantService implements OnModuleInit {
         'user.email',
         'user.phoneNumber',
       ])
-      .where('restaurant.admin = :admin', { admin: id })
+      .where('admin.id = :admin', { admin: id })
       .getMany();
   }
 
@@ -84,20 +97,19 @@ export class RestaurantService implements OnModuleInit {
 
   async getAllOwnerRestaurants(id: number) {
     const dbUser = await this.userService.getUserById(id);
-    if (!dbUser) throw new NotFoundException('Owner with this id is not exist');
 
     return await this.restaurantRepository
       .createQueryBuilder('restaurant')
-      .leftJoinAndSelect('restaurant.workers', 'user')
+      .leftJoinAndSelect('restaurant.workers', 'workers')
       .select([
         'restaurant',
-        'user.id',
-        'user.firstName',
-        'user.lastName',
-        'user.username',
-        'user.role',
-        'user.email',
-        'user.phoneNumber',
+        'workers.id',
+        'workers.firstName',
+        'workers.lastName',
+        'workers.username',
+        'workers.role',
+        'workers.email',
+        'workers.phoneNumber',
       ])
       .where('restaurant.owner = :owner', { owner: dbUser.id })
       .getMany();
@@ -141,7 +153,6 @@ export class RestaurantService implements OnModuleInit {
     user: PayloadType,
   ) {
     const dbUser = await this.userService.getUserById(restaurant.ownerId);
-    if (!dbUser) throw new NotFoundException('Owner with this id is not exist');
 
     if (dbUser.role !== 'owner')
       throw new BadRequestException('User with this id is not owner');
@@ -150,10 +161,10 @@ export class RestaurantService implements OnModuleInit {
       ...restaurant,
       image: url,
       owner: dbUser,
-      admin:
+      admins:
         user.role === 'admin'
-          ? await this.userService.getUserById(user.id)
-          : undefined,
+          ? [await this.userService.getUserById(user.id)]
+          : [],
     });
   }
 
@@ -185,7 +196,7 @@ export class RestaurantService implements OnModuleInit {
   async removeRestaurant(id: number) {
     const dbRestaurant = await this.restaurantRepository.findOne({
       where: { id: id },
-      relations: ['workers', 'quizzes'],
+      relations: ['workers', 'quizzes', 'admins'],
     });
     if (!dbRestaurant) throw new NotFoundException('Restaurant not found');
 
@@ -193,10 +204,56 @@ export class RestaurantService implements OnModuleInit {
       await this.removeWorker(worker.id, id);
     }
 
+    for await (const admin of dbRestaurant.admins) {
+      try {
+        await this.removeAdmin(admin.id, dbRestaurant.id);
+      } catch {}
+    }
+
+    for await (const quiz of dbRestaurant.quizzes) {
+      await this.quizService.remove(quiz.id);
+    }
+
     if (dbRestaurant.image)
       await this.removeCloudinaryImage(dbRestaurant.image);
-
     return await this.restaurantRepository.remove(dbRestaurant);
+  }
+
+  async addAdmin(userId: number, restaurantId: number) {
+    const dbUser = await this.userService.getUserById(userId);
+
+    const dbRestaurant = await this.getRestaurant(restaurantId);
+
+    if (
+      (await dbRestaurant.admins.findIndex((user) => user.id === dbUser.id)) !==
+      -1
+    )
+      throw new BadRequestException(
+        'User is already in admins of this restaurant',
+      );
+
+    await dbRestaurant.admins.push(dbUser);
+
+    return await this.restaurantRepository.save(dbRestaurant);
+  }
+
+  async removeAdmin(userId: number, restaurantId: number) {
+    const dbUser = await this.userService.getUserById(userId);
+
+    const dbRestaurant = await this.getRestaurant(restaurantId);
+
+    if (
+      (await dbRestaurant.admins.findIndex((user) => user.id === dbUser.id)) ===
+      -1
+    )
+      throw new BadRequestException('User is not a admin of this restaurant');
+
+    await dbRestaurant.workers.splice(
+      await dbRestaurant.workers.findIndex((elem) => elem.id === dbUser.id),
+      1,
+    );
+
+    return await this.restaurantRepository.save(dbRestaurant);
   }
 
   async addWorker(userId: number, restaurantId: number) {
@@ -276,7 +333,7 @@ export class RestaurantService implements OnModuleInit {
         const dbRestaurant = await this.restaurantRepository.create({
           ...restaurant,
           owner: owner[0],
-          admin: admin[0],
+          admins: [admin[0]],
         });
 
         const quizzes = await Promise.all(

@@ -1,12 +1,18 @@
 import {
   Column,
   Entity,
-  ManyToOne,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import Restaurant from './restaurant.entity';
 import { QuizResult } from './quiz-result.entity';
+
+export enum UserRole {
+  OWNER = 'owner',
+  WAITER = 'waiter',
+  ADMIN = 'admin',
+}
 
 @Entity()
 export default class User {
@@ -22,8 +28,8 @@ export default class User {
   @Column()
   username: string;
 
-  @Column({ enum: ['owner', 'waiter', 'admin'] })
-  role: 'owner' | 'waiter' | 'admin';
+  @Column({ enum: [UserRole] })
+  role: UserRole;
 
   @Column()
   email: string;
@@ -37,9 +43,15 @@ export default class User {
   @Column({ nullable: true })
   icon: string;
 
-  @ManyToOne(() => Restaurant, (restaurant) => restaurant.workers)
-  restaurant: Restaurant;
+  @ManyToMany(() => Restaurant, (restaurant) => restaurant.workers)
+  workerRestaurants: Restaurant[];
+
+  @ManyToMany(() => Restaurant, (restaurant) => restaurant.admins)
+  adminRestaurants: Restaurant[];
+
+  @OneToMany(() => Restaurant, (restaurant) => restaurant.owner)
+  ownedRestaurants: Restaurant[];
 
   @OneToMany(() => QuizResult, (quizResult) => quizResult.user)
-  quizes: QuizResult[];
+  quizzes: QuizResult[];
 }
