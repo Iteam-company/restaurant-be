@@ -5,13 +5,20 @@ import {
 } from './prompts';
 
 import { generateObject, ModelMessage } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import { createOpenAI } from '@ai-sdk/openai';
 import { QuestionSchema, QuizSchema } from './utils';
 import { Question } from 'src/types/entity/question.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class OpenaiService {
-  constructor() {}
+  constructor(private readonly configService: ConfigService) {
+    this.openai = createOpenAI({
+      apiKey: configService.getOrThrow('OPENAI_API_KEY'),
+    });
+  }
+
+  private openai;
 
   async generateQuiz(
     filesBlob: Array<Express.Multer.File>,
@@ -19,7 +26,7 @@ export class OpenaiService {
     count: number = 5,
   ): Promise<string> {
     const result = await generateObject({
-      model: openai('gpt-5'),
+      model: this.openai('gpt-5'),
       schema: QuizSchema,
       messages: [
         generateQuizSystemPrompt,
@@ -49,7 +56,7 @@ export class OpenaiService {
     count: number = 5,
   ) {
     const result = await generateObject({
-      model: openai('gpt-5'),
+      model: this.openai('gpt-5'),
       output: 'array',
       schema: QuestionSchema,
       messages: [
