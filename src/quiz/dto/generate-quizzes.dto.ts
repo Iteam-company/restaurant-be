@@ -10,7 +10,7 @@ class GenerateQuizzesDto {
   prompt?: string;
 
   @ApiProperty({
-    description: 'Count of quizzes(by default 5)',
+    description: 'Count of quizzes',
     required: false,
   })
   count?: number;

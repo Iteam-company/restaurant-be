@@ -77,7 +77,7 @@ export class OpenaiService {
   ) {
     try {
       const result = await generateObject({
-        model: this.openai('gpt-5'),
+        model: this.openai('gpt-5-mini'),
         output: 'array',
         schema: QuestionSchema,
         messages: [
