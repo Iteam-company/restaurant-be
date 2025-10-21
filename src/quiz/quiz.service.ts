@@ -29,6 +29,11 @@ export class QuizService {
     return await this.quizRepository.save({
       ...createQuizDto,
       createAt: new Date(),
+      id: undefined,
+      questions: createQuizDto.questions?.map((question) => ({
+        ...question,
+        id: undefined,
+      })),
     });
   }
 

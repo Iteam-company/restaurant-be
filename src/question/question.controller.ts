@@ -35,11 +35,9 @@ export class QuestionController {
   @UseGuards()
   @ApiBody({ type: [CreateQuestionDto] })
   async createMany(@Body() body: CreateQuestionDto[]) {
-    const questions = [];
-
-    for await (const question of body) {
-      await questions.push(await this.questionService.create(question));
-    }
+    const questions = await Promise.all(
+      body.map(async (question) => await this.questionService.create(question)),
+    );
 
     return questions;
   }
