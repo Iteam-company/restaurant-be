@@ -119,6 +119,12 @@ export class QuizController {
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @UseInterceptors(FilesInterceptor('files'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description:
+      'Upload files and provide prompt, previousQuestions, and count',
+    type: GenerateQuizzesDto,
+  })
   async generateQuizzes(
     @UploadedFiles() files: Express.Multer.File[],
     @Body() body: GenerateQuizzesDto,
