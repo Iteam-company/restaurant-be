@@ -93,7 +93,7 @@ export class QuizController {
     return await this.quizService.remove(+id);
   }
 
-  @Get('generate/questions')
+  @Post('generate/questions')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @UseInterceptors(FilesInterceptor('files'))
@@ -115,7 +115,7 @@ export class QuizController {
     );
   }
 
-  @Get('generate/quiz')
+  @Post('generate/quiz')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @UseInterceptors(FilesInterceptor('files'))
