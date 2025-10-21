@@ -24,7 +24,7 @@ export class OpenaiService {
   async generateQuiz(
     filesBlob: Array<Express.Multer.File>,
     prompt?: string,
-    count: number = 5,
+    count?: number,
   ): Promise<Quiz> {
     try {
       const result = await generateObject({
@@ -35,10 +35,14 @@ export class OpenaiService {
           ...(prompt
             ? [{ role: 'user', content: prompt } as ModelMessage]
             : []),
-          {
-            role: 'user',
-            content: `Generate ${count} quiz questions based on the following content`,
-          },
+          ...(count
+            ? [
+                {
+                  role: 'user',
+                  content: `Generate ${count} quiz questions based on the following content`,
+                } as ModelMessage,
+              ]
+            : []),
           {
             role: 'user',
             content: filesBlob.map((file) => ({
@@ -69,39 +73,58 @@ export class OpenaiService {
     filesBlob: Array<Express.Multer.File>,
     prompt?: string,
     previousQuestions?: Array<Question>,
-    count: number = 5,
+    count?: number,
   ) {
-    const result = await generateObject({
-      model: this.openai('gpt-5'),
-      output: 'array',
-      schema: QuestionSchema,
-      messages: [
-        generateQuizSystemPrompt,
-        ...(previousQuestions
-          ? [
-              {
-                role: 'system',
-                content: `${generateNewQuestionBasedOnPrevious}
+    try {
+      const result = await generateObject({
+        model: this.openai('gpt-5'),
+        output: 'array',
+        schema: QuestionSchema,
+        messages: [
+          generateQuizSystemPrompt,
+          ...(previousQuestions
+            ? [
+                {
+                  role: 'system',
+                  content: `${generateNewQuestionBasedOnPrevious}
                 Previous questions: ${JSON.stringify(previousQuestions)}`,
-              } as ModelMessage,
-            ]
-          : []),
-        ...(prompt ? [{ role: 'user', content: prompt } as ModelMessage] : []),
-        {
-          role: 'user',
-          content: `Generate ${count} quiz questions based on the following content`,
-        },
-        {
-          role: 'user',
-          content: filesBlob.map((file) => ({
-            type: 'file',
-            data: file.buffer,
-            mediaType: file.mimetype,
-          })),
-        },
-      ],
-    });
+                } as ModelMessage,
+              ]
+            : []),
+          ...(prompt
+            ? [{ role: 'user', content: prompt } as ModelMessage]
+            : []),
+          ...(count
+            ? [
+                {
+                  role: 'user',
+                  content: `Generate ${count} quiz questions based on the following content`,
+                } as ModelMessage,
+              ]
+            : []),
+          {
+            role: 'user',
+            content: filesBlob.map((file) => ({
+              type: 'file',
+              data: file.buffer,
+              mediaType: file.mimetype,
+            })),
+          },
+        ],
+      });
 
-    return JSON.stringify(result.object);
+      return result.object as unknown as Question[];
+    } catch (error) {
+      if (NoObjectGeneratedError.isInstance(error)) {
+        console.log('NoObjectGeneratedError');
+        console.log('Cause:', error.cause);
+        console.log('Text:', error.text);
+        console.log('Response:', error.response);
+        console.log('Usage:', error.usage);
+      }
+      throw new BadRequestException(
+        'Generated object do not valid of schema, try again.',
+      );
+    }
   }
 }
