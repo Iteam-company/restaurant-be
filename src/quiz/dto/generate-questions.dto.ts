@@ -2,6 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Question } from 'src/types/entity/question.entity';
 
 class GenerateQuestionsDto {
+  @ApiProperty({
+    description: 'Array of files as data for ai to generate questions',
+  })
+  files: Express.Multer.File[];
+
   @ApiProperty({ description: 'Search by restaurant', required: false })
   prompt?: string;
 

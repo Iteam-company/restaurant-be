@@ -17,7 +17,7 @@ import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import RequestType from 'src/types/RequestType';
 import { OpenaiService } from 'src/openai/openai.service';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
@@ -97,6 +97,12 @@ export class QuizController {
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @UseInterceptors(FilesInterceptor('files'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description:
+      'Upload files and provide prompt, previousQuestions, and count',
+    type: GenerateQuestionsDto,
+  })
   async getQuestions(
     @UploadedFiles() files: Express.Multer.File[],
     @Body() body: GenerateQuestionsDto,
