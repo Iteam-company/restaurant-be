@@ -18,6 +18,7 @@ import { QuizResultsModule } from './quiz-results/quiz-results.module';
 import { QuizResult } from './types/entity/quiz-result.entity';
 import { QuizSummaryModule } from './quiz-summary/quiz-summary.module';
 import { QuizSummary } from './types/entity/quiz-summary.entity';
+import { OpenaiModule } from './openai/openai.module';
 import { QuestionModule } from './question/question.module';
 
 @Module({
@@ -45,6 +46,7 @@ import { QuestionModule } from './question/question.module';
         synchronize: true,
       }),
     }),
+    OpenaiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

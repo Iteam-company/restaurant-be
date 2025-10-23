@@ -7,12 +7,10 @@ class SearchQueryDto implements PaginateQuery {
   @ApiProperty({ description: 'Page number', required: false })
   page?: number;
   @ApiProperty({
-    description: 'Search by name or address of restaurant',
+    description: 'Search by fields',
     required: false,
   })
   search?: string;
-  @ApiProperty({ description: 'Search by restaurant', required: false })
-  restaurantId?: number;
 
   path: string;
 }

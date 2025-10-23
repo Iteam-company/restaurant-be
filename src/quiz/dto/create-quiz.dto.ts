@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Question } from 'src/types/entity/question.entity';
 
 export enum DifficultyLevelEnum {
   EASY = 'easy',
@@ -33,4 +34,11 @@ export class CreateQuizDto {
   @IsEnum(StatusEnum)
   @IsNotEmpty()
   status: StatusEnum;
+
+  @ApiProperty({
+    description: 'Array of questions',
+    isArray: true,
+    nullable: true,
+  })
+  questions: Question[];
 }

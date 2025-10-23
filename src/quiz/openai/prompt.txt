@@ -1,1 +1,0 @@
-Based on the following json input provide a ${number_of_questions} questions for a quiz, based on the schema ${Question} in JSON array output ${array of quizItem elements}
