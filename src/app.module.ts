@@ -20,6 +20,7 @@ import { QuizSummaryModule } from './quiz-summary/quiz-summary.module';
 import { QuizSummary } from './types/entity/quiz-summary.entity';
 import { OpenaiModule } from './openai/openai.module';
 import { QuestionModule } from './question/question.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { QuestionModule } from './question/question.module';
       }),
     }),
     OpenaiModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
