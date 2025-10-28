@@ -16,7 +16,7 @@
     "start:prod:docker": "docker compose up --build",
     "stop:prod:docker": "docker compose down",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "test": "jest --detectOpenHandles",
+    "test": "jest",
     "test:db": "docker run --name test_db --rm -e POSTGRES_USER=test -e POSTGRES_PASSWORD=asdfghjkl -e POSTGRES_DB=test_table -p 5432:5432 postgres:15",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

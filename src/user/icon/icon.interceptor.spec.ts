@@ -22,7 +22,7 @@ describe('IconInterceptor', () => {
 
     const filename = 'testIcon.svg';
 
-    const filePath = join(__dirname, '../../', 'test.svg');
+    const filePath = join(__dirname, '../../test', 'test.svg');
     const fileContent = await fs.readFile(filePath);
 
     await fs.writeFile(
