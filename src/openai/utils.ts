@@ -15,5 +15,7 @@ export const QuizSchema = z.object({
   questions: z.array(QuestionSchema),
   difficultyLevel: z.enum(['easy', 'medium', 'hard']),
   timeLimit: z.number().int(),
-  status: z.enum(['in-progress', 'completed', 'not-started']),
+  status: z
+    .enum(['in-progress', 'completed', 'not-started'])
+    .default('not-started'),
 });
