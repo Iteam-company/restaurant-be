@@ -23,9 +23,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "typeorm-ts-node-commonjs -d src/data-source.ts",
-    "migration:generate": "npm run typeorm migration:generate -- -n InitialMigration",
-    "migration:run": "npm run typeorm migration:run",
-    "migration:revert": "npm run typeorm migration:revert"
+    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate ./src/migrations/migration -d ./src/data-source.ts",
+    "migration:run": "npx typeorm-ts-node-commonjs migration:run -d ./src/data-source.ts",
+    "migration:revert": "npx typeorm-ts-node-commonjs migration:revert -d ./src/data-source.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.52",

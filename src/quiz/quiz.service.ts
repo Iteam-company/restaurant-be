@@ -14,6 +14,7 @@ import PayloadType from 'src/types/PayloadType';
 import { quizSeed } from 'src/types/seeds';
 import { paginate } from 'nestjs-paginate';
 import SearchQuizQueryDto from './dto/search-quiz-param.dt';
+import { RestaurantService } from 'src/restaurant/restaurant.service';
 
 @Injectable()
 export class QuizService {
@@ -23,10 +24,13 @@ export class QuizService {
 
     @Inject(forwardRef(() => QuestionService))
     private readonly questionService: QuestionService,
+
+    @Inject(forwardRef(() => RestaurantService))
+    private readonly restaurantService: RestaurantService,
   ) {}
 
   async create(createQuizDto: CreateQuizDto): Promise<Quiz> {
-    return await this.quizRepository.save({
+    const dbQuiz: Quiz = await this.quizRepository.save({
       ...createQuizDto,
       createAt: new Date(),
       id: undefined,
@@ -35,10 +39,14 @@ export class QuizService {
         id: undefined,
       })),
     });
+
+    await this.connectQuizToRestaurant(dbQuiz.id, createQuizDto.restaurantId);
+
+    return dbQuiz;
   }
 
   async getAllByRestaurant(id: number) {
-    return await this.quizRepository.find({ where: { restaurant: { id } } });
+    return await this.quizRepository.find({ where: { restaurants: { id } } });
   }
 
   async getSearch(query: SearchQuizQueryDto) {
@@ -46,8 +54,8 @@ export class QuizService {
 
     if (query.restaurantId)
       dbQuiz
-        .leftJoin('quiz.restaurant', 'restaurant')
-        .where('restaurant.id = :restaurantId', {
+        .leftJoin('quiz.restaurants', 'restaurants')
+        .where('restaurants.id = :restaurantId', {
           restaurantId: query.restaurantId,
         });
 
@@ -63,7 +71,7 @@ export class QuizService {
     if (user.role === 'waiter')
       return await this.quizRepository.find({
         where: { status: 'in-progress' },
-        relations: ['restaurant'],
+        relations: ['restaurants'],
       });
     return await this.quizRepository.find();
   }
@@ -71,7 +79,7 @@ export class QuizService {
   async findOne(options: FindOneOptions<Quiz>['where']) {
     const dbQuiz = await this.quizRepository.findOne({
       where: options,
-      relations: ['questions', 'restaurant'],
+      relations: ['questions', 'restaurants'],
     });
     if (!dbQuiz) throw new NotFoundException('Quiz with this id is not exist');
 
@@ -95,6 +103,18 @@ export class QuizService {
     }
 
     return await this.quizRepository.remove(dbQuiz);
+  }
+
+  async connectQuizToRestaurant(quizId: number, restaurantId: number) {
+    const quizDb = await this.findOneById(quizId);
+    const restaurantDb =
+      await this.restaurantService.getRestaurant(restaurantId);
+
+    if (!quizDb.restaurants.find((r) => r.id === restaurantDb.id)) {
+      quizDb.restaurants.push(restaurantDb);
+    }
+
+    return this.quizRepository.save(quizDb);
   }
 
   async seed() {

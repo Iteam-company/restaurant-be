@@ -11,6 +11,7 @@ export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.DB_CONNECT,
   entities: [User, Restaurant, Quiz, Question, QuizResult, QuizSummary],
-  migrations: ['src/migrations/*.ts'],
+  migrations:
+    process.env.MODE === 'PRODUCTION' ? ['dist/migrations/*.js'] : undefined,
   synchronize: false,
 });

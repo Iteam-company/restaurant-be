@@ -2,7 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -36,11 +36,10 @@ export class Quiz {
   @Column({ enum: ['in-progress', 'completed', 'not-started'] })
   status: 'in-progress' | 'completed' | 'not-started';
 
-  @ManyToOne(() => Restaurant, (restaurant) => restaurant.quizzes, {
+  @ManyToMany(() => Restaurant, (restaurant) => restaurant.quizzes, {
     cascade: true,
-    nullable: true,
   })
-  restaurant: Restaurant;
+  restaurants: Restaurant[];
 
   @OneToMany(() => QuizResult, (quizResult) => quizResult.quiz, {
     cascade: true,

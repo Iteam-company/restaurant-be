@@ -4,7 +4,6 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import User from './user.entity';
@@ -24,7 +23,8 @@ export default class Restaurant {
   @Column({ nullable: true })
   image: string;
 
-  @OneToMany(() => Quiz, (quiz) => quiz.restaurant, { onDelete: 'CASCADE' })
+  @ManyToMany(() => Quiz, (quiz) => quiz.restaurants, { onDelete: 'CASCADE' })
+  @JoinTable()
   quizzes: Quiz[];
 
   @ManyToMany(() => User, (user) => user.workerRestaurants, {
