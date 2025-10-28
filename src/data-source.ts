@@ -10,6 +10,8 @@ import 'dotenv/config';
 export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.DB_CONNECT,
+  ssl:
+    process.env.MODE === 'PRODUCTION' ? { rejectUnauthorized: false } : false,
   entities: [User, Restaurant, Quiz, Question, QuizResult, QuizSummary],
   migrations:
     process.env.MODE === 'PRODUCTION' ? ['dist/migrations/*.js'] : undefined,
