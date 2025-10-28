@@ -18,7 +18,7 @@ import SearchQueryDto from './dto/search-query.dto';
 import { restaurantsSeed } from 'src/types/seeds';
 import PayloadType from 'src/types/PayloadType';
 import { QuizService } from 'src/quiz/quiz.service';
-import { ConfigService } from '@nestjs/config';
+import { Quiz } from 'src/types/entity/quiz.entity';
 
 @Injectable()
 export class RestaurantService {
@@ -29,7 +29,6 @@ export class RestaurantService {
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly quizService: QuizService,
-    private readonly configService: ConfigService,
   ) {}
 
   async getRestaurant(id: number) {
@@ -337,10 +336,12 @@ export class RestaurantService {
         });
 
         const quizzes = await Promise.all(
-          restaurant.quizzesTitle.map(async (title) => ({
-            ...(await this.quizService.findOne({ title })),
-            restaurant: dbRestaurant,
-          })),
+          restaurant.quizzesTitle.map(
+            async (title): Promise<Quiz> => ({
+              ...(await this.quizService.findOne({ title })),
+              restaurants: [dbRestaurant],
+            }),
+          ),
         );
 
         dbRestaurant.quizzes = quizzes;

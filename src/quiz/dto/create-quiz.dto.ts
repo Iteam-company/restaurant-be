@@ -41,4 +41,7 @@ export class CreateQuizDto {
     nullable: true,
   })
   questions: Question[];
+
+  @ApiProperty({ description: 'Restaurant id to connect with' })
+  restaurantId: number;
 }
