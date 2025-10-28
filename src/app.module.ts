@@ -3,24 +3,19 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { SharedJwtAuthModule } from './shared-jwt-auth/shared-jwt-auth.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { WorkersModule } from './restaurant/workers/workers.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { QuizModule } from './quiz/quiz.module';
-import User from './types/entity/user.entity';
-import Restaurant from './types/entity/restaurant.entity';
-import { Question } from './types/entity/question.entity';
-import { Quiz } from './types/entity/quiz.entity';
 import { LoggerMiddleware } from './logger/LoggerMiddleware';
 import { QuizResultsModule } from './quiz-results/quiz-results.module';
-import { QuizResult } from './types/entity/quiz-result.entity';
 import { QuizSummaryModule } from './quiz-summary/quiz-summary.module';
-import { QuizSummary } from './types/entity/quiz-summary.entity';
 import { OpenaiModule } from './openai/openai.module';
 import { QuestionModule } from './question/question.module';
 import { HealthModule } from './health/health.module';
+import { AppDataSource } from './data-source';
 
 @Module({
   imports: [
@@ -37,15 +32,9 @@ import { HealthModule } from './health/health.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        url: configService.get('DB_CONNECT'),
-        entities: [User, Restaurant, Quiz, Question, QuizResult, QuizSummary],
-        synchronize: true,
-      }),
+    TypeOrmModule.forRoot({
+      ...AppDataSource.options,
+      autoLoadEntities: true,
     }),
     OpenaiModule,
     HealthModule,
