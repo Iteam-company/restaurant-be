@@ -6,6 +6,9 @@ import Restaurant from './types/entity/restaurant.entity';
 import User from './types/entity/user.entity';
 import { DataSource } from 'typeorm';
 
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 export const TestDataSource = new DataSource({
   type: 'postgres',
   url: process.env.TEST_DB_CONNECT,

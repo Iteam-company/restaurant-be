@@ -10,28 +10,28 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    # services:
-    #   postgres:
-    #     image: postgres:15
-    #     ports:
-    #       - 5433:5432
-    #     env:
-    #       POSTGRES_USER: test_user
-    #       POSTGRES_PASSWORD: test_password
-    #       POSTGRES_DB: nestjs_test_db
-    #     options: >-
-    #       --health-cmd="pg_isready -U test_user -d nestjs_test_db"
-    #       --health-interval=5s
-    #       --health-timeout=5s
-    #       --health-retries=5
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5433:5432
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: nestjs_test_db
+        options: >-
+          --health-cmd="pg_isready -U test_user -d nestjs_test_db"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
 
-    # env:
-    #   NODE_ENV: test
-    #   DB_HOST: localhost
-    #   DB_PORT: 5433
-    #   DB_USER: test_user
-    #   DB_PASS: test_password
-    #   DB_NAME: nestjs_test_db
+    env:
+      NODE_ENV: test
+      DB_HOST: localhost
+      DB_PORT: 5433
+      DB_USER: test_user
+      DB_PASS: test_password
+      DB_NAME: nestjs_test_db
 
     steps:
       - name: 🛒 Checkout repository
@@ -49,8 +49,8 @@ jobs:
       - name: 🧹 Lint code
         run: npm run lint
 
-      # - name: 🧪 Run unit tests
-      #   run: npm run test
+      - name: 🧪 Run unit tests
+        run: npm run test
 
       - name: 🏗️ Build project
         run: npm run build

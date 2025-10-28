@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { TestDataSource } from 'src/test-data-source';
+import { TestDataSource } from '../src/test-data-source';
 
 dotenv.config();
 
