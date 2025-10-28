@@ -46,11 +46,11 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: Lint code
+      - name: 🧹 Lint code
         run: npm run lint
 
       - name: 🧪 Run unit tests
         run: npm run test
 
-      - name: Build project
+      - name: 🏗️ Build project
         run: npm run build
