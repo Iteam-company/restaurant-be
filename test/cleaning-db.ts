@@ -1,11 +1,9 @@
-import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { ConfigService } from '@nestjs/config';
-import { getTestDataSource } from './testDataSource';
+import { TestDataSource } from 'src/test-data-source';
 
 dotenv.config();
 
-const AppDataSource = new DataSource(getTestDataSource(new ConfigService()));
+const AppDataSource = TestDataSource;
 
 export default async function cleanDatabase() {
   try {

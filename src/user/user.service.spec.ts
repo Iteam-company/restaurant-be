@@ -1,19 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import User from 'src/types/entity/user.entity';
+import User, { UserRole } from 'src/types/entity/user.entity';
 import CreateUserDto from './dto/create-user.dto';
 import UpdateUserPasswordDto from './dto/update-user-password.dto';
 import * as bcrypt from 'bcrypt';
 import UpdateUserRoleDto from './dto/update-user-role.dto';
 import UpdateUserDto from './dto/update-user.dto';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import PayloadType from 'src/types/PayloadType';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { BadRequestException } from '@nestjs/common';
-import { getTestDataSource } from 'test/testDataSource';
+import { TestDataSource } from 'src/test-data-source';
+import { RestaurantModule } from 'src/restaurant/restaurant.module';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -28,7 +29,7 @@ describe('UserService', () => {
     username: 'JMTheBest1',
     email: 'JM1@mail.com',
     phoneNumber: '+380000000004',
-    role: 'admin',
+    role: UserRole.ADMIN,
     password: userPassword,
   };
 
@@ -54,15 +55,11 @@ John,Morgan,waiter2,waiter,waiter20@mail.com,+380000000012,qwertyuiop`;
           envFilePath: '.env',
           isGlobal: true,
         }),
-        TypeOrmModule.forRootAsync({
-          imports: [ConfigModule],
-          inject: [ConfigService],
-          useFactory: (configService: ConfigService) =>
-            getTestDataSource(configService),
-        }),
+        TypeOrmModule.forRoot(TestDataSource.options),
         TypeOrmModule.forFeature([User]),
         AuthModule,
         SharedJwtAuthModule,
+        RestaurantModule,
       ],
       providers: [UserService],
     }).compile();
@@ -202,6 +199,7 @@ John,Morgan,waiter2,waiter,waiter20@mail.com,+380000000012,qwertyuiop`;
     const result = await userService.updateUser(
       userResource.id,
       <UpdateUserDto>updateUser,
+      <PayloadType>{},
     );
     userResource = { ...userResource, ...updateUser };
 
