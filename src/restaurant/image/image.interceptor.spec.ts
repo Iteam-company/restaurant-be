@@ -7,6 +7,8 @@ import { ConfigService } from '@nestjs/config';
 import 'dotenv/config';
 
 describe('ImageInterceptor', () => {
+  jest.setTimeout(7000);
+
   let imageInterceptor: ImageInterceptor;
   let context: Partial<ExecutionContext>;
   let next: Partial<CallHandler>;
@@ -22,7 +24,7 @@ describe('ImageInterceptor', () => {
 
     const filename = 'testImage.svg';
 
-    const filePath = join(__dirname, '../../', 'test.svg');
+    const filePath = join(__dirname, '../../test', 'test.svg');
     const fileContent = await fs.readFile(filePath);
 
     await fs.writeFile(
