@@ -1,7 +1,9 @@
+import { UserRole } from './entity/user.entity';
+
 type PayloadType = {
   id: number;
   username: string;
-  role: 'owner' | 'waiter' | 'admin';
+  role: UserRole;
   email: string;
   icon: string | null;
 };

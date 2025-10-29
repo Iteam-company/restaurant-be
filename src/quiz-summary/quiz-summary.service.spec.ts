@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QuizSummaryService } from './quiz-summary.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { Quiz } from 'src/types/entity/quiz.entity';
 import { QuizModule } from 'src/quiz/quiz.module';
 import { QuizSummary } from 'src/types/entity/quiz-summary.entity';
@@ -12,32 +12,45 @@ import {
   DifficultyLevelEnum,
   StatusEnum,
 } from 'src/quiz/dto/create-quiz.dto';
-import {
-  CategoriesEnum,
-  CreateMenuDto,
-  SeasonsEnum,
-} from 'src/menu/dto/create-menu.dto';
-import { MenuModule } from 'src/menu/menu.module';
-import { MenuService } from 'src/menu/menu.service';
 import { CreateQuizSummaryDto } from './dto/create-quiz-summary.dto';
-import { getTestDataSource } from 'test/testDataSource';
+import { TestDataSource } from 'src/test-data-source';
+import CreateUserDto from 'src/user/dto/create-user.dto';
+import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
+import { UserRole } from 'src/types/entity/user.entity';
+import { UserService } from 'src/user/user.service';
+import { RestaurantService } from 'src/restaurant/restaurant.service';
+import { UserModule } from 'src/user/user.module';
+import { RestaurantModule } from 'src/restaurant/restaurant.module';
 
 describe('QuizSummaryService', () => {
   let service: QuizSummaryService;
   let quizService: QuizService;
-  let menuService: MenuService;
+  let userService: UserService;
+  let restaurantService: RestaurantService;
 
-  const menuExample: CreateMenuDto = {
-    name: 'test Spring',
-    categories: CategoriesEnum.MAIN_COURSES,
-    season: SeasonsEnum.SPRING,
+  const ownerExample: CreateUserDto = {
+    firstName: 'super new owner',
+    lastName: 'with last name',
+    username: 'zxmnbcvzx',
+    email: 'SWZ@gmail.com',
+    phoneNumber: '+19384019283',
+    role: UserRole.OWNER,
+    password: 'qwertyuiop',
   };
+
+  const restaurantExample: CreateRestaurantDto = {
+    address: 'Some new address 123',
+    name: 'Some cool restaurant',
+    ownerId: 0,
+  };
+
   const quizExample: CreateQuizDto = {
     title: 'test string',
     difficultyLevel: DifficultyLevelEnum.EASY,
     timeLimit: 60,
     status: StatusEnum.IN_PROGRESS,
-    menuId: 0,
+    questions: [],
+    restaurantId: 0,
   };
   const quizSummaryExample: CreateQuizSummaryDto = {
     bestScore: '99/100',
@@ -57,35 +70,40 @@ describe('QuizSummaryService', () => {
           envFilePath: '.env',
           isGlobal: true,
         }),
-        TypeOrmModule.forRootAsync({
-          imports: [ConfigModule],
-          inject: [ConfigService],
-          useFactory: (configService: ConfigService) =>
-            getTestDataSource(configService),
-        }),
-        SharedJwtAuthModule,
-        MenuModule,
-        QuizModule,
+        TypeOrmModule.forRoot(TestDataSource.options),
         TypeOrmModule.forFeature([QuizSummary]),
+        QuizModule,
+        UserModule,
+        RestaurantModule,
+        SharedJwtAuthModule,
       ],
     }).compile();
 
     service = module.get<QuizSummaryService>(QuizSummaryService);
     quizService = module.get<QuizService>(QuizService);
-    menuService = module.get<MenuService>(MenuService);
+    userService = module.get<UserService>(UserService);
+    restaurantService = module.get<RestaurantService>(RestaurantService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
     expect(quizService).toBeDefined();
+    expect(userService).toBeDefined();
+    expect(restaurantService).toBeDefined();
   });
 
   it('should create and save a new quiz summary', async () => {
-    const dbMenu = await menuService.create(<CreateMenuDto>menuExample);
-    const dbQuiz = await quizService.create(<CreateQuizDto>{
+    const owner = await userService.createUser(ownerExample);
+
+    const restaurant = await restaurantService.createRestaurant(
+      { ...restaurantExample, ownerId: owner.id },
+      undefined,
+      { role: UserRole.OWNER, id: owner.id, email: '', icon: '', username: '' },
+    );
+
+    const dbQuiz = await quizService.create({
       ...quizExample,
-      menuId: dbMenu.id,
-      id: undefined,
+      restaurantId: restaurant.id,
     });
     const result = await service.create({
       ...quizSummaryExample,
@@ -94,19 +112,11 @@ describe('QuizSummaryService', () => {
 
     expect({
       ...dbQuiz,
-      menu: {
-        ...dbQuiz.menu,
-        menuItems: undefined,
-        quizes: undefined,
-        restaurant: undefined,
-      },
-      menuId: undefined,
       createAt: undefined,
       createdAt: undefined,
+      restaurantId: 0,
     }).toEqual({
       ...quizExample,
-      menu: dbMenu,
-      menuId: undefined,
       id: dbQuiz.id,
     });
 
@@ -119,7 +129,7 @@ describe('QuizSummaryService', () => {
     });
 
     quizSummaryResource = result;
-    quizResource = await quizService.findOne(dbQuiz.id);
+    quizResource = await quizService.findOne({ id: dbQuiz.id });
   });
 
   it('should return quiz summary', async () => {
@@ -136,7 +146,7 @@ describe('QuizSummaryService', () => {
 
     expect(result).toEqual({
       ...quizSummaryResource,
-      quiz: { ...quizResource, menu: undefined, questions: undefined },
+      quiz: { ...quizResource, restaurants: undefined, questions: undefined },
     });
   });
 

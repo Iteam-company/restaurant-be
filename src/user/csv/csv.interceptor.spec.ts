@@ -49,6 +49,7 @@ John,Morgan,waiter2,waiter,waiter2@mail.com,+380000000012,qwertyuiop`;
 
   it('should be defined', async () => {
     expect(csvInterceptor).toBeDefined();
+    expect(context).toBeDefined();
   });
 
   it('should create few users', async () => {

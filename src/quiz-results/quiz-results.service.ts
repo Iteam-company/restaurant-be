@@ -42,7 +42,7 @@ export class QuizResultsService {
 
     return await this.quizResultsRepository.save({
       score,
-      raitingDate: new Date(),
+      ratingDate: new Date(),
       user: await this.userService.getUserById(userId),
       quiz: dbQuiz,
     });

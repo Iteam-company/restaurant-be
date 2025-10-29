@@ -22,7 +22,7 @@ describe('IconInterceptor', () => {
 
     const filename = 'testIcon.svg';
 
-    const filePath = join(__dirname, '../../', 'test.svg');
+    const filePath = join(__dirname, '../../test', 'test.svg');
     const fileContent = await fs.readFile(filePath);
 
     await fs.writeFile(
@@ -57,6 +57,7 @@ describe('IconInterceptor', () => {
 
   it('should be defined', async () => {
     expect(iconInterceptor).toBeDefined();
+    expect(context).toBeDefined();
   });
 
   it('should upload file and return url', async () => {

@@ -1,51 +1,42 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import User from 'src/types/entity/user.entity';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import User, { UserRole } from 'src/types/entity/user.entity';
+import { ConfigModule } from '@nestjs/config';
 import { QuizResult } from 'src/types/entity/quiz-result.entity';
 import { QuizResultsService } from './quiz-results.service';
 import { QuizModule } from 'src/quiz/quiz.module';
-import PayloadType from 'src/types/PayloadType';
 import { QuizService } from 'src/quiz/quiz.service';
 import {
   CreateQuizDto,
   DifficultyLevelEnum,
   StatusEnum,
 } from 'src/quiz/dto/create-quiz.dto';
-import { MenuService } from 'src/menu/menu.service';
-import {
-  CategoriesEnum,
-  CreateMenuDto,
-  SeasonsEnum,
-} from 'src/menu/dto/create-menu.dto';
-import { MenuModule } from 'src/menu/menu.module';
 import { UserModule } from 'src/user/user.module';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import CreateUserDto from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
-import { getTestDataSource } from 'test/testDataSource';
 import { CreateQuestionDto } from 'src/question/dto/create-question.dto';
 import { QuestionModule } from 'src/question/question.module';
 import { QuestionService } from 'src/question/question.service';
+import { TestDataSource } from 'src/test-data-source';
+import { RestaurantModule } from 'src/restaurant/restaurant.module';
+import { RestaurantService } from 'src/restaurant/restaurant.service';
+import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
 
 describe('QuizResultService', () => {
   let quizResultService: QuizResultsService;
-  let menuService: MenuService;
   let quizService: QuizService;
   let userService: UserService;
   let questionService: QuestionService;
+  let restaurantService: RestaurantService;
 
-  const menuExample: CreateMenuDto = {
-    name: 'zxcvbnm',
-    categories: CategoriesEnum.MAIN_COURSES,
-    season: SeasonsEnum.SUMMER,
-  };
   const quizExample: CreateQuizDto = {
     title: 'string',
     difficultyLevel: DifficultyLevelEnum.EASY,
     timeLimit: 60,
     status: StatusEnum.IN_PROGRESS,
-    menuId: 0,
+    questions: [],
+    restaurantId: 0,
   };
   const question1Example: CreateQuestionDto = {
     text: 'qq1',
@@ -69,8 +60,24 @@ describe('QuizResultService', () => {
     username: 'JKBest',
     email: 'JK1@mail.com',
     phoneNumber: '+380970000012',
-    role: 'admin',
+    role: UserRole.ADMIN,
     password: 'qwertyuiop',
+  };
+
+  const ownerExample: CreateUserDto = {
+    firstName: 'super new owner',
+    lastName: 'with last name',
+    username: 'zxmnb,mzxcvzx',
+    email: 'SWZ@mail.com',
+    phoneNumber: '+1929384019283',
+    role: UserRole.OWNER,
+    password: 'qwertyuiop',
+  };
+
+  const restaurantExample: CreateRestaurantDto = {
+    address: 'Some address 123',
+    name: 'Some restaurant',
+    ownerId: 0,
   };
 
   let quizResultResource: QuizResult;
@@ -84,46 +91,47 @@ describe('QuizResultService', () => {
           isGlobal: true,
         }),
         TypeOrmModule.forRootAsync({
-          imports: [ConfigModule],
-          inject: [ConfigService],
-          useFactory: (configService: ConfigService) =>
-            getTestDataSource(configService),
+          useFactory: () => TestDataSource.options,
         }),
         TypeOrmModule.forFeature([QuizResult]),
         UserModule,
         QuizModule,
-        MenuModule,
         QuestionModule,
+        RestaurantModule,
         SharedJwtAuthModule,
       ],
       providers: [QuizResultsService],
     }).compile();
 
     quizResultService = module.get<QuizResultsService>(QuizResultsService);
-    menuService = module.get<MenuService>(MenuService);
     quizService = module.get<QuizService>(QuizService);
     userService = module.get<UserService>(UserService);
     questionService = module.get<QuestionService>(QuestionService);
+    restaurantService = module.get<RestaurantService>(RestaurantService);
   });
 
   it('should be defined', async () => {
     expect(quizResultService).toBeDefined();
-    expect(menuService).toBeDefined();
     expect(quizService).toBeDefined();
     expect(userService).toBeDefined();
+    expect(restaurantService).toBeDefined();
+    expect(questionService).toBeDefined();
   });
 
   it('should create and save a new user', async () => {
-    const payloadUser = await parseJwt(
-      (await userService.createUser(<CreateUserDto>userExample)).access_token,
-    );
-    const dbUser = await userService.getUserById(payloadUser.id);
+    const owner = await userService.createUser(ownerExample);
+    const { id } = await userService.createUser(<CreateUserDto>userExample);
+    const dbUser = await userService.getUserById(id);
 
-    const dbMenu = await menuService.create(<CreateMenuDto>menuExample);
-    const dbQuiz = await quizService.create(<CreateQuizDto>{
+    const restaurant = await restaurantService.createRestaurant(
+      { ...restaurantExample, ownerId: owner.id },
+      undefined,
+      { role: UserRole.OWNER, id: owner.id, email: '', icon: '', username: '' },
+    );
+
+    const dbQuiz = await quizService.create({
       ...quizExample,
-      menuId: dbMenu.id,
-      id: undefined,
+      restaurantId: restaurant.id,
     });
     const dbQuestion1 = await questionService.create(<CreateQuestionDto>{
       ...question1Example,
@@ -147,8 +155,8 @@ describe('QuizResultService', () => {
 
     expect(result.quiz).toBeDefined();
     expect(result.user).toBeDefined();
-    expect(result.raitingDate).toBeDefined();
-    expect({ ...result, quiz: undefined, raitingDate: undefined }).toEqual({
+    expect(result.ratingDate).toBeDefined();
+    expect({ ...result, quiz: undefined, ratingDate: undefined }).toEqual({
       score: correctAnswers,
       id: result.id,
       quiz: undefined,
@@ -156,7 +164,7 @@ describe('QuizResultService', () => {
     });
     quizResultResource = {
       ...result,
-      quiz: { ...result.quiz, menu: undefined, questions: undefined },
+      quiz: { ...result.quiz, questions: undefined },
     };
     userResource = dbUser;
   });
@@ -165,7 +173,7 @@ describe('QuizResultService', () => {
     const result = await quizResultService.findOne(quizResultResource.id, {
       id: userResource.id,
       email: userResource.email,
-      role: 'waiter',
+      role: UserRole.WAITER,
       username: userResource.username,
       icon: null,
     });
@@ -175,6 +183,7 @@ describe('QuizResultService', () => {
       user: { ...result.user, password: undefined },
     }).toEqual({
       ...quizResultResource,
+      quiz: { ...quizResultResource.quiz, restaurants: undefined },
       quizId: undefined,
     });
   });
@@ -193,7 +202,3 @@ describe('QuizResultService', () => {
     });
   });
 });
-
-async function parseJwt(token): Promise<PayloadType> {
-  return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-}

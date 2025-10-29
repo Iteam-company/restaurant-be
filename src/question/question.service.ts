@@ -1,18 +1,13 @@
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { Question } from 'src/types/entity/question.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { QuizService } from 'src/quiz/quiz.service';
+import { Quiz } from 'src/types/entity/quiz.entity';
 import { questionsSeed, quizSeed } from 'src/types/seeds';
 import PayloadType from 'src/types/PayloadType';
-import { ConfigService } from '@nestjs/config';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class QuestionService {
@@ -20,16 +15,15 @@ export class QuestionService {
     @InjectRepository(Question)
     private questionRepository: Repository<Question>,
 
-    @Inject(forwardRef(() => QuizService))
-    private readonly quizService: QuizService,
-
-    private readonly configService: ConfigService,
+    @InjectRepository(Quiz)
+    private readonly quizRepository: Repository<Quiz>,
   ) {}
 
   async create(createQuestionDto: CreateQuestionDto) {
+    const quiz = await this.findQuizById(createQuestionDto.quizId);
     return await this.questionRepository.save({
       ...createQuestionDto,
-      quiz: await this.quizService.findOneById(createQuestionDto.quizId),
+      quiz: quiz,
     });
   }
 
@@ -74,6 +68,7 @@ export class QuestionService {
     return await this.findOne(id);
   }
 
+  @OnEvent('question.remove')
   async remove(id: number) {
     const dbQuestion = await this.findOne(id);
     if (!dbQuestion)
@@ -83,6 +78,23 @@ export class QuestionService {
     await this.questionRepository.save(dbQuestion);
 
     return await this.questionRepository.remove(dbQuestion);
+  }
+
+  private async findQuizById(id: number) {
+    const quiz = await this.quizRepository.findOne({
+      where: { id },
+    });
+    if (!quiz) throw new NotFoundException('Quiz with this id is not exist');
+    return quiz;
+  }
+
+  private async findAllQuiz(user: PayloadType) {
+    if (user.role === 'waiter')
+      return await this.quizRepository.find({
+        where: { status: 'in-progress' },
+        relations: ['restaurants'],
+      });
+    return await this.quizRepository.find();
   }
 
   async seed() {
@@ -95,7 +107,7 @@ export class QuestionService {
           if (quiz.title !== question.quizTitle) continue;
 
           const dbQuiz = await (
-            await this.quizService.findAll(<PayloadType>{ role: 'admin' })
+            await this.findAllQuiz(<PayloadType>{ role: 'admin' })
           ).find((elem) => elem.title === quiz.title);
 
           await this.questionRepository.save({ ...question, quiz: dbQuiz });
