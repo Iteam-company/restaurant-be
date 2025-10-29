@@ -1,25 +1,30 @@
-import * as dotenv from 'dotenv';
 import { TestDataSource } from '../src/test-data-source';
 
-dotenv.config();
+export default async function globalTeardown() {
+  const dataSource = TestDataSource.isInitialized
+    ? TestDataSource
+    : await TestDataSource.initialize();
 
-const AppDataSource = TestDataSource;
-
-export default async function cleanDatabase() {
   try {
-    await AppDataSource.initialize();
+    const entities = dataSource.entityMetadatas;
+    const tableNames = entities.map((e) => `"${e.tableName}"`).join(', ');
 
-    const entities = AppDataSource.entityMetadatas;
-
-    for (const entity of entities) {
-      const repository = AppDataSource.getRepository(entity.name);
-      await repository.delete({});
+    if (tableNames.length === 0) {
+      console.warn('⚠️ No entities found to clean.');
+      return;
     }
 
-    console.log('All tables cleared successfully.');
+    await dataSource.query(
+      `TRUNCATE TABLE ${tableNames} RESTART IDENTITY CASCADE;`,
+    );
+    console.log('✅ Database cleaned successfully (CASCADE)');
   } catch (error) {
-    console.error('Error while cleaning the database:', error);
+    console.error('❌ Error while cleaning the database:', error);
+    throw error;
   } finally {
-    await AppDataSource.destroy();
+    if (dataSource.isInitialized) {
+      await dataSource.destroy();
+      console.log('🧹 Database connection closed.');
+    }
   }
 }

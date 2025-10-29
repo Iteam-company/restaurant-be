@@ -22,7 +22,6 @@ import { TestDataSource } from 'src/test-data-source';
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
 import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
-import Restaurant from 'src/types/entity/restaurant.entity';
 
 describe('QuizResultService', () => {
   let quizResultService: QuizResultsService;
@@ -83,7 +82,6 @@ describe('QuizResultService', () => {
 
   let quizResultResource: QuizResult;
   let userResource: User;
-  let restaurantResource: Restaurant;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -116,6 +114,8 @@ describe('QuizResultService', () => {
     expect(quizResultService).toBeDefined();
     expect(quizService).toBeDefined();
     expect(userService).toBeDefined();
+    expect(restaurantService).toBeDefined();
+    expect(questionService).toBeDefined();
   });
 
   it('should create and save a new user', async () => {
@@ -167,7 +167,6 @@ describe('QuizResultService', () => {
       quiz: { ...result.quiz, questions: undefined },
     };
     userResource = dbUser;
-    restaurantResource = restaurant;
   });
 
   it('should return quiz result', async () => {
