@@ -13,7 +13,6 @@ export const AppDataSource = new DataSource({
   ssl:
     process.env.MODE === 'PRODUCTION' ? { rejectUnauthorized: false } : false,
   entities: [User, Restaurant, Quiz, Question, QuizResult, QuizSummary],
-  migrations:
-    process.env.MODE === 'PRODUCTION' ? ['dist/migrations/*.js'] : undefined,
+  migrations: [__dirname + '/migrations/*{.ts,.js}'],
   synchronize: false,
 });
