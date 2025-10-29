@@ -70,7 +70,7 @@ describe('QuestionService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
-          envFilePath: '.env',
+          envFilePath: '.env.test',
           isGlobal: true,
         }),
         TypeOrmModule.forRoot(TestDataSource.options as any),

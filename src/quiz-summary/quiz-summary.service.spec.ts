@@ -67,7 +67,7 @@ describe('QuizSummaryService', () => {
       providers: [QuizSummaryService],
       imports: [
         ConfigModule.forRoot({
-          envFilePath: '.env',
+          envFilePath: '.env.test',
           isGlobal: true,
         }),
         TypeOrmModule.forRoot(TestDataSource.options),

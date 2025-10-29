@@ -10,15 +10,25 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Load .env.test
+        run: |
+          echo "POSTGRES_USER=$(grep TEST_DB_USER .env.test | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "POSTGRES_PASSWORD=$(grep TEST_DB_PASSWORD .env.test | cut -d '=' -f2)" >> $GITHUB_ENV
+          echo "POSTGRES_DB=$(grep TEST_DB_DB .env.test | cut -d '=' -f2)" >> $GITHUB_ENV
+
     services:
       postgres:
         image: postgres:15
         ports:
           - 5433:5432
         env:
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: nestjs_test_db
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
         options: >-
           --health-cmd="pg_isready -U test_user -d nestjs_test_db"
           --health-interval=5s

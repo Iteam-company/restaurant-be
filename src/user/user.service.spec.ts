@@ -55,7 +55,7 @@ John,Morgan,waiter2,waiter,waiter20@mail.com,+380000000012,qwertyuiop`;
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
-          envFilePath: '.env',
+          envFilePath: '.env.test',
           isGlobal: true,
         }),
         TypeOrmModule.forRoot(TestDataSource.options),
