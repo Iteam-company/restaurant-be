@@ -23,7 +23,7 @@ describe('AuthService', () => {
       imports: [
         SharedJwtAuthModule,
         ConfigModule.forRoot({
-          envFilePath: '.env.test',
+          envFilePath: '.env',
           isGlobal: true,
         }),
       ],

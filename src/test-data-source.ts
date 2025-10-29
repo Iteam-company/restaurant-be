@@ -7,9 +7,8 @@ import User from './types/entity/user.entity';
 import { DataSource } from 'typeorm';
 
 import * as dotenv from 'dotenv';
-import { join } from 'path';
 
-dotenv.config({ path: join(__dirname, '..', '.env.test') });
+dotenv.config();
 
 export const TestDataSource = new DataSource({
   type: 'postgres',

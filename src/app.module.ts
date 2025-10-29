@@ -31,7 +31,7 @@ import { EventsModule } from './events/events.module';
     SharedJwtAuthModule,
     EventsModule,
     ConfigModule.forRoot({
-      envFilePath: '.env.test',
+      envFilePath: '.env',
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({

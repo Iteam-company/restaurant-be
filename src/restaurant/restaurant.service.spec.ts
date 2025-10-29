@@ -54,7 +54,7 @@ describe('RestaurantService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
-          envFilePath: '.env.test',
+          envFilePath: '.env',
           isGlobal: true,
         }),
         TypeOrmModule.forRoot(TestDataSource.options),
