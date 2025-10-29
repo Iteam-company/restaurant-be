@@ -1,0 +1,10 @@
+# Ignore dependencies
+node_modules
+
+# Ignore build output
+dist
+build
+coverage
+
+# Ignore TypeORM migrations
+src/migrations/*
