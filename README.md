@@ -188,7 +188,7 @@ erDiagram
     QuizResult {
         int id PK
         string score
-        date raitingDate
+        date ratingDate
     }
 
     QuizSummary {
