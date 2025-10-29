@@ -23,7 +23,6 @@ import { paginate } from 'nestjs-paginate';
 import * as CSV from 'csv-string';
 import { stringify } from 'csv-stringify';
 import { usersSeed } from 'src/types/seeds';
-import { ConfigService } from '@nestjs/config';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
 
 @Injectable()
@@ -34,8 +33,6 @@ export class UserService {
 
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
-
-    private readonly configService: ConfigService,
 
     private readonly restaurantService: RestaurantService,
   ) {}

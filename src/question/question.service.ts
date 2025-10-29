@@ -12,7 +12,6 @@ import { Repository } from 'typeorm';
 import { QuizService } from 'src/quiz/quiz.service';
 import { questionsSeed, quizSeed } from 'src/types/seeds';
 import PayloadType from 'src/types/PayloadType';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class QuestionService {
@@ -22,8 +21,6 @@ export class QuestionService {
 
     @Inject(forwardRef(() => QuizService))
     private readonly quizService: QuizService,
-
-    private readonly configService: ConfigService,
   ) {}
 
   async create(createQuestionDto: CreateQuestionDto) {

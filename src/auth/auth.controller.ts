@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  forwardRef,
   Get,
+  Inject,
   Post,
   Request,
   UseGuards,
@@ -18,6 +20,8 @@ import RequestType from 'src/types/RequestType';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
   ) {}
 

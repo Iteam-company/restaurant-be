@@ -13,7 +13,7 @@ import { RestaurantModule } from 'src/restaurant/restaurant.module';
     TypeOrmModule.forFeature([User]),
     forwardRef(() => AuthModule),
     ConfigModule,
-    RestaurantModule,
+    forwardRef(() => RestaurantModule),
   ],
   exports: [UserService],
   controllers: [UserController],
