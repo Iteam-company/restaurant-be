@@ -22,10 +22,11 @@ export class AppService implements OnModuleInit {
   async onModuleInit() {
     const logger = new Logger('MigrationsRunner');
     // run migrations
-    logger.log('Run Migrations');
+    logger.log('AppDataSource Initialize');
     await AppDataSource.initialize();
+    logger.log('Run Migrations');
     await AppDataSource.runMigrations();
-    logger.log('Migrations Done');
+    logger.log('Ended Migrations');
 
     if (this.configService.get('MODE') !== 'PRODUCTION') {
       // seed data
