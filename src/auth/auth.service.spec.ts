@@ -4,6 +4,7 @@ import PayloadType from 'src/types/PayloadType';
 import { AuthGuard } from './auth.guard';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { UserRole } from 'src/types/entity/user.entity';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -12,7 +13,7 @@ describe('AuthService', () => {
   const payloadExample: PayloadType = {
     id: 1,
     username: 'JMTheBest',
-    role: 'waiter',
+    role: UserRole.WAITER,
     email: 'JM@mail.com',
     icon: null,
   };

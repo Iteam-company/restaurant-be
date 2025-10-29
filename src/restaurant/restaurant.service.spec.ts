@@ -95,7 +95,7 @@ describe('RestaurantService', () => {
       },
       undefined,
       {
-        role: 'admin',
+        role: UserRole.ADMIN,
         id: userPayload.id,
         username: '',
         email: '',

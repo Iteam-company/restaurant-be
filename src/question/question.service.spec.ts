@@ -100,7 +100,7 @@ describe('QuestionService', () => {
     const restaurant = await restaurantService.createRestaurant(
       { ...restaurantExample, ownerId: owner.id },
       undefined,
-      { role: 'owner', id: 1, email: '', icon: '', username: '' },
+      { role: UserRole.OWNER, id: 1, email: '', icon: '', username: '' },
     );
 
     const { id } = await quizService.create(<CreateQuizDto>{
