@@ -1,20 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import Restaurant from 'src/types/entity/restaurant.entity';
 import { RestaurantService } from './restaurant.service';
 import CreateRestaurantDto from './dto/create-restaurant.dto';
-import User from 'src/types/entity/user.entity';
+import User, { UserRole } from 'src/types/entity/user.entity';
 import { UserModule } from 'src/user/user.module';
 import { SharedJwtAuthModule } from 'src/shared-jwt-auth/shared-jwt-auth.module';
 import { UserService } from 'src/user/user.service';
 import PayloadType from 'src/types/PayloadType';
-import { forwardRef } from '@nestjs/common';
 import CreateUserDto from 'src/user/dto/create-user.dto';
-import { getTestDataSource } from 'test/testDataSource';
-import Menu from 'src/types/entity/menu.entity';
-import { MenuService } from 'src/menu/menu.service';
+import { TestDataSource } from 'src/test-data-source';
+import { QuizModule } from 'src/quiz/quiz.module';
+import { EventsModule } from 'src/events/events.module';
 
 describe('RestaurantService', () => {
   let restaurantService: RestaurantService;
@@ -34,7 +33,7 @@ describe('RestaurantService', () => {
     username: 'JH',
     email: 'JHBest@mail.com',
     phoneNumber: '+380970000000',
-    role: 'waiter',
+    role: UserRole.WAITER,
     password: 'qwertyuiop',
   };
 
@@ -44,7 +43,7 @@ describe('RestaurantService', () => {
     username: 'fgh',
     email: 'asd@mail.com',
     phoneNumber: '+380970000007',
-    role: 'owner',
+    role: UserRole.OWNER,
     password: 'qwertyuiop',
   };
 
@@ -58,17 +57,14 @@ describe('RestaurantService', () => {
           envFilePath: '.env',
           isGlobal: true,
         }),
-        TypeOrmModule.forRootAsync({
-          imports: [ConfigModule],
-          inject: [ConfigService],
-          useFactory: (configService: ConfigService) =>
-            getTestDataSource(configService),
-        }),
-        TypeOrmModule.forFeature([Restaurant, User, Menu]),
-        forwardRef(() => UserModule),
+        TypeOrmModule.forRoot(TestDataSource.options),
+        TypeOrmModule.forFeature([Restaurant]),
+        UserModule,
         SharedJwtAuthModule,
+        QuizModule,
+        EventsModule,
       ],
-      providers: [RestaurantService, MenuService],
+      providers: [RestaurantService],
     }).compile();
 
     restaurantService = module.get<RestaurantService>(RestaurantService);
@@ -87,7 +83,7 @@ describe('RestaurantService', () => {
       (
         await userService.createUser({
           ...ownerExample,
-          role: 'owner',
+          role: UserRole.OWNER,
         })
       ).access_token,
     );
@@ -109,7 +105,7 @@ describe('RestaurantService', () => {
 
     expect({
       ...result,
-      admin: undefined,
+      admins: undefined,
     }).toEqual({
       ...restaurantExample,
       id: result.id,
@@ -126,7 +122,7 @@ describe('RestaurantService', () => {
       (
         await userService.createUser({
           ...userExample,
-          role: 'waiter',
+          role: UserRole.WAITER,
         })
       ).access_token,
     );
@@ -164,7 +160,8 @@ describe('RestaurantService', () => {
       workers: dbRestaurant.workers.map((elem) => {
         return { ...elem, password: undefined };
       }),
-      menu: undefined,
+      admins: undefined,
+      quizzes: undefined,
     }).toEqual({ ...dbRestaurantWithWorker, id: undefined });
   });
 });
