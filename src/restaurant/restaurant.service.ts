@@ -19,6 +19,7 @@ import { restaurantsSeed } from 'src/types/seeds';
 import PayloadType from 'src/types/PayloadType';
 import { QuizService } from 'src/quiz/quiz.service';
 import { Quiz } from 'src/types/entity/quiz.entity';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class RestaurantService {
@@ -28,8 +29,26 @@ export class RestaurantService {
 
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    @Inject(forwardRef(() => QuizService))
     private readonly quizService: QuizService,
   ) {}
+
+  @OnEvent('user.role.change')
+  async handleUserRoleChange(payload: {
+    userId: number;
+    restaurantId: number;
+    newRole: string;
+  }) {
+    const { userId, restaurantId, newRole } = payload;
+
+    if (newRole === 'admin') {
+      await this.removeWorker(userId, restaurantId);
+      await this.addAdmin(userId, restaurantId);
+    } else if (newRole === 'waiter') {
+      await this.removeAdmin(userId, restaurantId);
+      await this.addWorker(userId, restaurantId);
+    }
+  }
 
   async getRestaurant(id: number) {
     const dbRestaurant = await this.restaurantRepository.findOne({

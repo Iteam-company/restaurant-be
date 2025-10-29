@@ -16,6 +16,7 @@ import { OpenaiModule } from './openai/openai.module';
 import { QuestionModule } from './question/question.module';
 import { HealthModule } from './health/health.module';
 import { AppDataSource } from './data-source';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AppDataSource } from './data-source';
     QuizSummaryModule,
     QuizResultsModule,
     SharedJwtAuthModule,
+    EventsModule,
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,

@@ -23,7 +23,7 @@ import { paginate } from 'nestjs-paginate';
 import * as CSV from 'csv-string';
 import { stringify } from 'csv-stringify';
 import { usersSeed } from 'src/types/seeds';
-import { RestaurantService } from 'src/restaurant/restaurant.service';
+import { UserRestaurantEvents } from 'src/events/user-restaurant.events';
 
 @Injectable()
 export class UserService {
@@ -34,7 +34,7 @@ export class UserService {
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
 
-    private readonly restaurantService: RestaurantService,
+    private readonly userRestaurantEvents: UserRestaurantEvents,
   ) {}
 
   async uploadUsers(csv: string) {
@@ -294,42 +294,24 @@ export class UserService {
     switch (role) {
       case 'admin':
         try {
-          const dbRestaurant = await Promise.all(
-            user.workerRestaurants.map(
-              async (restaurant) =>
-                await this.restaurantService.removeWorker(
-                  user.id,
-                  restaurant.id,
-                ),
-            ),
-          );
-
-          await Promise.all(
-            dbRestaurant.map(
-              async (restaurant) =>
-                await this.restaurantService.addAdmin(user.id, restaurant.id),
-            ),
-          );
+          for (const restaurant of user.workerRestaurants) {
+            await this.userRestaurantEvents.emitUserRoleChange(
+              user.id,
+              restaurant.id,
+              role,
+            );
+          }
         } catch {}
         break;
       case 'waiter':
         try {
-          const dbRestaurant = await Promise.all(
-            user.workerRestaurants.map(
-              async (restaurant) =>
-                await this.restaurantService.removeAdmin(
-                  user.id,
-                  restaurant.id,
-                ),
-            ),
-          );
-
-          await Promise.all(
-            dbRestaurant.map(
-              async (restaurant) =>
-                await this.restaurantService.addWorker(user.id, restaurant.id),
-            ),
-          );
+          for (const restaurant of user.workerRestaurants) {
+            await this.userRestaurantEvents.emitUserRoleChange(
+              user.id,
+              restaurant.id,
+              role,
+            );
+          }
         } catch {}
         break;
       case 'owner':
