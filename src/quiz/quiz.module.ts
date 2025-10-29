@@ -4,14 +4,13 @@ import { QuizController } from './quiz.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Quiz } from 'src/types/entity/quiz.entity';
 import { QuestionModule } from 'src/question/question.module';
-import { RestaurantModule } from 'src/restaurant/restaurant.module';
 import { OpenaiModule } from 'src/openai/openai.module';
+import Restaurant from 'src/types/entity/restaurant.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Quiz]),
+    TypeOrmModule.forFeature([Quiz, Restaurant]),
     forwardRef(() => QuestionModule),
-    forwardRef(() => RestaurantModule),
     OpenaiModule,
   ],
   exports: [QuizService],

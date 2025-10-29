@@ -150,7 +150,7 @@ export class RestaurantService {
     restaurant: CreateRestaurantDto,
     url: string,
     user: PayloadType,
-  ) {
+  ): Promise<Restaurant> {
     const dbUser = await this.userService.getUserById(restaurant.ownerId);
 
     if (dbUser.role !== 'owner')

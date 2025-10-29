@@ -14,7 +14,7 @@ import PayloadType from 'src/types/PayloadType';
 import { quizSeed } from 'src/types/seeds';
 import { paginate } from 'nestjs-paginate';
 import SearchQuizQueryDto from './dto/search-quiz-param.dt';
-import { RestaurantService } from 'src/restaurant/restaurant.service';
+import Restaurant from 'src/types/entity/restaurant.entity';
 
 @Injectable()
 export class QuizService {
@@ -22,11 +22,11 @@ export class QuizService {
     @InjectRepository(Quiz)
     private quizRepository: Repository<Quiz>,
 
+    @InjectRepository(Restaurant)
+    private restaurantRepository: Repository<Restaurant>,
+
     @Inject(forwardRef(() => QuestionService))
     private readonly questionService: QuestionService,
-
-    @Inject(forwardRef(() => RestaurantService))
-    private readonly restaurantService: RestaurantService,
   ) {}
 
   async create(createQuizDto: CreateQuizDto): Promise<Quiz> {
@@ -107,14 +107,22 @@ export class QuizService {
 
   async connectQuizToRestaurant(quizId: number, restaurantId: number) {
     const quizDb = await this.findOneById(quizId);
-    const restaurantDb =
-      await this.restaurantService.getRestaurant(restaurantId);
+    const restaurantDb = await this.findRestaurantById(restaurantId);
 
     if (!quizDb.restaurants.find((r) => r.id === restaurantDb.id)) {
       quizDb.restaurants.push(restaurantDb);
     }
 
     return this.quizRepository.save(quizDb);
+  }
+
+  private async findRestaurantById(id: number) {
+    const restaurantDb = await this.restaurantRepository.findOne({
+      where: { id },
+    });
+    if (!restaurantDb)
+      throw new NotFoundException('Restaurant with this id is not exist');
+    return restaurantDb;
   }
 
   async seed() {
