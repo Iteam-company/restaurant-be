@@ -57,6 +57,7 @@ describe('IconInterceptor', () => {
 
   it('should be defined', async () => {
     expect(iconInterceptor).toBeDefined();
+    expect(context).toBeDefined();
   });
 
   it('should upload file and return url', async () => {

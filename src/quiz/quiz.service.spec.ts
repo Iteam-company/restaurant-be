@@ -81,6 +81,8 @@ describe('QuizService', () => {
   });
 
   it('should be defined', async () => {
+    expect(userService).toBeDefined();
+    expect(restaurantService).toBeDefined();
     expect(quizService).toBeDefined();
     expect(quizRepository).toBeDefined();
   });
