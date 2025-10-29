@@ -8,3 +8,6 @@ coverage
 
 # Ignore TypeORM migrations
 src/migrations/*
+
+# Issues ignore
+.prettierrc
