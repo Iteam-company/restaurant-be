@@ -28,7 +28,7 @@ describe('OpenaiService', () => {
 
     file = {
       fieldname: 'file',
-      originalname: 'word-test.pdf',
+      originalname: 'word-test.docx',
       encoding: '7bit',
       mimetype:
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -44,29 +44,20 @@ describe('OpenaiService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should generate questions with const count', async () => {
+  it('should return generated quiz and question', async () => {
     const questionsCount = 2;
-    const result = await service.generateQuestion(
-      [file],
-      undefined,
-      undefined,
-      questionsCount,
-    );
+    const [quiz, question] = await Promise.all([
+      service.generateQuiz([file], undefined, questionsCount),
+      service.generateQuestion([file], undefined, undefined, questionsCount),
+    ]);
 
-    expect(result).toBeDefined();
-    expect(result.length).toEqual(questionsCount);
-  });
+    // question test
+    expect(question).toBeDefined();
+    expect(question.length).toEqual(questionsCount);
 
-  it('should generate quiz with const count of question', async () => {
-    const questionsCount = 2;
-    const result = await service.generateQuiz(
-      [file],
-      undefined,
-      questionsCount,
-    );
-
-    expect(result).toBeDefined();
-    expect(result.status).toBe('not-started');
-    expect(result.questions.length).toEqual(questionsCount);
+    // quiz test
+    expect(quiz).toBeDefined();
+    expect(quiz.status).toBe('not-started');
+    expect(quiz.questions.length).toEqual(questionsCount);
   });
 });
