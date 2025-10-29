@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { Quiz } from 'src/types/entity/quiz.entity';
 import { questionsSeed, quizSeed } from 'src/types/seeds';
 import PayloadType from 'src/types/PayloadType';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class QuestionService {
@@ -67,6 +68,7 @@ export class QuestionService {
     return await this.findOne(id);
   }
 
+  @OnEvent('question.remove')
   async remove(id: number) {
     const dbQuestion = await this.findOne(id);
     if (!dbQuestion)

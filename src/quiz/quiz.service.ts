@@ -1,20 +1,15 @@
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Quiz } from 'src/types/entity/quiz.entity';
 import { FindOneOptions, Repository } from 'typeorm';
-import { QuestionService } from 'src/question/question.service';
 import PayloadType from 'src/types/PayloadType';
 import { quizSeed } from 'src/types/seeds';
 import { paginate } from 'nestjs-paginate';
 import SearchQuizQueryDto from './dto/search-quiz-param.dt';
 import Restaurant from 'src/types/entity/restaurant.entity';
+import { QuizQuestionEvents } from 'src/events/quiz-question.events';
 
 @Injectable()
 export class QuizService {
@@ -25,8 +20,7 @@ export class QuizService {
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
 
-    @Inject(forwardRef(() => QuestionService))
-    private readonly questionService: QuestionService,
+    private readonly quizQuestionEvent: QuizQuestionEvents,
   ) {}
 
   async create(createQuizDto: CreateQuizDto): Promise<Quiz> {
@@ -99,7 +93,7 @@ export class QuizService {
     const dbQuiz = await this.findOneById(id);
 
     for await (const question of dbQuiz.questions) {
-      await this.questionService.remove(question.id);
+      await this.quizQuestionEvent.removeQuestion(question.id);
     }
 
     return await this.quizRepository.remove(dbQuiz);
