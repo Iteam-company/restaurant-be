@@ -20,7 +20,7 @@ export class AppService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    const logger = new Logger('Migrations');
+    const logger = new Logger('MigrationsRunner');
     // run migrations
     logger.log('Run Migrations');
     await AppDataSource.initialize();
