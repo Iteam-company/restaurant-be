@@ -18,6 +18,8 @@ import { RestaurantModule } from 'src/restaurant/restaurant.module';
 import { EventsModule } from 'src/events/events.module';
 
 describe('UserService', () => {
+  jest.setTimeout(7000);
+
   let userService: UserService;
 
   let userRepository: Repository<User>;

@@ -4,7 +4,11 @@ import { ConfigModule } from '@nestjs/config';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 
-describe('OpenaiService', () => {
+import 'dotenv/config';
+
+const OPENAI_KEY = process.env.OPENAI_API_KEY;
+
+(OPENAI_KEY ? describe : describe.skip)('OpenaiService', () => {
   jest.setTimeout(30000);
 
   let service: OpenaiService;

@@ -10,7 +10,7 @@ import {
   NoObjectGeneratedError,
   TextPart,
 } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
+import { createOpenAI, OpenAIProvider } from '@ai-sdk/openai';
 import { QuestionSchema, QuizSchema } from './utils';
 import { Question } from 'src/types/entity/question.entity';
 import { ConfigService } from '@nestjs/config';
@@ -20,18 +20,25 @@ import * as mammoth from 'mammoth';
 @Injectable()
 export class OpenaiService {
   constructor(private readonly configService: ConfigService) {
-    this.openai = createOpenAI({
-      apiKey: configService.getOrThrow('OPENAI_API_KEY'),
-    });
-  }
+    const key = configService.get('OPENAI_API_KEY');
+    this.isReady = !!key;
 
-  private openai;
+    if (this.isReady) {
+      this.openai = createOpenAI({
+        apiKey: key,
+      });
+    }
+  }
+  private isReady: boolean;
+  private openai: OpenAIProvider;
 
   async generateQuiz(
     filesBlob: Array<Express.Multer.File>,
     prompt?: string,
     count?: number,
   ): Promise<Quiz> {
+    if (!this.isReady) return new Quiz();
+
     try {
       const result = await generateObject({
         model: this.openai('gpt-5-mini'),
@@ -79,6 +86,8 @@ export class OpenaiService {
     previousQuestions?: Array<Question>,
     count?: number,
   ) {
+    if (!this.isReady) return [new Question()];
+
     try {
       const result = await generateObject({
         model: this.openai('gpt-5-mini'),
