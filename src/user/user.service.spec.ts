@@ -15,6 +15,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { BadRequestException } from '@nestjs/common';
 import { TestDataSource } from 'src/test-data-source';
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
+import { EventsModule } from 'src/events/events.module';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -60,6 +61,7 @@ John,Morgan,waiter2,waiter,waiter20@mail.com,+380000000012,qwertyuiop`;
         AuthModule,
         SharedJwtAuthModule,
         RestaurantModule,
+        EventsModule,
       ],
       providers: [UserService],
     }).compile();
