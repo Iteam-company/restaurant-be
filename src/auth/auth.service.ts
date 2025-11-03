@@ -27,7 +27,7 @@ export class AuthService {
 
     await this.refreshTokensRepository.save({
       token: refreshToken,
-      user: { id: payload.id },
+      userId: payload.id,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
