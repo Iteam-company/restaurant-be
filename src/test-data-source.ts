@@ -7,12 +7,21 @@ import User from './types/entity/user.entity';
 import { DataSource } from 'typeorm';
 
 import * as dotenv from 'dotenv';
+import { RefreshTokens } from './types/entity/refresh-tokens';
 
 dotenv.config();
 
 export const TestDataSource = new DataSource({
   type: 'postgres',
   url: process.env.TEST_DB_CONNECT,
-  entities: [User, Restaurant, Quiz, Question, QuizResult, QuizSummary],
+  entities: [
+    User,
+    Restaurant,
+    Quiz,
+    Question,
+    QuizResult,
+    QuizSummary,
+    RefreshTokens,
+  ],
   synchronize: true,
 });

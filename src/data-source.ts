@@ -6,13 +6,22 @@ import { Question } from './types/entity/question.entity';
 import { QuizResult } from './types/entity/quiz-result.entity';
 import { QuizSummary } from './types/entity/quiz-summary.entity';
 import 'dotenv/config';
+import { RefreshTokens } from './types/entity/refresh-tokens';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.DB_CONNECT,
   ssl:
     process.env.MODE === 'PRODUCTION' ? { rejectUnauthorized: false } : false,
-  entities: [User, Restaurant, Quiz, Question, QuizResult, QuizSummary],
+  entities: [
+    User,
+    Restaurant,
+    Quiz,
+    Question,
+    QuizResult,
+    QuizSummary,
+    RefreshTokens,
+  ],
   migrations: [__dirname + '/migrations/*{.ts,.js}'],
   synchronize: false,
 });

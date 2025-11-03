@@ -17,6 +17,7 @@ import { QuestionModule } from './question/question.module';
 import { HealthModule } from './health/health.module';
 import { AppDataSource } from './data-source';
 import { EventsModule } from './events/events.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { EventsModule } from './events/events.module';
     }),
     OpenaiModule,
     HealthModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -21,6 +21,7 @@ export class AuthGuard implements CanActivate {
     private readonly reflector: Reflector,
     private readonly jwtService: JwtService,
     private readonly moduleRef: ModuleRef,
+    private readonly configService: ConfigService,
   ) {
     this.jwtService = jwtService;
   }
@@ -90,7 +91,7 @@ export class AuthGuard implements CanActivate {
   async validateToken(token: string) {
     try {
       return await this.jwtService.verifyAsync(token, {
-        secret: new ConfigService().get('SECRET_KEY'),
+        secret: this.configService.get('SECRET_KEY'),
       });
     } catch (err) {
       throw new BadRequestException(err);

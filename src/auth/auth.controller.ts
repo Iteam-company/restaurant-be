@@ -15,6 +15,7 @@ import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import CreateLoginDto from 'src/auth/dto/create-login.dto';
 import { AuthGuard } from './auth.guard';
 import RequestType from 'src/types/RequestType';
+import RefreshTokenDto from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -41,6 +42,16 @@ export class AuthController {
   @ApiBody({ type: CreateUserDto })
   async signUp(@Body() body: CreateUserDto) {
     return await this.userService.createUser(body);
+  }
+
+  @Post('refresh')
+  async refreshToken(@Body() { refresh_token }: RefreshTokenDto) {
+    return await this.authService.refresh(refresh_token);
+  }
+
+  @Post('logout')
+  async logout(@Body() { refresh_token }: RefreshTokenDto) {
+    return await this.authService.logout(refresh_token);
   }
 
   @ApiBearerAuth()

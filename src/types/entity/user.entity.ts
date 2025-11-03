@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import Restaurant from './restaurant.entity';
 import { QuizResult } from './quiz-result.entity';
+import { RefreshTokens } from './refresh-tokens';
 
 export enum UserRole {
   OWNER = 'owner',
@@ -54,4 +55,7 @@ export default class User {
 
   @OneToMany(() => QuizResult, (quizResult) => quizResult.user)
   quizzes: QuizResult[];
+
+  @OneToMany(() => RefreshTokens, (refreshToken) => refreshToken.user)
+  refreshTokens: RefreshTokens;
 }
