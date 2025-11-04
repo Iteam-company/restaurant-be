@@ -4,6 +4,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 
+import * as nodeCrypto from 'crypto';
+
+if (!globalThis.crypto) {
+  globalThis.crypto = nodeCrypto.webcrypto as unknown as Crypto;
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
