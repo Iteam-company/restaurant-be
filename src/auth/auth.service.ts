@@ -1,9 +1,16 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshTokens } from 'src/types/entity/refresh-tokens';
 import PayloadType from 'src/types/PayloadType';
+import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -12,6 +19,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectRepository(RefreshTokens)
     private refreshTokensRepository: Repository<RefreshTokens>,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
   ) {}
 
   async login(payload: PayloadType) {
@@ -27,7 +36,7 @@ export class AuthService {
 
     await this.refreshTokensRepository.save({
       token: refreshToken,
-      userId: payload.id,
+      user: await this.userService.getUserById(payload.id),
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 

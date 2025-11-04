@@ -33,7 +33,7 @@ services:
       - .env
     environment:
       DB_CONNECT: ${DB_CONNECT}
-      SECRET_KEY: ${SECRET_KEY}
+      JWT_SECRET: ${JWT_SECRET}
       PORT: ${PORT}
     networks:
       - app_network

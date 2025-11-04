@@ -33,7 +33,7 @@ Copy `.env.example` to `.env` and configure the following variables:
 
 | Variable                | Description                        | Required |
 | ----------------------- | ---------------------------------- | -------- |
-| `SECRET_KEY`            | JWT secret key                     | ✅       |
+| `JWT_SECRET`            | JWT secret key                     | ✅       |
 | `PORT`                  | Application port (default: 3000)   | ✅       |
 | `DB_CONNECT`            | PostgreSQL connection string       | ✅       |
 | `OPENAI_API_KEY`        | OpenAI API key for quiz generation | ✅       |
