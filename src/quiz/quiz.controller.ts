@@ -6,25 +6,26 @@ import {
   Patch,
   Param,
   Delete,
-  BadRequestException,
   UseGuards,
-  Request,
   Query,
   UseInterceptors,
   UploadedFiles,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
-import RequestType from 'src/types/RequestType';
+
 import { OpenaiService } from 'src/openai/openai.service';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import SearchQuizQueryDto from './dto/search-quiz-param.dt';
 import GenerateQuizzesDto from './dto/generate-quizzes.dto';
 import GenerateQuestionsDto from './dto/generate-questions.dto';
+import User from 'src/types/entity/user.entity';
+import { CurrentUser } from 'src/types/decorators/current-user.decorator';
 
 @ApiBearerAuth()
 @Controller('quiz')
@@ -50,25 +51,19 @@ export class QuizController {
 
   @Get('for-restaurant/:id')
   @UseGuards(AuthGuard)
-  async findAllByRestaurant(@Param('id') id: string) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
+  async findAllByRestaurant(@Param('id', ParseIntPipe) id: number) {
     return await this.quizService.getAllByRestaurant(+id);
   }
 
   @Get()
   @UseGuards(AuthGuard)
-  async findAll(@Request() req: RequestType) {
-    return await this.quizService.findAll(req.user);
+  async findAll(@CurrentUser() user: User) {
+    return await this.quizService.findAll(user);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  async findOne(@Param('id') id: string) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.quizService.findOneById(+id);
   }
 
@@ -76,20 +71,17 @@ export class QuizController {
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @ApiBody({ type: UpdateQuizDto })
-  async update(@Param('id') id: string, @Body() updateQuizDto: UpdateQuizDto) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateQuizDto: UpdateQuizDto,
+  ) {
     return await this.quizService.update(+id, updateQuizDto);
   }
 
   @Delete(':id')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
-  async remove(@Param('id') id: string) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
+  async remove(@Param('id', ParseIntPipe) id: number) {
     return await this.quizService.remove(+id);
   }
 

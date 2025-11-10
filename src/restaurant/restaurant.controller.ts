@@ -1,10 +1,10 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -20,6 +20,8 @@ import RequestType from 'src/types/RequestType';
 import UseImageInterceptor from 'src/types/UseImageInterceptor';
 import SearchQueryDto from './dto/search-query.dto';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
+import User from 'src/types/entity/user.entity';
+import { CurrentUser } from 'src/types/decorators/current-user.decorator';
 
 @ApiBearerAuth()
 @Controller('restaurant')
@@ -33,17 +35,18 @@ export class RestaurantController {
   @UseImageInterceptor()
   async createRestaurant(
     @Request() req: RequestType,
+    @CurrentUser() user: User,
     @Body() body: CreateRestaurantDto,
   ) {
     try {
       const restaurant = await this.restaurantService.createRestaurant(
         body,
         req.imageUrl,
-        req.user,
+        user,
       );
 
-      if (req.user.role === 'admin')
-        await this.restaurantService.addAdmin(req.user.id, restaurant.id);
+      if (user.role === 'admin')
+        await this.restaurantService.addAdmin(user.id, restaurant.id);
 
       return restaurant;
     } catch (err) {
@@ -61,21 +64,18 @@ export class RestaurantController {
 
   @Get('parse-owner-admin-waiter/')
   @UseGuards(AuthGuard)
-  async getAllRestaurants(@Request() req: RequestType) {
-    if (req.user.role === 'owner')
-      return await this.restaurantService.getAllOwnerRestaurants(req.user.id);
-    else if (req.user.role === 'admin')
-      return await this.restaurantService.getAllAdminRestaurant(req.user.id);
+  async getAllRestaurants(@CurrentUser() user: User) {
+    if (user.role === 'owner')
+      return await this.restaurantService.getAllOwnerRestaurants(user.id);
+    else if (user.role === 'admin')
+      return await this.restaurantService.getAllAdminRestaurant(user.id);
 
-    return await this.restaurantService.getAllWaiterRestaurant(req.user.id);
+    return await this.restaurantService.getAllWaiterRestaurant(user.id);
   }
 
   @Get(':restaurantId')
   @UseGuards(AuthGuard)
-  async getRestaurant(@Param('restaurantId') id: string) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
+  async getRestaurant(@Param('restaurantId', ParseIntPipe) id: number) {
     return await this.restaurantService.getRestaurant(+id);
   }
 
@@ -85,11 +85,8 @@ export class RestaurantController {
   @ApiBody({ type: CreateUpdateRestaurantDto })
   async updateRestaurant(
     @Body() body: CreateUpdateRestaurantDto,
-    @Param('restaurantId') id: string,
+    @Param('restaurantId', ParseIntPipe) id: number,
   ) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
     return await this.restaurantService.changeRestaurant(+id, body);
   }
 
@@ -99,11 +96,8 @@ export class RestaurantController {
   @UseGuards(AuthGuard)
   async updateRestaurantImage(
     @Request() req: RequestType,
-    @Param('restaurantId') id: string,
+    @Param('restaurantId', ParseIntPipe) id: number,
   ) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
     return await this.restaurantService.updateImage(+id, req.imageUrl);
   }
 
@@ -111,10 +105,7 @@ export class RestaurantController {
   @ApiParam({ name: 'restaurantId' })
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
-  async deleteRestaurant(@Param('restaurantId') id) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
+  async deleteRestaurant(@Param('restaurantId', ParseIntPipe) id: number) {
     return await this.restaurantService.removeRestaurant(+id);
   }
 }

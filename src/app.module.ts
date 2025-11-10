@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
-import { SharedJwtAuthModule } from './shared-jwt-auth/shared-jwt-auth.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { WorkersModule } from './restaurant/workers/workers.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -29,7 +28,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     RestaurantModule,
     QuizSummaryModule,
     QuizResultsModule,
-    SharedJwtAuthModule,
     EventsModule,
     ConfigModule.forRoot({
       envFilePath: '.env',

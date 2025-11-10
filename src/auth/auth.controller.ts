@@ -5,7 +5,6 @@ import {
   Get,
   Inject,
   Post,
-  Request,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -14,8 +13,9 @@ import CreateUserDto from 'src/user/dto/create-user.dto';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import CreateLoginDto from 'src/auth/dto/create-login.dto';
 import { AuthGuard } from './auth.guard';
-import RequestType from 'src/types/RequestType';
 import RefreshTokenDto from './dto/refresh-token.dto';
+import User from 'src/types/entity/user.entity';
+import { CurrentUser } from 'src/types/decorators/current-user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -57,7 +57,7 @@ export class AuthController {
   @ApiBearerAuth()
   @Get('me')
   @UseGuards(AuthGuard)
-  async getMe(@Request() req: RequestType) {
-    return { ...req.user, iat: undefined, exp: undefined };
+  async getMe(@CurrentUser() user: User) {
+    return user;
   }
 }

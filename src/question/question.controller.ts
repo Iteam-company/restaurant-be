@@ -8,7 +8,7 @@ import {
   Delete,
   UseGuards,
   BadRequestException,
-  Request,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { QuestionService } from './question.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -16,7 +16,8 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
-import RequestType from 'src/types/RequestType';
+import User from 'src/types/entity/user.entity';
+import { CurrentUser } from 'src/types/decorators/current-user.decorator';
 
 @ApiBearerAuth()
 @Controller('question')
@@ -53,33 +54,27 @@ export class QuestionController {
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  async findOne(@Param('id') id: string, @Request() req: RequestType) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
-    return await this.questionService.findOne(+id, req.user);
+  async findOne(
+    @Param('id', ParseIntPipe) id: string,
+    @CurrentUser() user: User,
+  ) {
+    return await this.questionService.findOne(+id, user);
   }
 
   @Patch(':id')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body() updateQuestionDto: UpdateQuestionDto,
   ) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
     return await this.questionService.update(+id, updateQuestionDto);
   }
 
   @Delete(':id')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
-  async remove(@Param('id') id: string) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
+  async remove(@Param('id', ParseIntPipe) id: string) {
     return await this.questionService.remove(+id);
   }
 }
