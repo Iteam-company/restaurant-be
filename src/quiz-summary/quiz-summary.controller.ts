@@ -5,8 +5,8 @@ import {
   Body,
   Param,
   Delete,
-  BadRequestException,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { QuizSummaryService } from './quiz-summary.service';
 import { CreateQuizSummaryDto } from './dto/create-quiz-summary.dto';
@@ -29,28 +29,19 @@ export class QuizSummaryController {
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  async findOne(@Param('id') id: string) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.quizSummaryService.findOne(+id);
   }
   @Get('/by-quiz/:id')
   @UseGuards(AuthGuard)
-  async findOneByQuiz(@Param('id') id: string) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
+  async findOneByQuiz(@Param('id', ParseIntPipe) id: number) {
     return await this.quizSummaryService.findOneByQuizId(+id);
   }
 
   @Delete(':id')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
-  async remove(@Param('id') id: string) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
+  async remove(@Param('id', ParseIntPipe) id: number) {
     return await this.quizSummaryService.remove(+id);
   }
 }

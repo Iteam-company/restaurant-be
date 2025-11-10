@@ -6,7 +6,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Request,
   Query,
 } from '@nestjs/common';
 import { QuizResultsService } from './quiz-results.service';
@@ -14,8 +13,9 @@ import { CreateQuizResultDto } from './dto/create-quiz-result.dto';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
-import RequestType from 'src/types/RequestType';
 import SearchQueryDto from './dto/search-query.dto';
+import User from 'src/types/entity/user.entity';
+import { CurrentUser } from 'src/types/decorators/current-user.decorator';
 
 @ApiBearerAuth()
 @Controller('quiz-results')
@@ -26,34 +26,31 @@ export class QuizResultsController {
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateQuizResultDto })
   async create(
-    @Request() req: RequestType,
+    @CurrentUser() user: User,
     @Body() createQuizResultDto: CreateQuizResultDto,
   ) {
-    return await this.quizResultsService.create(
-      createQuizResultDto,
-      req.user.id,
-    );
+    return await this.quizResultsService.create(createQuizResultDto, user.id);
   }
 
   @Get('/get-by-restaurant/:restaurantId')
   @UseGuards(AuthGuard)
   async findAll(
-    @Request() req: RequestType,
+    @CurrentUser() user: User,
     @Param('restaurantId') restaurantId: number,
   ) {
-    return await this.quizResultsService.findAll(req.user, restaurantId);
+    return await this.quizResultsService.findAll(user, restaurantId);
   }
 
   @Get('search')
   @UseGuards(AuthGuard)
-  async search(@Query() query: SearchQueryDto, @Request() req: RequestType) {
-    return await this.quizResultsService.search(query, req.user);
+  async search(@Query() query: SearchQueryDto, @CurrentUser() user: User) {
+    return await this.quizResultsService.search(query, user);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  async findOne(@Request() req: RequestType, @Param('id') id: string) {
-    return await this.quizResultsService.findOne(+id, req.user);
+  async findOne(@CurrentUser() user: User, @Param('id') id: string) {
+    return await this.quizResultsService.findOne(+id, user);
   }
 
   @Delete(':id')

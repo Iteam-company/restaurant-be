@@ -1,10 +1,10 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -22,6 +22,8 @@ import UseIconInterceptor from 'src/types/UseIconInterceptor';
 import SearchQueryDto from './dto/search-param.dto';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 import UseCsvInterceptor from 'src/types/UseCsvInterceptor';
+import { CurrentUser } from 'src/types/decorators/current-user.decorator';
+import User from 'src/types/entity/user.entity';
 
 @ApiBearerAuth()
 @Controller('user')
@@ -46,18 +48,15 @@ export class UserController {
   @Get()
   @UseGuards(AuthGuard)
   @UseIconInterceptor()
-  async getUser(@Request() req: RequestType) {
-    return await this.userService.getUserById(req.user.id);
+  async getUser(@CurrentUser() user: User) {
+    return await this.userService.getUserById(user.id);
   }
 
   @Get('one/:id')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
   @UseIconInterceptor()
-  async getOne(@Param('id') id: string) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-
+  async getOne(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.getUserById(+id);
   }
 
@@ -78,10 +77,10 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateUpdateUserDto })
   async changeUser(
-    @Request() req: RequestType,
+    @CurrentUser() user: User,
     @Body() body: CreateUpdateUserDto,
   ) {
-    return await this.userService.updateUser(req.user.id, body, req.user);
+    return await this.userService.updateUser(user.id, body, user);
   }
 
   @Patch('/:id/admin')
@@ -89,20 +88,18 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBody({ type: CreateUpdateUserDto })
   async changeAdminUser(
-    @Request() req: RequestType,
+    @CurrentUser() user: User,
     @Body() body: CreateUpdateUserDto,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
   ) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
-    return await this.userService.updateUser(+id, body, req.user);
+    return await this.userService.updateUser(+id, body, user);
   }
 
   @Patch('icon')
   @UseGuards(AuthGuard)
   @UseIconInterceptor()
-  async changeIcon(@Request() req: RequestType) {
-    return await this.userService.updateIcon(req.user.id, req.imageUrl);
+  async changeIcon(@CurrentUser() user: User, @Request() req: RequestType) {
+    return await this.userService.updateIcon(user.id, req.imageUrl);
   }
 
   @Patch('icon/:id/admin')
@@ -110,10 +107,8 @@ export class UserController {
   @UseIconInterceptor()
   async changeIconByAdmin(
     @Request() req: RequestType,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
   ) {
-    if (Number.isNaN(+id))
-      throw new BadRequestException(`Param id: ${id} is not a number`);
     return await this.userService.updateIcon(+id, req.imageUrl);
   }
 
@@ -135,7 +130,7 @@ export class UserController {
 
   @Delete()
   @UseGuards(AuthGuard)
-  async deleteUser(@Request() req: RequestType) {
-    return await this.userService.removeUser(req.user.id);
+  async deleteUser(@CurrentUser() user: User) {
+    return await this.userService.removeUser(user.id);
   }
 }
