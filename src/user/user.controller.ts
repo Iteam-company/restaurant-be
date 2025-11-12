@@ -18,10 +18,10 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import RequestType from 'src/types/RequestType';
 import UpdateUserPasswordDto from 'src/user/dto/update-user-password.dto';
 import UpdateUserRoleDto from 'src/user/dto/update-user-role.dto';
-import UseIconInterceptor from 'src/types/UseIconInterceptor';
+import UseIconInterceptor from 'src/types/interceptors/UseIconInterceptor';
 import SearchQueryDto from './dto/search-param.dto';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
-import UseCsvInterceptor from 'src/types/UseCsvInterceptor';
+import UseCsvInterceptor from 'src/types/interceptors/UseCsvInterceptor';
 import { CurrentUser } from 'src/types/decorators/current-user.decorator';
 import User from 'src/types/entity/user.entity';
 
