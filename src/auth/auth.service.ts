@@ -5,6 +5,7 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,20 +18,24 @@ import { Repository } from 'typeorm';
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
+
     @InjectRepository(RefreshTokens)
     private refreshTokensRepository: Repository<RefreshTokens>,
+
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+
+    private readonly configService: ConfigService,
   ) {}
 
   async login(payload: PayloadType) {
     const accessToken = await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_SECRET,
+      secret: await this.configService.get('JWT_SECRET'),
       expiresIn: '15m',
     });
 
     const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_REFRESH_SECRET,
+      secret: await this.configService.get('JWT_REFRESH_SECRET'),
       expiresIn: '7d',
     });
 

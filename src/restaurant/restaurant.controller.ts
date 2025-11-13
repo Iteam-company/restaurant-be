@@ -17,7 +17,7 @@ import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import CreateUpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto';
 import RequestType from 'src/types/RequestType';
-import UseImageInterceptor from 'src/types/UseImageInterceptor';
+import UseImageInterceptor from 'src/types/interceptors/UseImageInterceptor';
 import SearchQueryDto from './dto/search-query.dto';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 import User from 'src/types/entity/user.entity';
