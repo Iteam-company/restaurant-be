@@ -9,6 +9,7 @@ import {
   UseGuards,
   BadRequestException,
   ParseIntPipe,
+  UseInterceptors,
 } from '@nestjs/common';
 import { QuestionService } from './question.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -18,6 +19,7 @@ import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 import User from 'src/types/entity/user.entity';
 import { CurrentUser } from 'src/types/decorators/current-user.decorator';
+import { DelayInterceptor } from 'src/types/interceptors/delay.interceptor';
 
 @ApiBearerAuth()
 @Controller('question')
@@ -43,6 +45,7 @@ export class QuestionController {
     return questions;
   }
 
+  @UseInterceptors(DelayInterceptor)
   @Get('by-quiz/:quizId')
   @UseGuards(AuthGuard)
   async findByQuizId(@Param('quizId') quizId: string) {
