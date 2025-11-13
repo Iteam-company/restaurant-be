@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
-import CreateUpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto';
 import Restaurant from 'src/types/entity/restaurant.entity';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
@@ -20,6 +19,7 @@ import PayloadType from 'src/types/PayloadType';
 import { QuizService } from 'src/quiz/quiz.service';
 import { Quiz } from 'src/types/entity/quiz.entity';
 import { OnEvent } from '@nestjs/event-emitter';
+import UpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -186,7 +186,7 @@ export class RestaurantService {
     });
   }
 
-  async changeRestaurant(id: number, restaurant: CreateUpdateRestaurantDto) {
+  async changeRestaurant(id: number, restaurant: UpdateRestaurantDto) {
     const dbRestaurant = await this.restaurantRepository.findOneBy({
       id: id,
     });

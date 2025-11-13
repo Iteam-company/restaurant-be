@@ -15,13 +15,13 @@ import { RestaurantService } from './restaurant.service';
 import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import CreateRestaurantDto from 'src/restaurant/dto/create-restaurant.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
-import CreateUpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto';
 import RequestType from 'src/types/RequestType';
 import UseImageInterceptor from 'src/types/interceptors/UseImageInterceptor';
 import SearchQueryDto from './dto/search-query.dto';
 import AdminOwnerAccess from 'src/types/AdminOwnerAccess';
 import User from 'src/types/entity/user.entity';
 import { CurrentUser } from 'src/types/decorators/current-user.decorator';
+import UpdateRestaurantDto from 'src/restaurant/dto/update-restaurant.dto';
 
 @ApiBearerAuth()
 @Controller('restaurant')
@@ -82,9 +82,9 @@ export class RestaurantController {
   @Patch(':restaurantId')
   @AdminOwnerAccess()
   @UseGuards(AuthGuard)
-  @ApiBody({ type: CreateUpdateRestaurantDto })
+  @ApiBody({ type: UpdateRestaurantDto })
   async updateRestaurant(
-    @Body() body: CreateUpdateRestaurantDto,
+    @Body() body: UpdateRestaurantDto,
     @Param('restaurantId', ParseIntPipe) id: number,
   ) {
     return await this.restaurantService.changeRestaurant(+id, body);
